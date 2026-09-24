@@ -116,19 +116,30 @@ namespace
 			return;
 		}
 
-		// This signature references WeaponLevelTbl and has exactly one match on the
-		// target executable recorded in docs/target-build.md.
-		auto pattern = hook::pattern("D9 04 8D ? ? ? ? D9 5D ? 75 ? 8B CE 83 E9");
-		const auto matchCount = pattern.size();
-		if (matchCount != 1)
+		// These signatures have exactly one match on the target executable recorded
+		// in docs/target-build.md. Validate both before mutating either code or data.
+		auto tablePattern = hook::pattern("D9 04 8D ? ? ? ? D9 5D ? 75 ? 8B CE 83 E9");
+		const auto tableMatchCount = tablePattern.size();
+		if (tableMatchCount != 1)
 		{
 			spd::log()->error(
 				"Handgun firepower override disabled: WeaponLevelTbl signature matched {} locations",
-				matchCount);
+				tableMatchCount);
 			return;
 		}
 
-		auto WeaponLevelTbl = *pattern.get(0).get<float(*)[49][7]>(3);
+		auto displayPattern = hook::pattern(
+			"D9 04 8D ? ? ? ? D8 35 ? ? ? ? D9 5D ? D9 45 ? 8B E5 5D C3");
+		const auto displayMatchCount = displayPattern.size();
+		if (displayMatchCount != 1)
+		{
+			spd::log()->error(
+				"Handgun firepower override disabled: Merchant display signature matched {} locations",
+				displayMatchCount);
+			return;
+		}
+
+		auto WeaponLevelTbl = *tablePattern.get(0).get<float(*)[49][7]>(3);
 		const auto handgunWeaponNo = bio4::WeaponId2WeaponNo(ITEM_ID(EItemId::Ruger));
 
 		if (handgunWeaponNo >= kWeaponCount)
@@ -139,10 +150,16 @@ namespace
 
 		std::array<float, kFirepowerLevelCount> levels;
 		levels.fill(*firepower);
+
+		// getPowerRatio normally divides every displayed value by the Handgun's
+		// level-one value. That value is 1.0 in the original table, so removing the
+		// division preserves vanilla displays while allowing the overridden Handgun
+		// row to be shown as its absolute firepower.
+		injector::MakeNOP(displayPattern.get(0).get<uint8_t>(7), 6, true);
 		std::copy(levels.begin(), levels.end(), std::begin((*WeaponLevelTbl)[handgunWeaponNo]));
 
 		spd::log()->info(
-			"Handgun firepower override enabled: item_id={}, weapon_no={}, all levels={}",
+			"Handgun firepower override enabled: item_id={}, weapon_no={}, all levels={}, Merchant display normalized to absolute values",
 			int(EItemId::Ruger), handgunWeaponNo, *firepower);
 	}
 }
