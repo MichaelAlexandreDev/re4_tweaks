@@ -1,5 +1,12 @@
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <optional>
+#include <string>
+#include <nlohmann/json.hpp>
 #include "dllmain.h"
 #include "ConsoleWnd.h"
 #include "Game.h"
@@ -31,6 +38,114 @@ wepXX_routine wep17_r3_ready10 = nullptr;
 wepXX_routine wep02_r3_ready10 = nullptr;
 
 bool wep17_justFired = false;
+
+namespace
+{
+	constexpr char kSupportedBio4Sha256[] = "19aed4af0ab06a748ff8744d45ac5580fcd6be6b6b7e944b1ab8822a00c8ee4a";
+	constexpr size_t kWeaponCount = 49;
+	constexpr size_t kFirepowerLevelCount = 7;
+
+	std::optional<float> LoadHandgunFirepowerOverride()
+	{
+		const auto configPath = std::filesystem::path(rootPath) / L"re4_tweaks" / L"weapons.yaml";
+		if (!std::filesystem::exists(configPath))
+		{
+			spd::log()->info("Weapon overrides disabled: {} was not found", configPath.string());
+			return std::nullopt;
+		}
+
+		try
+		{
+			std::ifstream configFile(configPath);
+			if (!configFile)
+			{
+				spd::log()->error("Weapon overrides disabled: unable to open {}", configPath.string());
+				return std::nullopt;
+			}
+
+			nlohmann::json config;
+			configFile >> config;
+
+			if (config.value("schema_version", 0) != 1)
+			{
+				spd::log()->error("Weapon overrides disabled: unsupported schema_version");
+				return std::nullopt;
+			}
+
+			if (config.value("target_sha256", std::string()) != kSupportedBio4Sha256)
+			{
+				spd::log()->error("Weapon overrides disabled: target_sha256 does not match this build");
+				return std::nullopt;
+			}
+
+			const auto& handgun = config.at("weapons").at("handgun");
+			if (!handgun.value("enabled", false))
+				return std::nullopt;
+
+			if (handgun.value("item_id", -1) != int(EItemId::Ruger))
+			{
+				spd::log()->error("Weapon overrides disabled: handgun item_id must be {}", int(EItemId::Ruger));
+				return std::nullopt;
+			}
+
+			const float firepower = handgun.at("firepower").get<float>();
+			if (!std::isfinite(firepower) || firepower <= 0.0f || firepower > 999.0f)
+			{
+				spd::log()->error("Weapon overrides disabled: handgun firepower must be in (0, 999]");
+				return std::nullopt;
+			}
+
+			return firepower;
+		}
+		catch (const std::exception& error)
+		{
+			spd::log()->error("Weapon overrides disabled: invalid weapons.yaml ({})", error.what());
+			return std::nullopt;
+		}
+	}
+
+	void ApplyHandgunFirepowerOverride()
+	{
+		const auto firepower = LoadHandgunFirepowerOverride();
+		if (!firepower)
+			return;
+
+		if (GameVersion() != "1.1.0")
+		{
+			spd::log()->error("Handgun firepower override disabled: unsupported game version {}", GameVersion());
+			return;
+		}
+
+		// This signature references WeaponLevelTbl and has exactly one match on the
+		// target executable recorded in docs/target-build.md.
+		auto pattern = hook::pattern("D9 04 8D ? ? ? ? D9 5D ? 75 ? 8B CE 83 E9");
+		const auto matchCount = pattern.size();
+		if (matchCount != 1)
+		{
+			spd::log()->error(
+				"Handgun firepower override disabled: WeaponLevelTbl signature matched {} locations",
+				matchCount);
+			return;
+		}
+
+		auto WeaponLevelTbl = *pattern.get(0).get<float(*)[49][7]>(3);
+		const auto handgunWeaponNo = bio4::WeaponId2WeaponNo(ITEM_ID(EItemId::Ruger));
+
+		if (handgunWeaponNo >= kWeaponCount)
+		{
+			spd::log()->error("Handgun firepower override disabled: invalid weapon number {}", handgunWeaponNo);
+			return;
+		}
+
+		std::array<float, kFirepowerLevelCount> levels;
+		levels.fill(*firepower);
+		std::copy(levels.begin(), levels.end(), std::begin((*WeaponLevelTbl)[handgunWeaponNo]));
+
+		spd::log()->info(
+			"Handgun firepower override enabled: item_id={}, weapon_no={}, all levels={}",
+			int(EItemId::Ruger), handgunWeaponNo, *firepower);
+	}
+}
 
 float(__cdecl* CameraControl__getCameraDirection)();
 void __cdecl wep17_r3_ready00_Hook(cPlayer* a1)
@@ -148,6 +263,8 @@ void __declspec(naked) ChicagoAmmoDrop()
 
 void re4t::init::Gameplay()
 {
+	ApplyHandgunFirepowerOverride();
+
 	// Make the Chicago Typewriter not upgraded by default and try to balance it more for normal gameplay.
 	// This mostly works fine for Ada too (minus the fact the Merchant has no upgrades in SW...), but the bigger problem
 	// is that Ada's Chicago Typewriter never calls its reload func. Haven't figured out why that is. For now, we'll just
