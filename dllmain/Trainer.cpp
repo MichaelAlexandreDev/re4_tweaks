@@ -3,6 +3,7 @@
 #include "dllmain.h"
 #include "Game.h"
 #include "ConsoleWnd.h"
+#include "EnemyProfiles.h"
 #include "Settings.h"
 #include "input.hpp"
 #include "imgui.h"
@@ -872,6 +873,8 @@ void Trainer_Init()
 					Em_ptr->hp_324 = (int16_t)(Em_ptr->hp_324 * multi);
 					Em_ptr->hp_max_326 = (int16_t)(Em_ptr->hp_max_326 * multi);
 				}
+
+				re4t::enemy_profiles::ApplySpawnProfile(Em_ptr, reinterpret_cast<EM_LIST*>(regs.esi), static_cast<uint8_t>(regs.ebx));
 			}
 		}; injector::MakeInline<EmSetFromList_hook>(pattern.count(1).get(0).get<uint32_t>(0), pattern.count(1).get(0).get<uint32_t>(7));
 
@@ -897,6 +900,8 @@ void Trainer_Init()
 					Em_ptr->hp_324 = (int16_t)(Em_ptr->hp_324 * multi);
 					Em_ptr->hp_max_326 = (int16_t)(Em_ptr->hp_max_326 * multi);
 				}
+
+				re4t::enemy_profiles::ApplySpawnProfile(Em_ptr, reinterpret_cast<EM_LIST*>(regs.edi), static_cast<uint8_t>(regs.ebx));
 			}
 		}; injector::MakeInline<EmSetFromList2_hook>(pattern.count(1).get(0).get<uint32_t>(0), pattern.count(1).get(0).get<uint32_t>(7));
 
@@ -922,6 +927,8 @@ void Trainer_Init()
 					Em_ptr->hp_324 = (int16_t)(Em_ptr->hp_324 * multi);
 					Em_ptr->hp_max_326 = (int16_t)(Em_ptr->hp_max_326 * multi);
 				}
+
+				re4t::enemy_profiles::ApplySpawnProfile(Em_ptr, reinterpret_cast<EM_LIST*>(regs.edi), 0xFF);
 			}
 		}; injector::MakeInline<EmSetEvent_hook>(pattern.count(1).get(0).get<uint32_t>(0), pattern.count(1).get(0).get<uint32_t>(7));
 	}

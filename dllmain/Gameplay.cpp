@@ -4,12 +4,14 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <optional>
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
 #include "dllmain.h"
 #include "ConsoleWnd.h"
+#include "EnemyProfiles.h"
 #include "Game.h"
 #include "Sections.h"
 #include "Settings.h"
@@ -65,9 +67,22 @@ namespace
 		std::vector<uint8_t> entityIds;
 	};
 
+	struct EnemySpawnProfile
+	{
+		uint16_t roomId;
+		uint8_t emListNumber;
+		uint8_t emListIndex;
+		uint8_t expectedEntityId;
+		uint8_t expectedType;
+		std::string label;
+		std::string stage;
+		float hpMultiplier;
+	};
+
 	using EnemyLifeDownRoutine = int(__cdecl*)(cEm*, int, int, uint32_t);
 	EnemyLifeDownRoutine EnemyLifeDown = nullptr;
 	std::vector<uint8_t> EnemyHitObservationEntityIds;
+	std::vector<EnemySpawnProfile> EnemySpawnProfiles;
 
 	constexpr WeaponFirepowerDefinition kWeaponDefinitions[] = {
 		{ "handgun", EItemId::Ruger },
@@ -285,6 +300,112 @@ namespace
 		}
 	}
 
+	std::optional<std::vector<EnemySpawnProfile>> LoadEnemySpawnProfiles()
+	{
+		const auto configPath = std::filesystem::path(rootPath) / L"re4_tweaks" / L"enemy-profiles.json";
+		if (!std::filesystem::exists(configPath))
+			return std::nullopt;
+
+		try
+		{
+			std::ifstream configFile(configPath);
+			nlohmann::json config;
+			configFile >> config;
+			if (config.value("schema_version", 0) != 1 ||
+				config.value("target_sha256", std::string()) != kSupportedBio4Sha256)
+			{
+				spd::log()->error("Enemy spawn profiles disabled: schema or target hash mismatch");
+				return std::nullopt;
+			}
+
+			const auto& section = config.at("spawn_profiles");
+			if (!section.value("enabled", false))
+				return std::vector<EnemySpawnProfile>();
+
+			const auto& entries = section.at("entries");
+			if (!entries.is_array())
+			{
+				spd::log()->error("Enemy spawn profiles disabled: entries must be an array");
+				return std::nullopt;
+			}
+
+			std::vector<EnemySpawnProfile> profiles;
+			for (const auto& entry : entries)
+			{
+				const int roomId = entry.at("room_id").get<int>();
+				const int emListNumber = entry.at("em_list_number").get<int>();
+				const int emListIndex = entry.at("em_list_index").get<int>();
+				const int entityId = entry.at("expected_entity_id").get<int>();
+				const int entityType = entry.at("expected_type").get<int>();
+				const float hpMultiplier = entry.at("hp_multiplier").get<float>();
+				if (roomId < 0 || roomId > 0xFFFF || emListNumber < 0 || emListNumber > 0xFF ||
+					emListIndex < 0 || emListIndex > 0xFE || entityId < 0 || entityId > 0xFF ||
+					entityType < 0 || entityType > 0xFF || !std::isfinite(hpMultiplier) ||
+					hpMultiplier <= 0.0f || hpMultiplier > 15.0f)
+				{
+					spd::log()->error("Enemy spawn profiles disabled: invalid values in one profile entry");
+					return std::nullopt;
+				}
+
+				EnemySpawnProfile profile{
+					static_cast<uint16_t>(roomId), static_cast<uint8_t>(emListNumber),
+					static_cast<uint8_t>(emListIndex), static_cast<uint8_t>(entityId),
+					static_cast<uint8_t>(entityType), entry.at("label").get<std::string>(),
+					entry.at("stage").get<std::string>(), hpMultiplier
+				};
+				if (profile.label.empty() || profile.stage.empty())
+				{
+					spd::log()->error("Enemy spawn profiles disabled: label and stage must not be empty");
+					return std::nullopt;
+				}
+				const auto duplicate = std::find_if(profiles.begin(), profiles.end(), [&](const EnemySpawnProfile& other) {
+					return other.roomId == profile.roomId && other.emListNumber == profile.emListNumber &&
+						other.emListIndex == profile.emListIndex;
+				});
+				if (duplicate != profiles.end())
+				{
+					spd::log()->error("Enemy spawn profiles disabled: duplicate key room=0x{:04X}, list={}, index={}",
+						roomId, emListNumber, emListIndex);
+					return std::nullopt;
+				}
+				profiles.push_back(std::move(profile));
+			}
+			return profiles;
+		}
+		catch (const std::exception& error)
+		{
+			spd::log()->error("Enemy spawn profiles disabled: invalid enemy-profiles.json ({})", error.what());
+			return std::nullopt;
+		}
+	}
+
+	const EnemySpawnProfile* FindEnemySpawnProfile(uint16_t roomId, uint8_t emListNumber, uint8_t emListIndex)
+	{
+		const auto match = std::find_if(EnemySpawnProfiles.begin(), EnemySpawnProfiles.end(),
+			[&](const EnemySpawnProfile& profile) {
+				return profile.roomId == roomId && profile.emListNumber == emListNumber &&
+					profile.emListIndex == emListIndex;
+			});
+		return match != EnemySpawnProfiles.end() ? &*match : nullptr;
+	}
+
+	void InitializeEnemySpawnProfiles()
+	{
+		const auto profiles = LoadEnemySpawnProfiles();
+		if (!profiles || profiles->empty())
+		{
+			spd::log()->info("Enemy spawn profiles disabled by configuration");
+			return;
+		}
+		if (GameVersion() != "1.1.0")
+		{
+			spd::log()->error("Enemy spawn profiles disabled: unsupported game version {}", GameVersion());
+			return;
+		}
+		EnemySpawnProfiles = *profiles;
+		spd::log()->info("Enemy spawn profiles loaded: {} entries", EnemySpawnProfiles.size());
+	}
+
 	int __cdecl EnemyLifeDownObserver(cEm* entity, int damage, int randomAmplitude, uint32_t flags)
 	{
 		const bool shouldObserve = entity != nullptr && IsEnemy(entity->id_100) &&
@@ -304,11 +425,15 @@ namespace
 		const unsigned entityId = entity->id_100;
 		const unsigned entityType = entity->type_101;
 		const unsigned guid = entity->guid_F8;
+		const auto* profile = FindEnemySpawnProfile(static_cast<uint16_t>(roomId),
+			static_cast<uint8_t>(emListNumber), static_cast<uint8_t>(emListIndex));
+		const std::string profileLabel = profile != nullptr ? profile->label : "none";
+		const std::string profileStage = profile != nullptr ? profile->stage : "none";
 
 		const int result = EnemyLifeDown(entity, damage, randomAmplitude, flags);
 		spd::log()->info(
-			"Enemy hit observation: room=0x{:04X}, em_list={}, index={}, id=0x{:02X}, type=0x{:02X}, guid=0x{:08X}, weapon=0x{:02X}, part={}, hp_before={}, requested_damage={}, random_amplitude={}, flags=0x{:08X}, hp_after={}",
-			roomId, emListNumber, emListIndex, entityId, entityType, guid, weapon, partNumber,
+			"Enemy hit observation: room=0x{:04X}, em_list={}, index={}, id=0x{:02X}, type=0x{:02X}, guid=0x{:08X}, profile={}, stage={}, weapon=0x{:02X}, part={}, hp_before={}, requested_damage={}, random_amplitude={}, flags=0x{:08X}, hp_after={}",
+			roomId, emListNumber, emListIndex, entityId, entityType, guid, profileLabel, profileStage, weapon, partNumber,
 			hpBefore, damage, randomAmplitude, flags, result);
 		return result;
 	}
@@ -362,6 +487,43 @@ namespace
 			"Enemy hit observation installed: LifeDown=0x{:08X}, thunk=0x{:08X}, entity_filter_count={}",
 			lifeDownAddress, thunkAddress, EnemyHitObservationEntityIds.size());
 	}
+}
+
+void re4t::enemy_profiles::ApplySpawnProfile(cEm* entity, const EM_LIST* source, uint8_t emListIndex)
+{
+	if (entity == nullptr || source == nullptr || EnemySpawnProfiles.empty() || emListIndex == 0xFF)
+		return;
+
+	const auto* profile = FindEnemySpawnProfile(GlobalPtr()->curRoomId_4FAC,
+		static_cast<uint8_t>(GlobalPtr()->curEmListNumber_4FB3), emListIndex);
+	if (profile == nullptr)
+		return;
+	if (entity->id_100 != profile->expectedEntityId || entity->type_101 != profile->expectedType ||
+		static_cast<uint8_t>(source->id_1) != profile->expectedEntityId ||
+		static_cast<uint8_t>(source->type_2) != profile->expectedType)
+	{
+		spd::log()->error(
+			"Enemy spawn profile refused: {} expected id/type=0x{:02X}/0x{:02X}, runtime=0x{:02X}/0x{:02X}",
+			profile->label, profile->expectedEntityId, profile->expectedType, entity->id_100, entity->type_101);
+		return;
+	}
+
+	const int vanillaHp = source->hp_8;
+	const long scaledHp = std::lround(static_cast<double>(vanillaHp) * profile->hpMultiplier);
+	if (vanillaHp <= 0 || scaledHp <= 0 || scaledHp > std::numeric_limits<int16_t>::max())
+	{
+		spd::log()->error(
+			"Enemy spawn profile refused: {} HP {} x {} would produce {} outside [1, 32767]",
+			profile->label, vanillaHp, profile->hpMultiplier, scaledHp);
+		return;
+	}
+
+	entity->hp_324 = static_cast<int16_t>(scaledHp);
+	entity->hp_max_326 = static_cast<int16_t>(scaledHp);
+	spd::log()->info(
+		"Enemy spawn profile applied: {} stage={}, room=0x{:04X}, list={}, index={}, id=0x{:02X}, type=0x{:02X}, vanilla_hp={}, multiplier={}, final_hp={}",
+		profile->label, profile->stage, profile->roomId, profile->emListNumber, profile->emListIndex,
+		profile->expectedEntityId, profile->expectedType, vanillaHp, profile->hpMultiplier, scaledHp);
 }
 
 float(__cdecl* CameraControl__getCameraDirection)();
@@ -481,6 +643,7 @@ void __declspec(naked) ChicagoAmmoDrop()
 void re4t::init::Gameplay()
 {
 	ApplyWeaponFirepowerOverrides();
+	InitializeEnemySpawnProfiles();
 	InstallEnemyHitObserver();
 
 	// Make the Chicago Typewriter not upgraded by default and try to balance it more for normal gameplay.
