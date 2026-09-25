@@ -99,13 +99,22 @@ namespace
 		std::string label;
 	};
 
+	struct EnemyModulePreload
+	{
+		uint16_t roomId;
+		std::vector<uint8_t> entityIds;
+	};
+
 	using EnemyLifeDownRoutine = int(__cdecl*)(cEm*, int, int, uint32_t);
 	using EnemyListLoadRoutine = void(__cdecl*)(uint32_t);
+	using EmReadSearchRoutine = void* (__cdecl*)(uint32_t, void*, uint32_t);
 	EnemyLifeDownRoutine EnemyLifeDown = nullptr;
 	EnemyListLoadRoutine EnemyListLoad = nullptr;
+	EmReadSearchRoutine EmReadSearch = nullptr;
 	std::vector<uint8_t> EnemyHitObservationEntityIds;
 	std::vector<EnemySpawnProfile> EnemySpawnProfiles;
 	std::vector<EnemyListOverride> EnemyListOverrides;
+	std::vector<EnemyModulePreload> EnemyModulePreloads;
 
 	constexpr WeaponFirepowerDefinition kWeaponDefinitions[] = {
 		{ "handgun", EItemId::Ruger },
@@ -481,11 +490,13 @@ namespace
 					return std::nullopt;
 				}
 				const auto duplicate = std::find_if(overrides.begin(), overrides.end(), [&](const EnemyListOverride& other) {
-					return other.emListNumber == override.emListNumber && other.emListIndex == override.emListIndex;
+					return other.roomId == override.roomId && other.emListNumber == override.emListNumber &&
+						other.emListIndex == override.emListIndex;
 				});
 				if (duplicate != overrides.end())
 				{
-					spd::log()->error("Enemy list overrides disabled: duplicate key list={}, index={}", emListNumber, emListIndex);
+					spd::log()->error("Enemy list overrides disabled: duplicate key room=0x{:04X}, list={}, index={}",
+						roomId, emListNumber, emListIndex);
 					return std::nullopt;
 				}
 				overrides.push_back(std::move(override));
@@ -497,6 +508,175 @@ namespace
 			spd::log()->error("Enemy list overrides disabled: invalid enemy-profiles.json ({})", error.what());
 			return std::nullopt;
 		}
+	}
+
+	std::optional<std::vector<EnemyModulePreload>> LoadEnemyModulePreloads()
+	{
+		const auto configPath = std::filesystem::path(rootPath) / L"re4_tweaks" / L"enemy-profiles.json";
+		if (!std::filesystem::exists(configPath))
+			return std::nullopt;
+
+		try
+		{
+			std::ifstream configFile(configPath);
+			nlohmann::json config;
+			configFile >> config;
+			if (config.value("schema_version", 0) != 1 ||
+				config.value("target_sha256", std::string()) != kSupportedBio4Sha256)
+			{
+				spd::log()->error("Enemy module preloads disabled: schema or target hash mismatch");
+				return std::nullopt;
+			}
+			if (!config.contains("module_preloads"))
+				return std::vector<EnemyModulePreload>();
+
+			const auto& section = config.at("module_preloads");
+			if (!section.value("enabled", false))
+				return std::vector<EnemyModulePreload>();
+			const auto& entries = section.at("entries");
+			if (!entries.is_array())
+			{
+				spd::log()->error("Enemy module preloads disabled: entries must be an array");
+				return std::nullopt;
+			}
+
+			std::vector<EnemyModulePreload> preloads;
+			for (const auto& entry : entries)
+			{
+				const int roomId = entry.at("room_id").get<int>();
+				if (roomId != 0x0100 && roomId != 0x0101)
+				{
+					spd::log()->error("Enemy module preloads disabled: unsupported room 0x{:04X}", roomId);
+					return std::nullopt;
+				}
+				if (std::any_of(preloads.begin(), preloads.end(), [&](const EnemyModulePreload& other) {
+					return other.roomId == roomId;
+				}))
+				{
+					spd::log()->error("Enemy module preloads disabled: duplicate room 0x{:04X}", roomId);
+					return std::nullopt;
+				}
+
+				const auto& ids = entry.at("entity_ids");
+				const size_t capacity = roomId == 0x0100 ? 3 : 2;
+				if (!ids.is_array() || ids.empty() || ids.size() > capacity)
+				{
+					spd::log()->error("Enemy module preloads disabled: room 0x{:04X} needs between 1 and {} entity IDs", roomId, capacity);
+					return std::nullopt;
+				}
+
+				EnemyModulePreload preload{ static_cast<uint16_t>(roomId), {} };
+				for (const auto& value : ids)
+				{
+					const int entityId = value.get<int>();
+					const bool originalFamily = (roomId == 0x0100 && entityId == 0x12) ||
+						(roomId == 0x0101 && (entityId == 0x15 || entityId == 0x26));
+					if (entityId <= 0 || entityId > 0xFF || originalFamily ||
+						std::find(preload.entityIds.begin(), preload.entityIds.end(), entityId) != preload.entityIds.end())
+					{
+						spd::log()->error("Enemy module preloads disabled: invalid or duplicate id 0x{:02X} for room 0x{:04X}", entityId, roomId);
+						return std::nullopt;
+					}
+					preload.entityIds.push_back(static_cast<uint8_t>(entityId));
+				}
+				preloads.push_back(std::move(preload));
+			}
+			return preloads;
+		}
+		catch (const std::exception& error)
+		{
+			spd::log()->error("Enemy module preloads disabled: invalid enemy-profiles.json ({})", error.what());
+			return std::nullopt;
+		}
+	}
+
+	void PreloadEnemyModules(uint16_t roomId)
+	{
+		const auto match = std::find_if(EnemyModulePreloads.begin(), EnemyModulePreloads.end(),
+			[&](const EnemyModulePreload& preload) { return preload.roomId == roomId; });
+		if (match == EnemyModulePreloads.end())
+			return;
+
+		for (const uint8_t entityId : match->entityIds)
+		{
+			void* result = EmReadSearch(entityId, nullptr, 0);
+			if (result == nullptr)
+				spd::log()->error("Enemy module preload failed: room=0x{:04X}, id=0x{:02X}", roomId, entityId);
+			else
+				spd::log()->info("Enemy module preload complete: room=0x{:04X}, id=0x{:02X}, data={}", roomId, entityId, result);
+		}
+	}
+
+	void* __cdecl R100EmReadSearchHook(uint32_t entityId, void* destination, uint32_t size)
+	{
+		void* result = EmReadSearch(entityId, destination, size);
+		if (result != nullptr)
+			PreloadEnemyModules(0x0100);
+		return result;
+	}
+
+	void* __cdecl R101EmReadSearchHook(uint32_t entityId, void* destination, uint32_t size)
+	{
+		void* result = EmReadSearch(entityId, destination, size);
+		if (result != nullptr)
+			PreloadEnemyModules(0x0101);
+		return result;
+	}
+
+	void InitializeEnemyModulePreloads()
+	{
+		const auto preloads = LoadEnemyModulePreloads();
+		if (!preloads || preloads->empty())
+		{
+			spd::log()->info("Enemy module preloads disabled by configuration");
+			return;
+		}
+		if (GameVersion() != "1.1.0")
+		{
+			spd::log()->error("Enemy module preloads disabled: unsupported game version {}", GameVersion());
+			return;
+		}
+
+		auto readPattern = hook::pattern(
+			"55 8B EC 53 8A 5D 08 88 5D 08 80 FB 03 74 ? 80 FB 05 74 ? 80 FB 0C 75 ?");
+		auto r100Pattern = hook::pattern(
+			"8D 8D EC FA FF FF E8 B9 7C B3 FF 6A 00 6A 00 6A 12 E8 85 D7 B3 FF D9 EE D9 95 F4 FE FF FF");
+		auto r101Pattern = hook::pattern(
+			"8B 51 10 8B 49 0C 8B 42 24 8B 49 24 3B C8 76 03 51 EB 01 50 6A 00 6A 15 E8 ? ? ? ? 83 C4 0C 53 8D 55 E0");
+		if (readPattern.size() != 1 || r100Pattern.size() != 1 || r101Pattern.size() != 1)
+		{
+			spd::log()->error(
+				"Enemy module preloads disabled: signatures matched EmReadSearch={}, r100={}, r101={}",
+				readPattern.size(), r100Pattern.size(), r101Pattern.size());
+			return;
+		}
+
+		const uintptr_t readAddress = readPattern.get(0).get_uintptr(0);
+		const uintptr_t r100Call = r100Pattern.get(0).get_uintptr(0x11);
+		const uintptr_t r101Call = r101Pattern.get(0).get_uintptr(0x18);
+		const uintptr_t r100Thunk = injector::GetBranchDestination(r100Call).as_int();
+		const uintptr_t r101Thunk = injector::GetBranchDestination(r101Call).as_int();
+		const uintptr_t r100Target = injector::GetBranchDestination(r100Thunk).as_int();
+		const uintptr_t r101Target = injector::GetBranchDestination(r101Thunk).as_int();
+		if (r100Thunk != r101Thunk || r100Target != readAddress || r101Target != readAddress)
+		{
+			spd::log()->error(
+				"Enemy module preloads disabled: call targets do not match EmReadSearch (read=0x{:08X}, r100=0x{:08X}, r101=0x{:08X})",
+				readAddress, r100Target, r101Target);
+			return;
+		}
+
+		EnemyModulePreloads = *preloads;
+		EmReadSearch = reinterpret_cast<EmReadSearchRoutine>(readAddress);
+		if (std::any_of(EnemyModulePreloads.begin(), EnemyModulePreloads.end(),
+			[](const EnemyModulePreload& preload) { return preload.roomId == 0x0100; }))
+			injector::MakeCALL(r100Call, R100EmReadSearchHook, true);
+		if (std::any_of(EnemyModulePreloads.begin(), EnemyModulePreloads.end(),
+			[](const EnemyModulePreload& preload) { return preload.roomId == 0x0101; }))
+			injector::MakeCALL(r101Call, R101EmReadSearchHook, true);
+		spd::log()->info(
+			"Enemy module preloads installed: EmReadSearch=0x{:08X}, room_entries={}",
+			readAddress, EnemyModulePreloads.size());
 	}
 
 	void ApplyEnemyListOverrides()
@@ -864,6 +1044,7 @@ void __declspec(naked) ChicagoAmmoDrop()
 void re4t::init::Gameplay()
 {
 	ApplyWeaponFirepowerOverrides();
+	InitializeEnemyModulePreloads();
 	InitializeEnemySpawnProfiles();
 	InitializeEnemyListOverrides();
 	InstallEnemyHitObserver();
