@@ -640,10 +640,10 @@ namespace
 		auto readPattern = hook::pattern(
 			"55 8B EC 53 8A 5D 08 88 5D 08 80 FB 03 74 ? 80 FB 05 74 ? 80 FB 0C 75 ?");
 		auto r100Pattern = hook::pattern(
-			"8D 8D EC FA FF FF E8 B9 7C B3 FF 6A 00 6A 00 6A 12 E8 85 D7 B3 FF D9 EE D9 95 F4 FE FF FF");
+			"8D 8D EC FA FF FF E8 ? ? ? ? 6A 00 6A 00 6A 12 E8 ? ? ? ? D9 EE D9 95 F4 FE FF FF");
 		auto r101Pattern = hook::pattern(
 			"8B 51 10 8B 49 0C 8B 42 24 8B 49 24 3B C8 76 03 51 EB 01 50 6A 00 6A 15 E8 ? ? ? ? 83 C4 0C 53 8D 55 E0");
-		if (readPattern.size() != 1 || r100Pattern.size() != 1 || r101Pattern.size() != 1)
+		if (readPattern.size() != 1 || r100Pattern.size() != 2 || r101Pattern.size() != 1)
 		{
 			spd::log()->error(
 				"Enemy module preloads disabled: signatures matched EmReadSearch={}, r100={}, r101={}",
@@ -652,17 +652,30 @@ namespace
 		}
 
 		const uintptr_t readAddress = readPattern.get(0).get_uintptr(0);
-		const uintptr_t r100Call = r100Pattern.get(0).get_uintptr(0x11);
+		const std::array<uintptr_t, 2> r100Calls = {
+			r100Pattern.get(0).get_uintptr(0x11),
+			r100Pattern.get(1).get_uintptr(0x11)
+		};
 		const uintptr_t r101Call = r101Pattern.get(0).get_uintptr(0x18);
-		const uintptr_t r100Thunk = injector::GetBranchDestination(r100Call).as_int();
 		const uintptr_t r101Thunk = injector::GetBranchDestination(r101Call).as_int();
-		const uintptr_t r100Target = injector::GetBranchDestination(r100Thunk).as_int();
 		const uintptr_t r101Target = injector::GetBranchDestination(r101Thunk).as_int();
-		if (r100Thunk != r101Thunk || r100Target != readAddress || r101Target != readAddress)
+		for (const uintptr_t r100Call : r100Calls)
+		{
+			const uintptr_t r100Thunk = injector::GetBranchDestination(r100Call).as_int();
+			const uintptr_t r100Target = injector::GetBranchDestination(r100Thunk).as_int();
+			if (r100Thunk != r101Thunk || r100Target != readAddress)
+			{
+				spd::log()->error(
+					"Enemy module preloads disabled: r100 call target 0x{:08X} does not match EmReadSearch 0x{:08X}",
+					r100Target, readAddress);
+				return;
+			}
+		}
+		if (r101Target != readAddress)
 		{
 			spd::log()->error(
-				"Enemy module preloads disabled: call targets do not match EmReadSearch (read=0x{:08X}, r100=0x{:08X}, r101=0x{:08X})",
-				readAddress, r100Target, r101Target);
+				"Enemy module preloads disabled: r101 call target 0x{:08X} does not match EmReadSearch 0x{:08X}",
+				r101Target, readAddress);
 			return;
 		}
 
@@ -670,7 +683,10 @@ namespace
 		EmReadSearch = reinterpret_cast<EmReadSearchRoutine>(readAddress);
 		if (std::any_of(EnemyModulePreloads.begin(), EnemyModulePreloads.end(),
 			[](const EnemyModulePreload& preload) { return preload.roomId == 0x0100; }))
-			injector::MakeCALL(r100Call, R100EmReadSearchHook, true);
+		{
+			for (const uintptr_t r100Call : r100Calls)
+				injector::MakeCALL(r100Call, R100EmReadSearchHook, true);
+		}
 		if (std::any_of(EnemyModulePreloads.begin(), EnemyModulePreloads.end(),
 			[](const EnemyModulePreload& preload) { return preload.roomId == 0x0101; }))
 			injector::MakeCALL(r101Call, R101EmReadSearchHook, true);
