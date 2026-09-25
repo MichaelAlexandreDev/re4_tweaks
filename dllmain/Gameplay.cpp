@@ -607,19 +607,15 @@ namespace
 		}
 	}
 
-	void* __cdecl R100EmReadSearchHook(uint32_t entityId, void* destination, uint32_t size)
+	void* __cdecl EnemyModuleReadSearchHook(uint32_t entityId, void* destination, uint32_t size)
 	{
 		void* result = EmReadSearch(entityId, destination, size);
+		const uint16_t roomId = static_cast<uint16_t>(GlobalPtr()->curRoomId_4FAC);
+		spd::log()->info(
+			"Enemy module request observed: room=0x{:04X}, id=0x{:02X}, result={}",
+			roomId, entityId, result);
 		if (result != nullptr)
-			PreloadEnemyModules(0x0100);
-		return result;
-	}
-
-	void* __cdecl R101EmReadSearchHook(uint32_t entityId, void* destination, uint32_t size)
-	{
-		void* result = EmReadSearch(entityId, destination, size);
-		if (result != nullptr)
-			PreloadEnemyModules(0x0101);
+			PreloadEnemyModules(roomId);
 		return result;
 	}
 
@@ -639,60 +635,33 @@ namespace
 
 		auto readPattern = hook::pattern(
 			"55 8B EC 53 8A 5D 08 88 5D 08 80 FB 03 74 ? 80 FB 05 74 ? 80 FB 0C 75 ?");
-		auto r100Pattern = hook::pattern(
-			"8D 8D EC FA FF FF E8 ? ? ? ? 6A 00 6A 00 6A 12 E8 ? ? ? ? D9 EE D9 95 F4 FE FF FF");
-		auto r101Pattern = hook::pattern(
-			"8B 51 10 8B 49 0C 8B 42 24 8B 49 24 3B C8 76 03 51 EB 01 50 6A 00 6A 15 E8 ? ? ? ? 83 C4 0C 53 8D 55 E0");
-		if (readPattern.size() != 1 || r100Pattern.size() != 2 || r101Pattern.size() != 1)
+		auto thunkPattern = hook::pattern(
+			"E9 9A 64 2A 00 E9 C5 D9 3E 00 E9 E0 18 33 00");
+		if (readPattern.size() != 1 || thunkPattern.size() != 1)
 		{
 			spd::log()->error(
-				"Enemy module preloads disabled: signatures matched EmReadSearch={}, r100={}, r101={}",
-				readPattern.size(), r100Pattern.size(), r101Pattern.size());
+				"Enemy module preloads disabled: signatures matched EmReadSearch={}, thunk={}",
+				readPattern.size(), thunkPattern.size());
 			return;
 		}
 
 		const uintptr_t readAddress = readPattern.get(0).get_uintptr(0);
-		const std::array<uintptr_t, 2> r100Calls = {
-			r100Pattern.get(0).get_uintptr(0x11),
-			r100Pattern.get(1).get_uintptr(0x11)
-		};
-		const uintptr_t r101Call = r101Pattern.get(0).get_uintptr(0x18);
-		const uintptr_t r101Thunk = injector::GetBranchDestination(r101Call).as_int();
-		const uintptr_t r101Target = injector::GetBranchDestination(r101Thunk).as_int();
-		for (const uintptr_t r100Call : r100Calls)
-		{
-			const uintptr_t r100Thunk = injector::GetBranchDestination(r100Call).as_int();
-			const uintptr_t r100Target = injector::GetBranchDestination(r100Thunk).as_int();
-			if (r100Thunk != r101Thunk || r100Target != readAddress)
-			{
-				spd::log()->error(
-					"Enemy module preloads disabled: r100 call target 0x{:08X} does not match EmReadSearch 0x{:08X}",
-					r100Target, readAddress);
-				return;
-			}
-		}
-		if (r101Target != readAddress)
+		const uintptr_t thunkAddress = thunkPattern.get(0).get_uintptr(0);
+		const uintptr_t thunkTarget = injector::GetBranchDestination(thunkAddress).as_int();
+		if (thunkTarget != readAddress)
 		{
 			spd::log()->error(
-				"Enemy module preloads disabled: r101 call target 0x{:08X} does not match EmReadSearch 0x{:08X}",
-				r101Target, readAddress);
+				"Enemy module preloads disabled: thunk target 0x{:08X} does not match EmReadSearch 0x{:08X}",
+				thunkTarget, readAddress);
 			return;
 		}
 
 		EnemyModulePreloads = *preloads;
 		EmReadSearch = reinterpret_cast<EmReadSearchRoutine>(readAddress);
-		if (std::any_of(EnemyModulePreloads.begin(), EnemyModulePreloads.end(),
-			[](const EnemyModulePreload& preload) { return preload.roomId == 0x0100; }))
-		{
-			for (const uintptr_t r100Call : r100Calls)
-				injector::MakeCALL(r100Call, R100EmReadSearchHook, true);
-		}
-		if (std::any_of(EnemyModulePreloads.begin(), EnemyModulePreloads.end(),
-			[](const EnemyModulePreload& preload) { return preload.roomId == 0x0101; }))
-			injector::MakeCALL(r101Call, R101EmReadSearchHook, true);
+		InjectHook(thunkAddress, EnemyModuleReadSearchHook, HookType::Jump);
 		spd::log()->info(
-			"Enemy module preloads installed: EmReadSearch=0x{:08X}, room_entries={}",
-			readAddress, EnemyModulePreloads.size());
+			"Enemy module preloads installed: EmReadSearch=0x{:08X}, thunk=0x{:08X}, room_entries={}",
+			readAddress, thunkAddress, EnemyModulePreloads.size());
 	}
 
 	void ApplyEnemyListOverrides()
