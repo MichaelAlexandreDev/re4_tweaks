@@ -79,10 +79,33 @@ namespace
 		float hpMultiplier;
 	};
 
+	struct EnemyListOverride
+	{
+		uint16_t roomId;
+		uint8_t emListNumber;
+		uint8_t emListIndex;
+		uint8_t expectedEntityId;
+		uint8_t expectedType;
+		uint8_t replacementEntityId;
+		uint8_t replacementType;
+		uint8_t replacementSet;
+		uint32_t replacementFlags;
+		int16_t replacementHp;
+		uint8_t replacementEmsetNo;
+		int8_t replacementCharacter;
+		int16_t replacementGuardRadius;
+		uint16_t replacementMotionSpeed;
+		uint16_t replacementScale;
+		std::string label;
+	};
+
 	using EnemyLifeDownRoutine = int(__cdecl*)(cEm*, int, int, uint32_t);
+	using EnemyListLoadRoutine = void(__cdecl*)(uint32_t);
 	EnemyLifeDownRoutine EnemyLifeDown = nullptr;
+	EnemyListLoadRoutine EnemyListLoad = nullptr;
 	std::vector<uint8_t> EnemyHitObservationEntityIds;
 	std::vector<EnemySpawnProfile> EnemySpawnProfiles;
+	std::vector<EnemyListOverride> EnemyListOverrides;
 
 	constexpr WeaponFirepowerDefinition kWeaponDefinitions[] = {
 		{ "handgun", EItemId::Ruger },
@@ -379,6 +402,203 @@ namespace
 		}
 	}
 
+	std::optional<std::vector<EnemyListOverride>> LoadEnemyListOverrides()
+	{
+		const auto configPath = std::filesystem::path(rootPath) / L"re4_tweaks" / L"enemy-profiles.json";
+		if (!std::filesystem::exists(configPath))
+			return std::nullopt;
+
+		try
+		{
+			std::ifstream configFile(configPath);
+			nlohmann::json config;
+			configFile >> config;
+			if (config.value("schema_version", 0) != 1 ||
+				config.value("target_sha256", std::string()) != kSupportedBio4Sha256)
+			{
+				spd::log()->error("Enemy list overrides disabled: schema or target hash mismatch");
+				return std::nullopt;
+			}
+			if (!config.contains("list_overrides"))
+				return std::vector<EnemyListOverride>();
+
+			const auto& section = config.at("list_overrides");
+			if (!section.value("enabled", false))
+				return std::vector<EnemyListOverride>();
+
+			const auto& entries = section.at("entries");
+			if (!entries.is_array())
+			{
+				spd::log()->error("Enemy list overrides disabled: entries must be an array");
+				return std::nullopt;
+			}
+
+			std::vector<EnemyListOverride> overrides;
+			for (const auto& entry : entries)
+			{
+				const int roomId = entry.at("room_id").get<int>();
+				const int emListNumber = entry.at("em_list_number").get<int>();
+				const int emListIndex = entry.at("em_list_index").get<int>();
+				const int expectedEntityId = entry.at("expected_entity_id").get<int>();
+				const int expectedType = entry.at("expected_type").get<int>();
+				const int replacementEntityId = entry.at("replacement_entity_id").get<int>();
+				const int replacementType = entry.at("replacement_type").get<int>();
+				const int replacementSet = entry.at("replacement_set").get<int>();
+				const uint64_t replacementFlags = entry.at("replacement_flags").get<uint64_t>();
+				const int replacementHp = entry.at("replacement_hp").get<int>();
+				const int replacementEmsetNo = entry.at("replacement_emset_no").get<int>();
+				const int replacementCharacter = entry.at("replacement_character").get<int>();
+				const int replacementGuardRadius = entry.at("replacement_guard_radius").get<int>();
+				const int replacementMotionSpeed = entry.value("replacement_motion_speed", 0);
+				const int replacementScale = entry.value("replacement_scale", 0);
+
+				if (roomId < 0 || roomId > 0xFFFF || emListNumber < 0 || emListNumber > 0x12 ||
+					emListIndex < 0 || emListIndex > 0xFF || expectedEntityId < 0 || expectedEntityId > 0xFF ||
+					expectedType < 0 || expectedType > 0xFF || replacementEntityId < 0 || replacementEntityId > 0xFF ||
+					replacementType < 0 || replacementType > 0xFF || replacementSet < 0 || replacementSet > 0xFF ||
+					replacementFlags > std::numeric_limits<uint32_t>::max() || replacementHp <= 0 || replacementHp > std::numeric_limits<int16_t>::max() ||
+					replacementEmsetNo < 0 || replacementEmsetNo > 0xFF || replacementCharacter < std::numeric_limits<int8_t>::min() ||
+					replacementCharacter > std::numeric_limits<int8_t>::max() || replacementGuardRadius < std::numeric_limits<int16_t>::min() ||
+					replacementGuardRadius > std::numeric_limits<int16_t>::max() || replacementMotionSpeed < 0 || replacementMotionSpeed > 0xFFFF ||
+					replacementScale < 0 || replacementScale > 0xFFFF)
+				{
+					spd::log()->error("Enemy list overrides disabled: invalid values in one override entry");
+					return std::nullopt;
+				}
+
+				EnemyListOverride override{
+					static_cast<uint16_t>(roomId), static_cast<uint8_t>(emListNumber), static_cast<uint8_t>(emListIndex),
+					static_cast<uint8_t>(expectedEntityId), static_cast<uint8_t>(expectedType),
+					static_cast<uint8_t>(replacementEntityId), static_cast<uint8_t>(replacementType), static_cast<uint8_t>(replacementSet),
+					static_cast<uint32_t>(replacementFlags), static_cast<int16_t>(replacementHp), static_cast<uint8_t>(replacementEmsetNo),
+					static_cast<int8_t>(replacementCharacter), static_cast<int16_t>(replacementGuardRadius),
+					static_cast<uint16_t>(replacementMotionSpeed), static_cast<uint16_t>(replacementScale),
+					entry.at("label").get<std::string>()
+				};
+				if (override.label.empty())
+				{
+					spd::log()->error("Enemy list overrides disabled: label must not be empty");
+					return std::nullopt;
+				}
+				const auto duplicate = std::find_if(overrides.begin(), overrides.end(), [&](const EnemyListOverride& other) {
+					return other.emListNumber == override.emListNumber && other.emListIndex == override.emListIndex;
+				});
+				if (duplicate != overrides.end())
+				{
+					spd::log()->error("Enemy list overrides disabled: duplicate key list={}, index={}", emListNumber, emListIndex);
+					return std::nullopt;
+				}
+				overrides.push_back(std::move(override));
+			}
+			return overrides;
+		}
+		catch (const std::exception& error)
+		{
+			spd::log()->error("Enemy list overrides disabled: invalid enemy-profiles.json ({})", error.what());
+			return std::nullopt;
+		}
+	}
+
+	void ApplyEnemyListOverrides()
+	{
+		GLOBAL_WK* global = GlobalPtr();
+		const uint8_t emListNumber = static_cast<uint8_t>(global->curEmListNumber_4FB3);
+		for (const auto& override : EnemyListOverrides)
+		{
+			if (override.emListNumber != emListNumber)
+				continue;
+
+			EM_LIST& record = global->Em_list_5410[override.emListIndex];
+			const uint8_t currentId = static_cast<uint8_t>(record.id_1);
+			const uint8_t currentType = static_cast<uint8_t>(record.type_2);
+			if (record.room_18 != override.roomId || currentId != override.expectedEntityId || currentType != override.expectedType)
+			{
+				const bool alreadyApplied = record.room_18 == override.roomId &&
+					currentId == override.replacementEntityId && currentType == override.replacementType;
+				if (!alreadyApplied)
+				{
+					spd::log()->error(
+						"Enemy list override refused: {} list={}, index={}, expected room/id/type=0x{:04X}/0x{:02X}/0x{:02X}, found=0x{:04X}/0x{:02X}/0x{:02X}",
+						override.label, override.emListNumber, override.emListIndex, override.roomId,
+						override.expectedEntityId, override.expectedType, record.room_18, currentId, currentType);
+				}
+				continue;
+			}
+
+			record.id_1 = static_cast<char>(override.replacementEntityId);
+			record.type_2 = static_cast<char>(override.replacementType);
+			record.set_3 = static_cast<char>(override.replacementSet);
+			record.flag_4 = override.replacementFlags;
+			record.hp_8 = override.replacementHp;
+			record.emset_no_A = override.replacementEmsetNo;
+			record.Character_B = static_cast<char>(override.replacementCharacter);
+			record.Guard_r_1A = override.replacementGuardRadius;
+			record.percentageMotionSpeed_1C = override.replacementMotionSpeed;
+			record.percentageScale_1E = override.replacementScale;
+			spd::log()->info(
+				"Enemy list override applied: {} list={}, index={}, room=0x{:04X}, id/type 0x{:02X}/0x{:02X} -> 0x{:02X}/0x{:02X}, flags=0x{:08X}, hp={}",
+				override.label, override.emListNumber, override.emListIndex, override.roomId,
+				override.expectedEntityId, override.expectedType, override.replacementEntityId,
+				override.replacementType, override.replacementFlags, override.replacementHp);
+		}
+	}
+
+	void __cdecl EnemyListLoadHook(uint32_t flags)
+	{
+		EnemyListLoad(flags);
+		ApplyEnemyListOverrides();
+	}
+
+	void InitializeEnemyListOverrides()
+	{
+		const auto overrides = LoadEnemyListOverrides();
+		if (!overrides || overrides->empty())
+		{
+			spd::log()->info("Enemy list overrides disabled by configuration");
+			return;
+		}
+		if (GameVersion() != "1.1.0")
+		{
+			spd::log()->error("Enemy list overrides disabled: unsupported game version {}", GameVersion());
+			return;
+		}
+
+		auto loaderPattern = hook::pattern(
+			"55 8B EC 51 53 56 8B 35 ? ? ? ? 0F B7 86 AC 4F 00 00 50 E8 ? ? ? ? 8B D8 83 C4 04 85 DB 0F 88 ? ? ? ?");
+		const auto loaderMatchCount = loaderPattern.size();
+		if (loaderMatchCount != 1)
+		{
+			spd::log()->error("Enemy list overrides disabled: loader signature matched {} locations", loaderMatchCount);
+			return;
+		}
+
+		auto thunkPattern = hook::pattern("E9 AA 96 2C 00");
+		const auto thunkMatchCount = thunkPattern.size();
+		if (thunkMatchCount != 1)
+		{
+			spd::log()->error("Enemy list overrides disabled: loader thunk signature matched {} locations", thunkMatchCount);
+			return;
+		}
+
+		const auto loaderAddress = loaderPattern.get(0).get_uintptr(0);
+		const auto thunkAddress = thunkPattern.get(0).get_uintptr(0);
+		const auto thunkDestination = injector::GetBranchDestination(thunkAddress).as_int();
+		if (thunkDestination != loaderAddress)
+		{
+			spd::log()->error(
+				"Enemy list overrides disabled: thunk destination 0x{:08X} does not match loader 0x{:08X}",
+				thunkDestination, loaderAddress);
+			return;
+		}
+
+		EnemyListLoad = reinterpret_cast<EnemyListLoadRoutine>(loaderAddress);
+		EnemyListOverrides = *overrides;
+		InjectHook(thunkAddress, EnemyListLoadHook, HookType::Jump);
+		spd::log()->info(
+			"Enemy list overrides installed: loader=0x{:08X}, thunk=0x{:08X}, entries={}",
+			loaderAddress, thunkAddress, EnemyListOverrides.size());
+	}
+
 	const EnemySpawnProfile* FindEnemySpawnProfile(uint16_t roomId, uint8_t emListNumber, uint8_t emListIndex)
 	{
 		const auto match = std::find_if(EnemySpawnProfiles.begin(), EnemySpawnProfiles.end(),
@@ -521,9 +741,10 @@ void re4t::enemy_profiles::ApplySpawnProfile(cEm* entity, const EM_LIST* source,
 	entity->hp_324 = static_cast<int16_t>(scaledHp);
 	entity->hp_max_326 = static_cast<int16_t>(scaledHp);
 	spd::log()->info(
-		"Enemy spawn profile applied: {} stage={}, room=0x{:04X}, list={}, index={}, id=0x{:02X}, type=0x{:02X}, vanilla_hp={}, multiplier={}, final_hp={}",
+		"Enemy spawn profile applied: {} stage={}, room=0x{:04X}, list={}, index={}, id=0x{:02X}, type=0x{:02X}, source_flags=0x{:08X}, runtime_flags=0x{:08X}, vanilla_hp={}, multiplier={}, final_hp={}",
 		profile->label, profile->stage, profile->roomId, profile->emListNumber, profile->emListIndex,
-		profile->expectedEntityId, profile->expectedType, vanillaHp, profile->hpMultiplier, scaledHp);
+		profile->expectedEntityId, profile->expectedType, source->flag_4, entity->flag_3D0,
+		vanillaHp, profile->hpMultiplier, scaledHp);
 }
 
 float(__cdecl* CameraControl__getCameraDirection)();
@@ -644,6 +865,7 @@ void re4t::init::Gameplay()
 {
 	ApplyWeaponFirepowerOverrides();
 	InitializeEnemySpawnProfiles();
+	InitializeEnemyListOverrides();
 	InstallEnemyHitObserver();
 
 	// Make the Chicago Typewriter not upgraded by default and try to balance it more for normal gameplay.
