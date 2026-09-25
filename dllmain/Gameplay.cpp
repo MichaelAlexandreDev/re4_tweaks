@@ -105,9 +105,16 @@ namespace
 		std::vector<uint8_t> entityIds;
 	};
 
+	struct EnemyFamilyDispatch
+	{
+		uint16_t roomId;
+		std::vector<uint8_t> entityIds;
+	};
+
 	using EnemyLifeDownRoutine = int(__cdecl*)(cEm*, int, int, uint32_t);
 	using EnemyListLoadRoutine = void(__cdecl*)(uint32_t);
 	using EmReadSearchRoutine = void* (__cdecl*)(uint32_t, void*, uint32_t);
+	using EnemyFamilyConfigureRoutine = void(__cdecl*)(void*);
 	EnemyLifeDownRoutine EnemyLifeDown = nullptr;
 	EnemyListLoadRoutine EnemyListLoad = nullptr;
 	EmReadSearchRoutine EmReadSearch = nullptr;
@@ -115,6 +122,11 @@ namespace
 	std::vector<EnemySpawnProfile> EnemySpawnProfiles;
 	std::vector<EnemyListOverride> EnemyListOverrides;
 	std::vector<EnemyModulePreload> EnemyModulePreloads;
+	std::vector<EnemyFamilyDispatch> EnemyFamilyDispatches;
+	std::array<EnemyFamilyConfigureRoutine, 0x100> EnemyFamilyConfigureRoutines{};
+	std::array<EnemyFamilyConfigureRoutine, 0x100> ExpectedEnemyFamilyConfigureRoutines{};
+	EnemyFamilyConfigureRoutine* EnemyFamilyConfigureSlot = nullptr;
+	EnemyFamilyConfigureRoutine EnemyFamilyConfigureFallback = nullptr;
 
 	constexpr WeaponFirepowerDefinition kWeaponDefinitions[] = {
 		{ "handgun", EItemId::Ruger },
@@ -590,6 +602,144 @@ namespace
 		}
 	}
 
+	std::optional<std::vector<EnemyFamilyDispatch>> LoadEnemyFamilyDispatches()
+	{
+		const auto configPath = std::filesystem::path(rootPath) / L"re4_tweaks" / L"enemy-profiles.json";
+		if (!std::filesystem::exists(configPath))
+			return std::vector<EnemyFamilyDispatch>();
+
+		try
+		{
+			std::ifstream configFile(configPath);
+			nlohmann::json config;
+			configFile >> config;
+			if (config.value("schema_version", 0) != 1 ||
+				config.value("target_sha256", std::string()) != kSupportedBio4Sha256)
+			{
+				spd::log()->error("Enemy family dispatch disabled: schema or target hash mismatch");
+				return std::nullopt;
+			}
+			if (!config.contains("family_dispatch"))
+				return std::vector<EnemyFamilyDispatch>();
+
+			const auto& section = config.at("family_dispatch");
+			if (!section.value("enabled", false))
+				return std::vector<EnemyFamilyDispatch>();
+			const auto& entries = section.at("entries");
+			if (!entries.is_array() || entries.empty())
+			{
+				spd::log()->error("Enemy family dispatch disabled: entries must be a non-empty array");
+				return std::nullopt;
+			}
+
+			std::vector<EnemyFamilyDispatch> dispatches;
+			for (const auto& entry : entries)
+			{
+				const int roomId = entry.at("room_id").get<int>();
+				if (roomId != 0x0100 && roomId != 0x0101 ||
+					std::any_of(dispatches.begin(), dispatches.end(), [&](const EnemyFamilyDispatch& other) {
+						return other.roomId == roomId;
+					}))
+				{
+					spd::log()->error("Enemy family dispatch disabled: unsupported or duplicate room 0x{:04X}", roomId);
+					return std::nullopt;
+				}
+
+				const auto& ids = entry.at("entity_ids");
+				if (!ids.is_array() || ids.size() != 2)
+				{
+					spd::log()->error("Enemy family dispatch disabled: room 0x{:04X} needs exactly two family IDs", roomId);
+					return std::nullopt;
+				}
+
+				EnemyFamilyDispatch dispatch{ static_cast<uint16_t>(roomId), {} };
+				for (const auto& value : ids)
+				{
+					const int entityId = value.get<int>();
+					if ((entityId != 0x12 && entityId != 0x15 && entityId != 0x20) ||
+						std::find(dispatch.entityIds.begin(), dispatch.entityIds.end(), entityId) != dispatch.entityIds.end())
+					{
+						spd::log()->error("Enemy family dispatch disabled: unsupported or duplicate id 0x{:02X}", entityId);
+						return std::nullopt;
+					}
+					dispatch.entityIds.push_back(static_cast<uint8_t>(entityId));
+				}
+				const uint8_t originalId = roomId == 0x0100 ? 0x12 : 0x15;
+				if (std::find(dispatch.entityIds.begin(), dispatch.entityIds.end(), originalId) == dispatch.entityIds.end() ||
+					std::find(dispatch.entityIds.begin(), dispatch.entityIds.end(), 0x20) == dispatch.entityIds.end())
+				{
+					spd::log()->error("Enemy family dispatch disabled: room 0x{:04X} must contain its original family and em20", roomId);
+					return std::nullopt;
+				}
+				dispatches.push_back(std::move(dispatch));
+			}
+			return dispatches;
+		}
+		catch (const std::exception& error)
+		{
+			spd::log()->error("Enemy family dispatch disabled: invalid enemy-profiles.json ({})", error.what());
+			return std::nullopt;
+		}
+	}
+
+	const EnemyFamilyDispatch* FindEnemyFamilyDispatch(uint16_t roomId)
+	{
+		const auto match = std::find_if(EnemyFamilyDispatches.begin(), EnemyFamilyDispatches.end(),
+			[&](const EnemyFamilyDispatch& dispatch) { return dispatch.roomId == roomId; });
+		return match == EnemyFamilyDispatches.end() ? nullptr : &*match;
+	}
+
+	void __cdecl EnemyFamilyConfigureDispatcher(void* enemy)
+	{
+		const uint8_t entityId = *(reinterpret_cast<const uint8_t*>(enemy) + 0x100);
+		const EnemyFamilyConfigureRoutine routine = EnemyFamilyConfigureRoutines[entityId];
+		if (routine != nullptr)
+		{
+			spd::log()->info("Enemy family dispatch: id=0x{:02X}, routine=0x{:08X}", entityId,
+				reinterpret_cast<uintptr_t>(routine));
+			routine(enemy);
+			return;
+		}
+
+		spd::log()->error("Enemy family dispatch fallback: no captured routine for id=0x{:02X}", entityId);
+		if (EnemyFamilyConfigureFallback != nullptr)
+			EnemyFamilyConfigureFallback(enemy);
+	}
+
+	void CaptureEnemyFamilyConfigureRoutine(uint16_t roomId, uint8_t entityId)
+	{
+		const EnemyFamilyDispatch* dispatch = FindEnemyFamilyDispatch(roomId);
+		if (dispatch == nullptr ||
+			std::find(dispatch->entityIds.begin(), dispatch->entityIds.end(), entityId) == dispatch->entityIds.end() ||
+			EnemyFamilyConfigureSlot == nullptr)
+			return;
+
+		const EnemyFamilyConfigureRoutine observed = *EnemyFamilyConfigureSlot;
+		if (observed != EnemyFamilyConfigureDispatcher)
+		{
+			const EnemyFamilyConfigureRoutine expected = ExpectedEnemyFamilyConfigureRoutines[entityId];
+			if (observed != expected)
+			{
+				spd::log()->error(
+					"Enemy family dispatch refused: room=0x{:04X}, id=0x{:02X}, expected routine=0x{:08X}, observed=0x{:08X}",
+					roomId, entityId, reinterpret_cast<uintptr_t>(expected), reinterpret_cast<uintptr_t>(observed));
+				return;
+			}
+			EnemyFamilyConfigureRoutines[entityId] = observed;
+			EnemyFamilyConfigureFallback = observed;
+			spd::log()->info("Enemy family dispatch captured: room=0x{:04X}, id=0x{:02X}, routine=0x{:08X}",
+				roomId, entityId, reinterpret_cast<uintptr_t>(observed));
+		}
+
+		const bool allCaptured = std::all_of(dispatch->entityIds.begin(), dispatch->entityIds.end(),
+			[](const uint8_t id) { return EnemyFamilyConfigureRoutines[id] != nullptr; });
+		if (allCaptured)
+		{
+			*EnemyFamilyConfigureSlot = EnemyFamilyConfigureDispatcher;
+			spd::log()->info("Enemy family dispatch installed for room=0x{:04X}", roomId);
+		}
+	}
+
 	void PreloadEnemyModules(uint16_t roomId)
 	{
 		const auto match = std::find_if(EnemyModulePreloads.begin(), EnemyModulePreloads.end(),
@@ -603,7 +753,10 @@ namespace
 			if (result == nullptr)
 				spd::log()->error("Enemy module preload failed: room=0x{:04X}, id=0x{:02X}", roomId, entityId);
 			else
+			{
+				CaptureEnemyFamilyConfigureRoutine(roomId, entityId);
 				spd::log()->info("Enemy module preload complete: room=0x{:04X}, id=0x{:02X}, data={}", roomId, entityId, result);
+			}
 		}
 	}
 
@@ -615,15 +768,23 @@ namespace
 			"Enemy module request observed: room=0x{:04X}, id=0x{:02X}, result={}",
 			roomId, entityId, result);
 		if (result != nullptr)
+		{
+			CaptureEnemyFamilyConfigureRoutine(roomId, static_cast<uint8_t>(entityId));
 			PreloadEnemyModules(roomId);
+		}
 		return result;
 	}
 
 	void InitializeEnemyModulePreloads()
 	{
 		const auto preloads = LoadEnemyModulePreloads();
-		if (!preloads || preloads->empty())
+		const auto dispatches = LoadEnemyFamilyDispatches();
+		if (!preloads || !dispatches)
+			return;
+		if (preloads->empty())
 		{
+			if (!dispatches->empty())
+				spd::log()->error("Enemy family dispatch disabled: module preloads must be enabled");
 			spd::log()->info("Enemy module preloads disabled by configuration");
 			return;
 		}
@@ -637,11 +798,23 @@ namespace
 			"55 8B EC 53 8A 5D 08 88 5D 08 80 FB 03 74 ? 80 FB 05 74 ? 80 FB 0C 75 ?");
 		auto thunkPattern = hook::pattern(
 			"E9 9A 64 2A 00 E9 C5 D9 3E 00 E9 E0 18 33 00");
-		if (readPattern.size() != 1 || thunkPattern.size() != 1)
+		auto em10InitPattern = hook::pattern(
+			"55 8B EC 83 EC 20 A1 ? ? ? ? 33 C5 89 45 FC A1 ? ? ? ? 56 8B 75 08 85 C0 75 ?");
+		auto em12PrologPattern = hook::pattern(
+			"C7 05 68 70 C5 00 14 BF 40 00 C7 05 7C 01 C5 00 EE 2B 40 00 C3");
+		auto em15PrologPattern = hook::pattern(
+			"C7 05 68 70 C5 00 10 7D 40 00 C7 05 7C 01 C5 00 D8 46 40 00 C3");
+		auto em20PrologPattern = hook::pattern(
+			"C7 05 68 70 C5 00 18 7A 40 00 C7 05 7C 01 C5 00 31 E8 40 00 C3");
+		const bool dispatchRequested = !dispatches->empty();
+		if (readPattern.size() != 1 || thunkPattern.size() != 1 ||
+			(dispatchRequested && (em10InitPattern.size() != 1 || em12PrologPattern.size() != 1 ||
+				em15PrologPattern.size() != 1 || em20PrologPattern.size() != 1)))
 		{
 			spd::log()->error(
-				"Enemy module preloads disabled: signatures matched EmReadSearch={}, thunk={}",
-				readPattern.size(), thunkPattern.size());
+				"Enemy module preloads disabled: signatures matched EmReadSearch={}, thunk={}, em10={}, em12={}, em15={}, em20={}",
+				readPattern.size(), thunkPattern.size(), em10InitPattern.size(), em12PrologPattern.size(),
+				em15PrologPattern.size(), em20PrologPattern.size());
 			return;
 		}
 
@@ -657,7 +830,26 @@ namespace
 		}
 
 		EnemyModulePreloads = *preloads;
+		EnemyFamilyDispatches = *dispatches;
 		EmReadSearch = reinterpret_cast<EmReadSearchRoutine>(readAddress);
+		if (dispatchRequested)
+		{
+			const uintptr_t configureSlotAddress = em10InitPattern.get(0).get<uintptr_t>(0x11);
+			if (configureSlotAddress != 0x00C5017C)
+			{
+				spd::log()->error("Enemy family dispatch disabled: unexpected configure slot 0x{:08X}", configureSlotAddress);
+				EnemyFamilyDispatches.clear();
+			}
+			else
+			{
+				EnemyFamilyConfigureSlot = reinterpret_cast<EnemyFamilyConfigureRoutine*>(configureSlotAddress);
+				ExpectedEnemyFamilyConfigureRoutines[0x12] = reinterpret_cast<EnemyFamilyConfigureRoutine>(em12PrologPattern.get(0).get<uintptr_t>(0x10));
+				ExpectedEnemyFamilyConfigureRoutines[0x15] = reinterpret_cast<EnemyFamilyConfigureRoutine>(em15PrologPattern.get(0).get<uintptr_t>(0x10));
+				ExpectedEnemyFamilyConfigureRoutines[0x20] = reinterpret_cast<EnemyFamilyConfigureRoutine>(em20PrologPattern.get(0).get<uintptr_t>(0x10));
+				spd::log()->info("Enemy family dispatch armed: slot=0x{:08X}, room_entries={}",
+					configureSlotAddress, EnemyFamilyDispatches.size());
+			}
+		}
 		InjectHook(thunkAddress, EnemyModuleReadSearchHook, HookType::Jump);
 		spd::log()->info(
 			"Enemy module preloads installed: EmReadSearch=0x{:08X}, thunk=0x{:08X}, room_entries={}",
