@@ -6,6 +6,7 @@
 #include <iterator>
 #include <optional>
 #include <string>
+#include <vector>
 #include <nlohmann/json.hpp>
 #include "dllmain.h"
 #include "ConsoleWnd.h"
@@ -45,7 +46,41 @@ namespace
 	constexpr size_t kWeaponCount = 49;
 	constexpr size_t kFirepowerLevelCount = 7;
 
-	std::optional<float> LoadHandgunFirepowerOverride()
+	struct WeaponFirepowerDefinition
+	{
+		const char* configName;
+		EItemId itemId;
+	};
+
+	struct WeaponFirepowerOverride
+	{
+		const char* configName;
+		EItemId itemId;
+		std::array<float, kFirepowerLevelCount> levels;
+	};
+
+	struct EnemyHitObservationConfig
+	{
+		bool enabled = false;
+		std::vector<uint8_t> entityIds;
+	};
+
+	using EnemyLifeDownRoutine = int(__cdecl*)(cEm*, int, int, uint32_t);
+	EnemyLifeDownRoutine EnemyLifeDown = nullptr;
+	std::vector<uint8_t> EnemyHitObservationEntityIds;
+
+	constexpr WeaponFirepowerDefinition kWeaponDefinitions[] = {
+		{ "handgun", EItemId::Ruger },
+		{ "punisher", EItemId::FN57 },
+		{ "matilda", EItemId::VP70 },
+		{ "red9", EItemId::Mauser },
+		{ "blacktail", EItemId::XD9 },
+		{ "shotgun", EItemId::Shotgun },
+		{ "riot_gun", EItemId::Riot_Gun },
+		{ "striker", EItemId::Striker },
+	};
+
+	std::optional<std::vector<WeaponFirepowerOverride>> LoadWeaponFirepowerOverrides()
 	{
 		const auto configPath = std::filesystem::path(rootPath) / L"re4_tweaks" / L"weapons.yaml";
 		if (!std::filesystem::exists(configPath))
@@ -78,24 +113,43 @@ namespace
 				return std::nullopt;
 			}
 
-			const auto& handgun = config.at("weapons").at("handgun");
-			if (!handgun.value("enabled", false))
-				return std::nullopt;
-
-			if (handgun.value("item_id", -1) != int(EItemId::Ruger))
+			const auto& weapons = config.at("weapons");
+			std::vector<WeaponFirepowerOverride> overrides;
+			for (const auto& definition : kWeaponDefinitions)
 			{
-				spd::log()->error("Weapon overrides disabled: handgun item_id must be {}", int(EItemId::Ruger));
-				return std::nullopt;
+				if (!weapons.contains(definition.configName))
+					continue;
+
+				const auto& weapon = weapons.at(definition.configName);
+				if (!weapon.value("enabled", false))
+					continue;
+				if (weapon.value("item_id", -1) != int(definition.itemId))
+				{
+					spd::log()->error("Weapon overrides disabled: {} item_id must be {}", definition.configName, int(definition.itemId));
+					return std::nullopt;
+				}
+
+				const auto& values = weapon.at("firepower_levels");
+				if (!values.is_array() || values.size() != kFirepowerLevelCount)
+				{
+					spd::log()->error("Weapon overrides disabled: {} must provide exactly {} firepower levels", definition.configName, kFirepowerLevelCount);
+					return std::nullopt;
+				}
+
+				WeaponFirepowerOverride override{ definition.configName, definition.itemId, {} };
+				for (size_t index = 0; index < kFirepowerLevelCount; ++index)
+				{
+					override.levels[index] = values.at(index).get<float>();
+					if (!std::isfinite(override.levels[index]) || override.levels[index] <= 0.0f || override.levels[index] > 999.0f)
+					{
+						spd::log()->error("Weapon overrides disabled: {} firepower level {} must be in (0, 999]", definition.configName, index + 1);
+						return std::nullopt;
+					}
+				}
+				overrides.push_back(override);
 			}
 
-			const float firepower = handgun.at("firepower").get<float>();
-			if (!std::isfinite(firepower) || firepower <= 0.0f || firepower > 999.0f)
-			{
-				spd::log()->error("Weapon overrides disabled: handgun firepower must be in (0, 999]");
-				return std::nullopt;
-			}
-
-			return firepower;
+			return overrides;
 		}
 		catch (const std::exception& error)
 		{
@@ -104,15 +158,15 @@ namespace
 		}
 	}
 
-	void ApplyHandgunFirepowerOverride()
+	void ApplyWeaponFirepowerOverrides()
 	{
-		const auto firepower = LoadHandgunFirepowerOverride();
-		if (!firepower)
+		const auto overrides = LoadWeaponFirepowerOverrides();
+		if (!overrides || overrides->empty())
 			return;
 
 		if (GameVersion() != "1.1.0")
 		{
-			spd::log()->error("Handgun firepower override disabled: unsupported game version {}", GameVersion());
+			spd::log()->error("Weapon firepower overrides disabled: unsupported game version {}", GameVersion());
 			return;
 		}
 
@@ -123,7 +177,7 @@ namespace
 		if (tableMatchCount != 1)
 		{
 			spd::log()->error(
-				"Handgun firepower override disabled: WeaponLevelTbl signature matched {} locations",
+				"Weapon firepower overrides disabled: WeaponLevelTbl signature matched {} locations",
 				tableMatchCount);
 			return;
 		}
@@ -134,33 +188,179 @@ namespace
 		if (displayMatchCount != 1)
 		{
 			spd::log()->error(
-				"Handgun firepower override disabled: Merchant display signature matched {} locations",
+				"Weapon firepower overrides disabled: Merchant display signature matched {} locations",
 				displayMatchCount);
 			return;
 		}
 
 		auto WeaponLevelTbl = *tablePattern.get(0).get<float(*)[49][7]>(3);
-		const auto handgunWeaponNo = bio4::WeaponId2WeaponNo(ITEM_ID(EItemId::Ruger));
-
-		if (handgunWeaponNo >= kWeaponCount)
+		std::vector<uint8_t> weaponRows;
+		weaponRows.reserve(overrides->size());
+		for (const auto& override : *overrides)
 		{
-			spd::log()->error("Handgun firepower override disabled: invalid weapon number {}", handgunWeaponNo);
-			return;
+			const auto weaponNo = bio4::WeaponId2WeaponNo(ITEM_ID(override.itemId));
+			if (weaponNo >= kWeaponCount)
+			{
+				spd::log()->error("Weapon firepower overrides disabled: {} resolved invalid weapon number {}", override.configName, weaponNo);
+				return;
+			}
+			weaponRows.push_back(weaponNo);
 		}
-
-		std::array<float, kFirepowerLevelCount> levels;
-		levels.fill(*firepower);
 
 		// getPowerRatio normally divides every displayed value by the Handgun's
 		// level-one value. That value is 1.0 in the original table, so removing the
 		// division preserves vanilla displays while allowing the overridden Handgun
 		// row to be shown as its absolute firepower.
 		injector::MakeNOP(displayPattern.get(0).get<uint8_t>(7), 6, true);
-		std::copy(levels.begin(), levels.end(), std::begin((*WeaponLevelTbl)[handgunWeaponNo]));
+		for (size_t index = 0; index < overrides->size(); ++index)
+		{
+			const auto& override = overrides->at(index);
+			std::copy(override.levels.begin(), override.levels.end(), std::begin((*WeaponLevelTbl)[weaponRows[index]]));
+			spd::log()->info("{} firepower override enabled: item_id={}, weapon_no={}, levels=[{},{},{},{},{},{},{}]",
+				override.configName, int(override.itemId), weaponRows[index],
+				override.levels[0], override.levels[1], override.levels[2], override.levels[3],
+				override.levels[4], override.levels[5], override.levels[6]);
+		}
+	}
 
+	std::optional<EnemyHitObservationConfig> LoadEnemyHitObservationConfig()
+	{
+		const auto configPath = std::filesystem::path(rootPath) / L"re4_tweaks" / L"enemy-profiles.json";
+		if (!std::filesystem::exists(configPath))
+		{
+			spd::log()->info("Enemy hit observation disabled: {} was not found", configPath.string());
+			return std::nullopt;
+		}
+
+		try
+		{
+			std::ifstream configFile(configPath);
+			if (!configFile)
+			{
+				spd::log()->error("Enemy hit observation disabled: unable to open {}", configPath.string());
+				return std::nullopt;
+			}
+
+			nlohmann::json config;
+			configFile >> config;
+			if (config.value("schema_version", 0) != 1)
+			{
+				spd::log()->error("Enemy hit observation disabled: unsupported schema_version");
+				return std::nullopt;
+			}
+			if (config.value("target_sha256", std::string()) != kSupportedBio4Sha256)
+			{
+				spd::log()->error("Enemy hit observation disabled: target_sha256 does not match this build");
+				return std::nullopt;
+			}
+
+			const auto& observation = config.at("observation");
+			EnemyHitObservationConfig result;
+			result.enabled = observation.value("enabled", false);
+			if (!result.enabled)
+				return result;
+
+			const auto& entityIds = observation.at("entity_ids");
+			if (!entityIds.is_array())
+			{
+				spd::log()->error("Enemy hit observation disabled: entity_ids must be an array");
+				return std::nullopt;
+			}
+			for (const auto& value : entityIds)
+			{
+				const int entityId = value.get<int>();
+				if (entityId < 0 || entityId > 0xFF)
+				{
+					spd::log()->error("Enemy hit observation disabled: entity id {} is outside [0, 255]", entityId);
+					return std::nullopt;
+				}
+				result.entityIds.push_back(static_cast<uint8_t>(entityId));
+			}
+			return result;
+		}
+		catch (const std::exception& error)
+		{
+			spd::log()->error("Enemy hit observation disabled: invalid enemy-profiles.json ({})", error.what());
+			return std::nullopt;
+		}
+	}
+
+	int __cdecl EnemyLifeDownObserver(cEm* entity, int damage, int randomAmplitude, uint32_t flags)
+	{
+		const bool shouldObserve = entity != nullptr && IsEnemy(entity->id_100) &&
+			(EnemyHitObservationEntityIds.empty() ||
+				std::find(EnemyHitObservationEntityIds.begin(), EnemyHitObservationEntityIds.end(), entity->id_100) != EnemyHitObservationEntityIds.end());
+		if (!shouldObserve)
+			return EnemyLifeDown(entity, damage, randomAmplitude, flags);
+
+		const int hpBefore = entity->hp_324;
+		const int partNumber = entity->m_DmgInfo_328.m_pDamageYarare_18 != nullptr
+			? entity->m_DmgInfo_328.m_pDamageYarare_18->parts_no_26
+			: -1;
+		const unsigned weapon = entity->m_DmgInfo_328.m_Wep_6;
+		const unsigned roomId = GlobalPtr()->curRoomId_4FAC;
+		const unsigned emListNumber = static_cast<uint8_t>(GlobalPtr()->curEmListNumber_4FB3);
+		const unsigned emListIndex = entity->emListIndex_3A0;
+		const unsigned entityId = entity->id_100;
+		const unsigned entityType = entity->type_101;
+		const unsigned guid = entity->guid_F8;
+
+		const int result = EnemyLifeDown(entity, damage, randomAmplitude, flags);
 		spd::log()->info(
-			"Handgun firepower override enabled: item_id={}, weapon_no={}, all levels={}, Merchant display normalized to absolute values",
-			int(EItemId::Ruger), handgunWeaponNo, *firepower);
+			"Enemy hit observation: room=0x{:04X}, em_list={}, index={}, id=0x{:02X}, type=0x{:02X}, guid=0x{:08X}, weapon=0x{:02X}, part={}, hp_before={}, requested_damage={}, random_amplitude={}, flags=0x{:08X}, hp_after={}",
+			roomId, emListNumber, emListIndex, entityId, entityType, guid, weapon, partNumber,
+			hpBefore, damage, randomAmplitude, flags, result);
+		return result;
+	}
+
+	void InstallEnemyHitObserver()
+	{
+		const auto config = LoadEnemyHitObservationConfig();
+		if (!config || !config->enabled)
+		{
+			spd::log()->info("Enemy hit observation disabled by configuration");
+			return;
+		}
+		if (GameVersion() != "1.1.0")
+		{
+			spd::log()->error("Enemy hit observation disabled: unsupported game version {}", GameVersion());
+			return;
+		}
+
+		auto lifeDownPattern = hook::pattern(
+			"55 8B EC 53 56 57 E8 ? ? ? ? 0F B6 F0 C1 E6 08 E8 ? ? ? ? 8B 4D 10 8B 7D 0C");
+		const auto lifeDownMatchCount = lifeDownPattern.size();
+		if (lifeDownMatchCount != 1)
+		{
+			spd::log()->error("Enemy hit observation disabled: LifeDown signature matched {} locations", lifeDownMatchCount);
+			return;
+		}
+
+		auto thunkPattern = hook::pattern("E9 2A E9 1A 00");
+		const auto thunkMatchCount = thunkPattern.size();
+		if (thunkMatchCount != 1)
+		{
+			spd::log()->error("Enemy hit observation disabled: LifeDown thunk signature matched {} locations", thunkMatchCount);
+			return;
+		}
+
+		const auto lifeDownAddress = lifeDownPattern.get(0).get_uintptr(0);
+		const auto thunkAddress = thunkPattern.get(0).get_uintptr(0);
+		const auto thunkDestination = injector::GetBranchDestination(thunkAddress).as_int();
+		if (thunkDestination != lifeDownAddress)
+		{
+			spd::log()->error(
+				"Enemy hit observation disabled: LifeDown thunk destination 0x{:08X} does not match signature address 0x{:08X}",
+				thunkDestination, lifeDownAddress);
+			return;
+		}
+
+		EnemyLifeDown = reinterpret_cast<EnemyLifeDownRoutine>(lifeDownAddress);
+		EnemyHitObservationEntityIds = config->entityIds;
+		InjectHook(thunkAddress, EnemyLifeDownObserver, HookType::Jump);
+		spd::log()->info(
+			"Enemy hit observation installed: LifeDown=0x{:08X}, thunk=0x{:08X}, entity_filter_count={}",
+			lifeDownAddress, thunkAddress, EnemyHitObservationEntityIds.size());
 	}
 }
 
@@ -280,7 +480,8 @@ void __declspec(naked) ChicagoAmmoDrop()
 
 void re4t::init::Gameplay()
 {
-	ApplyHandgunFirepowerOverride();
+	ApplyWeaponFirepowerOverrides();
+	InstallEnemyHitObserver();
 
 	// Make the Chicago Typewriter not upgraded by default and try to balance it more for normal gameplay.
 	// This mostly works fine for Ada too (minus the fact the Merchant has no upgrades in SW...), but the bigger problem
