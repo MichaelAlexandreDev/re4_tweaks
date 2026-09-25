@@ -113,10 +113,12 @@ namespace
 
 	using EnemyLifeDownRoutine = int(__cdecl*)(cEm*, int, int, uint32_t);
 	using EnemyListLoadRoutine = void(__cdecl*)(uint32_t);
+	using EnemySetEventRoutine = cEm* (__cdecl*)(EM_LIST*);
 	using EmReadSearchRoutine = void* (__cdecl*)(uint32_t, void*, uint32_t);
 	using EnemyFamilyConfigureRoutine = void(__cdecl*)(void*);
 	EnemyLifeDownRoutine EnemyLifeDown = nullptr;
 	EnemyListLoadRoutine EnemyListLoad = nullptr;
+	EnemySetEventRoutine EnemySetEvent = nullptr;
 	EmReadSearchRoutine EmReadSearch = nullptr;
 	std::vector<uint8_t> EnemyHitObservationEntityIds;
 	std::vector<EnemySpawnProfile> EnemySpawnProfiles;
@@ -126,7 +128,6 @@ namespace
 	std::array<EnemyFamilyConfigureRoutine, 0x100> EnemyFamilyConfigureRoutines{};
 	std::array<EnemyFamilyConfigureRoutine, 0x100> ExpectedEnemyFamilyConfigureRoutines{};
 	EnemyFamilyConfigureRoutine* EnemyFamilyConfigureSlot = nullptr;
-	EnemyFamilyConfigureRoutine EnemyFamilyConfigureFallback = nullptr;
 
 	constexpr WeaponFirepowerDefinition kWeaponDefinitions[] = {
 		{ "handgun", EItemId::Ruger },
@@ -701,24 +702,21 @@ namespace
 			return;
 		}
 
-		spd::log()->error("Enemy family dispatch fallback: no captured routine for id=0x{:02X}", entityId);
-		if (EnemyFamilyConfigureFallback != nullptr)
-			EnemyFamilyConfigureFallback(enemy);
+		spd::log()->error("Enemy family dispatch refused: no captured routine for id=0x{:02X}", entityId);
 	}
 
 	void CaptureEnemyFamilyConfigureRoutine(uint16_t roomId, uint8_t entityId)
 	{
 		const EnemyFamilyDispatch* dispatch = FindEnemyFamilyDispatch(roomId);
-		if (dispatch == nullptr ||
-			std::find(dispatch->entityIds.begin(), dispatch->entityIds.end(), entityId) == dispatch->entityIds.end() ||
-			EnemyFamilyConfigureSlot == nullptr)
+		if (dispatch == nullptr || EnemyFamilyConfigureSlot == nullptr)
 			return;
 
 		const EnemyFamilyConfigureRoutine observed = *EnemyFamilyConfigureSlot;
 		if (observed != EnemyFamilyConfigureDispatcher)
 		{
+			const bool configuredFamily = std::find(dispatch->entityIds.begin(), dispatch->entityIds.end(), entityId) != dispatch->entityIds.end();
 			const EnemyFamilyConfigureRoutine expected = ExpectedEnemyFamilyConfigureRoutines[entityId];
-			if (observed != expected)
+			if (configuredFamily && observed != expected)
 			{
 				spd::log()->error(
 					"Enemy family dispatch refused: room=0x{:04X}, id=0x{:02X}, expected routine=0x{:08X}, observed=0x{:08X}",
@@ -726,7 +724,6 @@ namespace
 				return;
 			}
 			EnemyFamilyConfigureRoutines[entityId] = observed;
-			EnemyFamilyConfigureFallback = observed;
 			spd::log()->info("Enemy family dispatch captured: room=0x{:04X}, id=0x{:02X}, routine=0x{:08X}",
 				roomId, entityId, reinterpret_cast<uintptr_t>(observed));
 		}
@@ -738,6 +735,70 @@ namespace
 			*EnemyFamilyConfigureSlot = EnemyFamilyConfigureDispatcher;
 			spd::log()->info("Enemy family dispatch installed for room=0x{:04X}", roomId);
 		}
+	}
+
+	void ApplyActiveEnemyOverride(EM_LIST* source)
+	{
+		if (source == nullptr)
+			return;
+
+		const uint16_t roomId = static_cast<uint16_t>(GlobalPtr()->curRoomId_4FAC);
+		const uint8_t sourceId = static_cast<uint8_t>(source->id_1);
+		const uint8_t sourceType = static_cast<uint8_t>(source->type_2);
+		const auto match = std::find_if(EnemyListOverrides.begin(), EnemyListOverrides.end(),
+			[&](const EnemyListOverride& entry) {
+				return entry.roomId == roomId && entry.expectedEntityId == sourceId && entry.expectedType == sourceType;
+			});
+		if (match == EnemyListOverrides.end())
+			return;
+
+		source->id_1 = static_cast<char>(match->replacementEntityId);
+		source->type_2 = static_cast<char>(match->replacementType);
+		spd::log()->info(
+			"Active enemy override applied: room=0x{:04X}, source={} id/type 0x{:02X}/0x{:02X} -> 0x{:02X}/0x{:02X}",
+			roomId, static_cast<const void*>(source), sourceId, sourceType,
+			match->replacementEntityId, match->replacementType);
+	}
+
+	cEm* __cdecl EnemySetEventHook(EM_LIST* source)
+	{
+		ApplyActiveEnemyOverride(source);
+		cEm* const entity = EnemySetEvent(source);
+		if (entity != nullptr)
+		{
+			spd::log()->info("Active enemy spawn result: source={} id/type 0x{:02X}/0x{:02X}, entity id/type 0x{:02X}/0x{:02X}",
+				static_cast<const void*>(source), static_cast<uint8_t>(source->id_1), static_cast<uint8_t>(source->type_2),
+				entity->id_100, entity->type_101);
+		}
+		return entity;
+	}
+
+	void InitializeActiveEnemyOverrides()
+	{
+		if (EnemyListOverrides.empty())
+			return;
+		if (re4t::cfg->bEnableModExpansion)
+		{
+			spd::log()->error("Active enemy overrides disabled: ModExpansion already owns EmSetEvent");
+			return;
+		}
+
+		auto callPattern = hook::pattern("52 66 89 45 E4 66 89 4D F6 E8");
+		if (callPattern.size() != 1)
+		{
+			spd::log()->error("Active enemy overrides disabled: EmSetEvent caller signature matched {} locations", callPattern.size());
+			return;
+		}
+		const uintptr_t thunkAddress = injector::GetBranchDestination(callPattern.get(0).get<uint32_t>(9)).as_int();
+		ReadCall(thunkAddress, EnemySetEvent);
+		if (EnemySetEvent == nullptr)
+		{
+			spd::log()->error("Active enemy overrides disabled: failed to resolve EmSetEvent");
+			return;
+		}
+		InjectHook(thunkAddress, EnemySetEventHook, HookType::Jump);
+		spd::log()->info("Active enemy overrides installed: EmSetEvent thunk=0x{:08X}, entries={}",
+			thunkAddress, EnemyListOverrides.size());
 	}
 
 	void PreloadEnemyModules(uint16_t roomId)
@@ -1224,6 +1285,7 @@ void re4t::init::Gameplay()
 	InitializeEnemyModulePreloads();
 	InitializeEnemySpawnProfiles();
 	InitializeEnemyListOverrides();
+	InitializeActiveEnemyOverrides();
 	InstallEnemyHitObserver();
 
 	// Make the Chicago Typewriter not upgraded by default and try to balance it more for normal gameplay.
