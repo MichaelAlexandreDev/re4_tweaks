@@ -159,6 +159,7 @@ echo | set /p dummyName=#define GIT_BRANCH ^"%VAR%^" &gt;&gt; gitparams.h</Comma
     <ClCompile Include="input.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="KeyboardMouseTweaks.cpp" />
+    <ClCompile Include="LeonKrauserBow.cpp" />
     <ClCompile Include="LAApatch.cpp" />
     <ClCompile Include="Misc.cpp" />
     <ClCompile Include="ModExpansion.cpp" />

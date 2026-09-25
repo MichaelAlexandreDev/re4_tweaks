@@ -107,6 +107,10 @@ void Init_Main()
 
 	re4t::init::Misc();
 
+	// Experimental, version-scoped Krauser bow port for Leon. Its own config is
+	// default-off and all signatures are validated before it mutates game state.
+	re4t::init::LeonKrauserBow();
+
 	if (re4t::cfg->bEnableModExpansion)
 		re4t::init::ModExpansion();
 

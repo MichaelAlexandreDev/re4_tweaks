@@ -34,6 +34,7 @@ namespace re4t
 		void HDProject();
 		void HUDTweaks();
 		void KeyboardMouseTweaks();
+		void LeonKrauserBow();
 		void MathReimpl();
 		void Misc();
 		void MouseTurning();
