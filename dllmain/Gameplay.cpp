@@ -834,7 +834,7 @@ namespace
 		EmReadSearch = reinterpret_cast<EmReadSearchRoutine>(readAddress);
 		if (dispatchRequested)
 		{
-			const uintptr_t configureSlotAddress = em10InitPattern.get(0).get<uintptr_t>(0x11);
+			const uintptr_t configureSlotAddress = em10InitPattern.get(0).get_uintptr(0x11);
 			if (configureSlotAddress != 0x00C5017C)
 			{
 				spd::log()->error("Enemy family dispatch disabled: unexpected configure slot 0x{:08X}", configureSlotAddress);
@@ -843,9 +843,9 @@ namespace
 			else
 			{
 				EnemyFamilyConfigureSlot = reinterpret_cast<EnemyFamilyConfigureRoutine*>(configureSlotAddress);
-				ExpectedEnemyFamilyConfigureRoutines[0x12] = reinterpret_cast<EnemyFamilyConfigureRoutine>(em12PrologPattern.get(0).get<uintptr_t>(0x10));
-				ExpectedEnemyFamilyConfigureRoutines[0x15] = reinterpret_cast<EnemyFamilyConfigureRoutine>(em15PrologPattern.get(0).get<uintptr_t>(0x10));
-				ExpectedEnemyFamilyConfigureRoutines[0x20] = reinterpret_cast<EnemyFamilyConfigureRoutine>(em20PrologPattern.get(0).get<uintptr_t>(0x10));
+				ExpectedEnemyFamilyConfigureRoutines[0x12] = reinterpret_cast<EnemyFamilyConfigureRoutine>(em12PrologPattern.get(0).get_uintptr(0x10));
+				ExpectedEnemyFamilyConfigureRoutines[0x15] = reinterpret_cast<EnemyFamilyConfigureRoutine>(em15PrologPattern.get(0).get_uintptr(0x10));
+				ExpectedEnemyFamilyConfigureRoutines[0x20] = reinterpret_cast<EnemyFamilyConfigureRoutine>(em20PrologPattern.get(0).get_uintptr(0x10));
 				spd::log()->info("Enemy family dispatch armed: slot=0x{:08X}, room_entries={}",
 					configureSlotAddress, EnemyFamilyDispatches.size());
 			}
