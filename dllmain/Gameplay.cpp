@@ -111,6 +111,16 @@ namespace
 		std::string label;
 	};
 
+	struct CrowCurrencyReward
+	{
+		uint16_t roomId;
+		uint8_t emListNumber;
+		uint8_t emListIndex;
+		uint8_t expectedEntityId;
+		uint8_t expectedType;
+		std::string label;
+	};
+
 	struct EnemyModulePreload
 	{
 		uint16_t roomId;
@@ -124,15 +134,19 @@ namespace
 	};
 
 	using EnemyLifeDownRoutine = int(__cdecl*)(cEm*, int, int, uint32_t);
+	using EnemyCurrencyAddRoutine = bool(__fastcall*)(uint32_t);
 	using EnemyListLoadRoutine = void(__cdecl*)(uint32_t);
 	using EnemySetEventRoutine = cEm* (__cdecl*)(EM_LIST*);
 	using EmReadSearchRoutine = void* (__cdecl*)(uint32_t, void*, uint32_t);
 	using EnemyFamilyConfigureRoutine = void(__cdecl*)(void*);
 	EnemyLifeDownRoutine EnemyLifeDown = nullptr;
+	EnemyCurrencyAddRoutine EnemyCurrencyAdd = nullptr;
 	EnemyListLoadRoutine EnemyListLoad = nullptr;
 	EnemySetEventRoutine EnemySetEvent = nullptr;
 	EmReadSearchRoutine EmReadSearch = nullptr;
+	bool EnemyHitObservationEnabled = false;
 	std::vector<uint8_t> EnemyHitObservationEntityIds;
+	std::vector<CrowCurrencyReward> CrowCurrencyRewards;
 	std::vector<EnemySpawnProfile> EnemySpawnProfiles;
 	std::vector<EnemyListOverride> EnemyListOverrides;
 	std::vector<EnemyListFlagOverride> EnemyListFlagOverrides;
@@ -327,8 +341,11 @@ namespace
 				return std::nullopt;
 			}
 
-			const auto& observation = config.at("observation");
 			EnemyHitObservationConfig result;
+			if (!config.contains("observation"))
+				return result;
+
+			const auto& observation = config.at("observation");
 			result.enabled = observation.value("enabled", false);
 			if (!result.enabled)
 				return result;
@@ -354,6 +371,88 @@ namespace
 		catch (const std::exception& error)
 		{
 			spd::log()->error("Enemy hit observation disabled: invalid enemy-profiles.json ({})", error.what());
+			return std::nullopt;
+		}
+	}
+
+	std::optional<std::vector<CrowCurrencyReward>> LoadCrowCurrencyRewards()
+	{
+		const auto configPath = std::filesystem::path(rootPath) / L"re4_tweaks" / L"enemy-profiles.json";
+		if (!std::filesystem::exists(configPath))
+			return std::nullopt;
+
+		try
+		{
+			std::ifstream configFile(configPath);
+			if (!configFile)
+			{
+				spd::log()->error("Crow currency rewards disabled: unable to open {}", configPath.string());
+				return std::nullopt;
+			}
+
+			nlohmann::json config;
+			configFile >> config;
+			if (config.value("schema_version", 0) != 1 ||
+				config.value("target_sha256", std::string()) != kSupportedBio4Sha256)
+			{
+				spd::log()->error("Crow currency rewards disabled: schema or target hash mismatch");
+				return std::nullopt;
+			}
+			if (!config.contains("crow_currency_rewards"))
+				return std::vector<CrowCurrencyReward>();
+
+			const auto& section = config.at("crow_currency_rewards");
+			if (!section.value("enabled", false))
+				return std::vector<CrowCurrencyReward>();
+			if (!section.contains("entries") || !section.at("entries").is_array())
+			{
+				spd::log()->error("Crow currency rewards disabled: entries must be an array");
+				return std::nullopt;
+			}
+
+			std::vector<CrowCurrencyReward> rewards;
+			for (const auto& entry : section.at("entries"))
+			{
+				const int roomId = entry.at("room_id").get<int>();
+				const int emListNumber = entry.at("em_list_number").get<int>();
+				const int emListIndex = entry.at("em_list_index").get<int>();
+				const int expectedEntityId = entry.at("expected_entity_id").get<int>();
+				const int expectedType = entry.at("expected_type").get<int>();
+
+				if (roomId < 0 || roomId > 0xFFFF || emListNumber < 0 || emListNumber > 0x12 ||
+					emListIndex < 0 || emListIndex >= 0xFF || expectedEntityId != 0x23 || expectedType != 0x00)
+				{
+					spd::log()->error("Crow currency rewards disabled: invalid room/list/index or expected crow identity 0x23/0x00");
+					return std::nullopt;
+				}
+
+				CrowCurrencyReward reward{
+					static_cast<uint16_t>(roomId), static_cast<uint8_t>(emListNumber),
+					static_cast<uint8_t>(emListIndex), static_cast<uint8_t>(expectedEntityId),
+					static_cast<uint8_t>(expectedType), entry.at("label").get<std::string>()
+				};
+				if (reward.label.empty())
+				{
+					spd::log()->error("Crow currency rewards disabled: label must not be empty");
+					return std::nullopt;
+				}
+				const auto duplicate = std::find_if(rewards.begin(), rewards.end(), [&](const CrowCurrencyReward& other) {
+					return other.roomId == reward.roomId && other.emListNumber == reward.emListNumber &&
+						other.emListIndex == reward.emListIndex;
+				});
+				if (duplicate != rewards.end())
+				{
+					spd::log()->error("Crow currency rewards disabled: duplicate key room=0x{:04X}, list={}, index={}",
+						roomId, emListNumber, emListIndex);
+					return std::nullopt;
+				}
+				rewards.push_back(std::move(reward));
+			}
+			return rewards;
+		}
+		catch (const std::exception& error)
+		{
+			spd::log()->error("Crow currency rewards disabled: invalid enemy-profiles.json ({})", error.what());
 			return std::nullopt;
 		}
 	}
@@ -1169,6 +1268,18 @@ namespace
 		return match != EnemySpawnProfiles.end() ? &*match : nullptr;
 	}
 
+	const CrowCurrencyReward* FindCrowCurrencyReward(
+		uint16_t roomId, uint8_t emListNumber, uint8_t emListIndex, uint8_t entityId, uint8_t entityType)
+	{
+		const auto match = std::find_if(CrowCurrencyRewards.begin(), CrowCurrencyRewards.end(),
+			[&](const CrowCurrencyReward& reward) {
+				return reward.roomId == roomId && reward.emListNumber == emListNumber &&
+					reward.emListIndex == emListIndex && reward.expectedEntityId == entityId &&
+					reward.expectedType == entityType;
+			});
+		return match != CrowCurrencyRewards.end() ? &*match : nullptr;
+	}
+
 	void InitializeEnemySpawnProfiles()
 	{
 		const auto profiles = LoadEnemySpawnProfiles();
@@ -1188,47 +1299,85 @@ namespace
 
 	int __cdecl EnemyLifeDownObserver(cEm* entity, int damage, int randomAmplitude, uint32_t flags)
 	{
-		const bool shouldObserve = entity != nullptr && IsEnemy(entity->id_100) &&
-			(EnemyHitObservationEntityIds.empty() ||
-				std::find(EnemyHitObservationEntityIds.begin(), EnemyHitObservationEntityIds.end(), entity->id_100) != EnemyHitObservationEntityIds.end());
-		if (!shouldObserve)
+		if (entity == nullptr)
 			return EnemyLifeDown(entity, damage, randomAmplitude, flags);
 
 		const int hpBefore = entity->hp_324;
-		const int partNumber = entity->m_DmgInfo_328.m_pDamageYarare_18 != nullptr
-			? entity->m_DmgInfo_328.m_pDamageYarare_18->parts_no_26
-			: -1;
-		const unsigned weapon = entity->m_DmgInfo_328.m_Wep_6;
-		const unsigned roomId = GlobalPtr()->curRoomId_4FAC;
-		const unsigned emListNumber = static_cast<uint8_t>(GlobalPtr()->curEmListNumber_4FB3);
-		const unsigned emListIndex = entity->emListIndex_3A0;
-		const unsigned entityId = entity->id_100;
-		const unsigned entityType = entity->type_101;
-		const unsigned guid = entity->guid_F8;
-		const auto* profile = FindEnemySpawnProfile(static_cast<uint16_t>(roomId),
-			static_cast<uint8_t>(emListNumber), static_cast<uint8_t>(emListIndex));
-		const std::string profileLabel = profile != nullptr ? profile->label : "none";
-		const std::string profileStage = profile != nullptr ? profile->stage : "none";
+		const auto* global = GlobalPtr();
+		if (global == nullptr)
+			return EnemyLifeDown(entity, damage, randomAmplitude, flags);
+		const uint16_t roomId = static_cast<uint16_t>(global->curRoomId_4FAC);
+		const uint8_t emListNumber = static_cast<uint8_t>(global->curEmListNumber_4FB3);
+		const uint8_t emListIndex = entity->emListIndex_3A0;
+		const uint8_t entityId = entity->id_100;
+		const uint8_t entityType = entity->type_101;
+		const bool shouldObserve = EnemyHitObservationEnabled && IsEnemy(entityId) &&
+			(EnemyHitObservationEntityIds.empty() ||
+				std::find(EnemyHitObservationEntityIds.begin(), EnemyHitObservationEntityIds.end(), entityId) != EnemyHitObservationEntityIds.end());
+		const auto* reward = emListIndex != 0xFF
+			? FindCrowCurrencyReward(roomId, emListNumber, emListIndex, entityId, entityType)
+			: nullptr;
+		const bool shouldReward = reward != nullptr && hpBefore > 0;
+		if (!shouldObserve && !shouldReward)
+			return EnemyLifeDown(entity, damage, randomAmplitude, flags);
+
+		int partNumber = -1;
+		unsigned weapon = 0;
+		unsigned guid = 0;
+		std::string profileLabel = "none";
+		std::string profileStage = "none";
+		if (shouldObserve)
+		{
+			partNumber = entity->m_DmgInfo_328.m_pDamageYarare_18 != nullptr
+				? entity->m_DmgInfo_328.m_pDamageYarare_18->parts_no_26
+				: -1;
+			weapon = entity->m_DmgInfo_328.m_Wep_6;
+			guid = entity->guid_F8;
+			const auto* profile = FindEnemySpawnProfile(roomId, emListNumber, emListIndex);
+			if (profile != nullptr)
+			{
+				profileLabel = profile->label;
+				profileStage = profile->stage;
+			}
+		}
 
 		const int result = EnemyLifeDown(entity, damage, randomAmplitude, flags);
-		spd::log()->info(
-			"Enemy hit observation: room=0x{:04X}, em_list={}, index={}, id=0x{:02X}, type=0x{:02X}, guid=0x{:08X}, profile={}, stage={}, weapon=0x{:02X}, part={}, hp_before={}, requested_damage={}, random_amplitude={}, flags=0x{:08X}, hp_after={}",
-			roomId, emListNumber, emListIndex, entityId, entityType, guid, profileLabel, profileStage, weapon, partNumber,
-			hpBefore, damage, randomAmplitude, flags, result);
+		if (shouldObserve)
+		{
+			spd::log()->info(
+				"Enemy hit observation: room=0x{:04X}, em_list={}, index={}, id=0x{:02X}, type=0x{:02X}, guid=0x{:08X}, profile={}, stage={}, weapon=0x{:02X}, part={}, hp_before={}, requested_damage={}, random_amplitude={}, flags=0x{:08X}, hp_after={}",
+				roomId, emListNumber, emListIndex, entityId, entityType, guid, profileLabel, profileStage, weapon, partNumber,
+				hpBefore, damage, randomAmplitude, flags, result);
+		}
+		if (shouldReward && result <= 0)
+		{
+			constexpr uint32_t kCrowRewardPtas = 5000000;
+			const bool credited = EnemyCurrencyAdd(kCrowRewardPtas);
+			if (credited)
+				spd::log()->info("Crow currency reward credited: {}, room=0x{:04X}, em_list={}, index={}, amount={}",
+					reward->label, roomId, emListNumber, emListIndex, kCrowRewardPtas);
+			else
+				spd::log()->error("Crow currency reward failed: {}, room=0x{:04X}, em_list={}, index={}, amount={}",
+					reward->label, roomId, emListNumber, emListIndex, kCrowRewardPtas);
+		}
 		return result;
 	}
 
 	void InstallEnemyHitObserver()
 	{
-		const auto config = LoadEnemyHitObservationConfig();
-		if (!config || !config->enabled)
-		{
+		const auto observation = LoadEnemyHitObservationConfig();
+		const auto rewards = LoadCrowCurrencyRewards();
+		const bool observeHits = observation && observation->enabled;
+		bool rewardCrows = rewards && !rewards->empty();
+		if (!observeHits)
 			spd::log()->info("Enemy hit observation disabled by configuration");
+		if (!rewardCrows)
+			spd::log()->info("Crow currency rewards disabled by configuration");
+		if (!observeHits && !rewardCrows)
 			return;
-		}
 		if (GameVersion() != "1.1.0")
 		{
-			spd::log()->error("Enemy hit observation disabled: unsupported game version {}", GameVersion());
+			spd::log()->error("Enemy LifeDown features disabled: unsupported game version {}", GameVersion());
 			return;
 		}
 
@@ -1237,7 +1386,7 @@ namespace
 		const auto lifeDownMatchCount = lifeDownPattern.size();
 		if (lifeDownMatchCount != 1)
 		{
-			spd::log()->error("Enemy hit observation disabled: LifeDown signature matched {} locations", lifeDownMatchCount);
+			spd::log()->error("Enemy LifeDown features disabled: signature matched {} locations", lifeDownMatchCount);
 			return;
 		}
 
@@ -1245,7 +1394,7 @@ namespace
 		const auto thunkMatchCount = thunkPattern.size();
 		if (thunkMatchCount != 1)
 		{
-			spd::log()->error("Enemy hit observation disabled: LifeDown thunk signature matched {} locations", thunkMatchCount);
+			spd::log()->error("Enemy LifeDown features disabled: thunk signature matched {} locations", thunkMatchCount);
 			return;
 		}
 
@@ -1255,17 +1404,36 @@ namespace
 		if (thunkDestination != lifeDownAddress)
 		{
 			spd::log()->error(
-				"Enemy hit observation disabled: LifeDown thunk destination 0x{:08X} does not match signature address 0x{:08X}",
+				"Enemy LifeDown features disabled: thunk destination 0x{:08X} does not match signature address 0x{:08X}",
 				thunkDestination, lifeDownAddress);
 			return;
 		}
 
+		if (rewardCrows)
+		{
+			auto currencyPattern = hook::pattern("A1 3C 6F C0 00 01 88 A8 4F 00 00 B0 01 C3");
+			const auto currencyMatchCount = currencyPattern.size();
+			if (currencyMatchCount != 1)
+			{
+				spd::log()->error("Crow currency rewards refused: currency-add signature matched {} locations", currencyMatchCount);
+				rewardCrows = false;
+			}
+			else
+			{
+				EnemyCurrencyAdd = reinterpret_cast<EnemyCurrencyAddRoutine>(currencyPattern.get(0).get_uintptr(0));
+				CrowCurrencyRewards = *rewards;
+			}
+		}
+		if (!observeHits && !rewardCrows)
+			return;
+
 		EnemyLifeDown = reinterpret_cast<EnemyLifeDownRoutine>(lifeDownAddress);
-		EnemyHitObservationEntityIds = config->entityIds;
+		EnemyHitObservationEnabled = observeHits;
+		EnemyHitObservationEntityIds = observeHits ? observation->entityIds : std::vector<uint8_t>();
 		InjectHook(thunkAddress, EnemyLifeDownObserver, HookType::Jump);
 		spd::log()->info(
-			"Enemy hit observation installed: LifeDown=0x{:08X}, thunk=0x{:08X}, entity_filter_count={}",
-			lifeDownAddress, thunkAddress, EnemyHitObservationEntityIds.size());
+			"Enemy LifeDown hook installed: LifeDown=0x{:08X}, thunk=0x{:08X}, observation={}, entity_filter_count={}, crow_reward_entries={}",
+			lifeDownAddress, thunkAddress, observeHits, EnemyHitObservationEntityIds.size(), CrowCurrencyRewards.size());
 	}
 }
 
