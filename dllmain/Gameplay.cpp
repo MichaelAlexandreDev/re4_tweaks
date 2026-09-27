@@ -99,6 +99,18 @@ namespace
 		std::string label;
 	};
 
+	struct EnemyListFlagOverride
+	{
+		uint16_t roomId;
+		uint8_t emListNumber;
+		uint8_t emListIndex;
+		uint8_t expectedEntityId;
+		uint8_t expectedType;
+		uint8_t expectedBeFlag;
+		uint8_t replacementBeFlag;
+		std::string label;
+	};
+
 	struct EnemyModulePreload
 	{
 		uint16_t roomId;
@@ -123,6 +135,7 @@ namespace
 	std::vector<uint8_t> EnemyHitObservationEntityIds;
 	std::vector<EnemySpawnProfile> EnemySpawnProfiles;
 	std::vector<EnemyListOverride> EnemyListOverrides;
+	std::vector<EnemyListFlagOverride> EnemyListFlagOverrides;
 	std::vector<EnemyModulePreload> EnemyModulePreloads;
 	std::vector<EnemyFamilyDispatch> EnemyFamilyDispatches;
 	std::array<EnemyFamilyConfigureRoutine, 0x100> EnemyFamilyConfigureRoutines{};
@@ -519,6 +532,88 @@ namespace
 		catch (const std::exception& error)
 		{
 			spd::log()->error("Enemy list overrides disabled: invalid enemy-profiles.json ({})", error.what());
+			return std::nullopt;
+		}
+	}
+
+	std::optional<std::vector<EnemyListFlagOverride>> LoadEnemyListFlagOverrides()
+	{
+		const auto configPath = std::filesystem::path(rootPath) / L"re4_tweaks" / L"enemy-profiles.json";
+		if (!std::filesystem::exists(configPath))
+			return std::nullopt;
+
+		try
+		{
+			std::ifstream configFile(configPath);
+			nlohmann::json config;
+			configFile >> config;
+			if (config.value("schema_version", 0) != 1 ||
+				config.value("target_sha256", std::string()) != kSupportedBio4Sha256)
+			{
+				spd::log()->error("Enemy list flag overrides disabled: schema or target hash mismatch");
+				return std::nullopt;
+			}
+			if (!config.contains("list_flag_overrides"))
+				return std::vector<EnemyListFlagOverride>();
+
+			const auto& section = config.at("list_flag_overrides");
+			if (!section.value("enabled", false))
+				return std::vector<EnemyListFlagOverride>();
+			const auto& entries = section.at("entries");
+			if (!entries.is_array())
+			{
+				spd::log()->error("Enemy list flag overrides disabled: entries must be an array");
+				return std::nullopt;
+			}
+
+			std::vector<EnemyListFlagOverride> overrides;
+			for (const auto& entry : entries)
+			{
+				const int roomId = entry.at("room_id").get<int>();
+				const int emListNumber = entry.at("em_list_number").get<int>();
+				const int emListIndex = entry.at("em_list_index").get<int>();
+				const int expectedEntityId = entry.at("expected_entity_id").get<int>();
+				const int expectedType = entry.at("expected_type").get<int>();
+				const int expectedBeFlag = entry.at("expected_be_flag").get<int>();
+				const int replacementBeFlag = entry.at("replacement_be_flag").get<int>();
+
+				if (roomId < 0 || roomId > 0xFFFF || emListNumber < 0 || emListNumber > 0x12 ||
+					emListIndex < 0 || emListIndex > 0xFF || expectedEntityId < 0 || expectedEntityId > 0xFF ||
+					expectedType < 0 || expectedType > 0xFF || expectedBeFlag < 0 || expectedBeFlag > 0xFF ||
+					replacementBeFlag < 0 || replacementBeFlag > 0xFF)
+				{
+					spd::log()->error("Enemy list flag overrides disabled: invalid values in one override entry");
+					return std::nullopt;
+				}
+
+				EnemyListFlagOverride override{
+					static_cast<uint16_t>(roomId), static_cast<uint8_t>(emListNumber), static_cast<uint8_t>(emListIndex),
+					static_cast<uint8_t>(expectedEntityId), static_cast<uint8_t>(expectedType),
+					static_cast<uint8_t>(expectedBeFlag), static_cast<uint8_t>(replacementBeFlag),
+					entry.at("label").get<std::string>()
+				};
+				if (override.label.empty())
+				{
+					spd::log()->error("Enemy list flag overrides disabled: label must not be empty");
+					return std::nullopt;
+				}
+				const auto duplicate = std::find_if(overrides.begin(), overrides.end(), [&](const EnemyListFlagOverride& other) {
+					return other.roomId == override.roomId && other.emListNumber == override.emListNumber &&
+						other.emListIndex == override.emListIndex;
+				});
+				if (duplicate != overrides.end())
+				{
+					spd::log()->error("Enemy list flag overrides disabled: duplicate key room=0x{:04X}, list={}, index={}",
+						roomId, emListNumber, emListIndex);
+					return std::nullopt;
+				}
+				overrides.push_back(std::move(override));
+			}
+			return overrides;
+		}
+		catch (const std::exception& error)
+		{
+			spd::log()->error("Enemy list flag overrides disabled: invalid enemy-profiles.json ({})", error.what());
 			return std::nullopt;
 		}
 	}
@@ -961,16 +1056,62 @@ namespace
 		}
 	}
 
+	void ApplyEnemyListFlagOverrides()
+	{
+		// Steam list spawners gate on bit 0x02. EmSetEvent does not; keep this
+		// opt-in until room progression and event-spawn coverage are observed.
+		GLOBAL_WK* global = GlobalPtr();
+		const uint8_t emListNumber = static_cast<uint8_t>(global->curEmListNumber_4FB3);
+		for (const auto& override : EnemyListFlagOverrides)
+		{
+			if (override.emListNumber != emListNumber)
+				continue;
+
+			EM_LIST& record = global->Em_list_5410[override.emListIndex];
+			const uint8_t currentId = static_cast<uint8_t>(record.id_1);
+			const uint8_t currentType = static_cast<uint8_t>(record.type_2);
+			const uint8_t currentBeFlag = static_cast<uint8_t>(record.be_flag_0);
+			if (record.room_18 != override.roomId || currentId != override.expectedEntityId ||
+				currentType != override.expectedType || currentBeFlag != override.expectedBeFlag)
+			{
+				const bool alreadyApplied = record.room_18 == override.roomId && currentId == override.expectedEntityId &&
+					currentType == override.expectedType && currentBeFlag == override.replacementBeFlag;
+				if (!alreadyApplied)
+				{
+					spd::log()->error(
+						"Enemy list flag override refused: {} list={}, index={}, expected room/id/type/be=0x{:04X}/0x{:02X}/0x{:02X}/0x{:02X}, found=0x{:04X}/0x{:02X}/0x{:02X}/0x{:02X}",
+						override.label, override.emListNumber, override.emListIndex, override.roomId,
+						override.expectedEntityId, override.expectedType, override.expectedBeFlag,
+						record.room_18, currentId, currentType, currentBeFlag);
+				}
+				continue;
+			}
+
+			record.be_flag_0 = static_cast<EM_BE_FLAG>(override.replacementBeFlag);
+			spd::log()->info(
+				"Enemy list flag override applied: {} list={}, index={}, room=0x{:04X}, id/type=0x{:02X}/0x{:02X}, be_flag=0x{:02X} -> 0x{:02X}",
+				override.label, override.emListNumber, override.emListIndex, override.roomId,
+				override.expectedEntityId, override.expectedType, override.expectedBeFlag, override.replacementBeFlag);
+		}
+	}
+
 	void __cdecl EnemyListLoadHook(uint32_t flags)
 	{
 		EnemyListLoad(flags);
+		ApplyEnemyListFlagOverrides();
 		ApplyEnemyListOverrides();
 	}
 
 	void InitializeEnemyListOverrides()
 	{
 		const auto overrides = LoadEnemyListOverrides();
-		if (!overrides || overrides->empty())
+		const auto flagOverrides = LoadEnemyListFlagOverrides();
+		if (!overrides || !flagOverrides)
+		{
+			spd::log()->info("Enemy list overrides disabled: configuration missing or invalid");
+			return;
+		}
+		if (overrides->empty() && flagOverrides->empty())
 		{
 			spd::log()->info("Enemy list overrides disabled by configuration");
 			return;
@@ -1011,10 +1152,11 @@ namespace
 
 		EnemyListLoad = reinterpret_cast<EnemyListLoadRoutine>(loaderAddress);
 		EnemyListOverrides = *overrides;
+		EnemyListFlagOverrides = *flagOverrides;
 		InjectHook(thunkAddress, EnemyListLoadHook, HookType::Jump);
 		spd::log()->info(
-			"Enemy list overrides installed: loader=0x{:08X}, thunk=0x{:08X}, entries={}",
-			loaderAddress, thunkAddress, EnemyListOverrides.size());
+			"Enemy list overrides installed: loader=0x{:08X}, thunk=0x{:08X}, entries={}, flag_entries={}",
+			loaderAddress, thunkAddress, EnemyListOverrides.size(), EnemyListFlagOverrides.size());
 	}
 
 	const EnemySpawnProfile* FindEnemySpawnProfile(uint16_t roomId, uint8_t emListNumber, uint8_t emListIndex)
