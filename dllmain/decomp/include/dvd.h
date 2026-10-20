@@ -4,10 +4,13 @@
 #include "bind.h"
 #include "types.h"
 
-// Result of a finished read: per-file addresses and sizes (0x200 bytes).
+// Result of a finished read (0x208 bytes; the read routine at 0x005ABD40
+// fills all of it, including +0x200 and +0x204).
 struct DvdReadInfo {
-    u32 addr[64];        // 0x000
-    u32 size[64];        // 0x100
+    u32 addr[2][32];     // 0x000  destination of every part, per header level
+    u32 size[2][32];     // 0x100
+    u32 mramSize;        // 0x200
+    u32 aramSize;        // 0x204
 };
 
 // File table entry (index = file id); only the name is used here.

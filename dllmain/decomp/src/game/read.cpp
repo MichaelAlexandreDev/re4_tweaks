@@ -157,10 +157,10 @@ static bool readEmData(ReadModule* m, int id, void* addr, u32 size)
     } else {
         FileCacheRelease(e->file, 1);
     }
-    len = info.size[0];
+    len = info.size[0][0];
     if (addr == NULL) {
         m->flag |= 4;
-        pArc = (void*) info.addr[0];
+        pArc = (void*) info.addr[0][0];
         if (len < size) {
             void* old = pArc;
             newSize = size;
