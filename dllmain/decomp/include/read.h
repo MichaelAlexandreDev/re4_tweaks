@@ -33,7 +33,16 @@ struct ReadFile {
     u32 flag;            // 0x4
 };
 
+#ifdef DECOMP_HARNESS
+// The harness can move the table to more slots (decomp/mods/em_module_slots.cpp).
+ReadModule* decomp_em_read_module();
+int decomp_em_read_module_count();
+#define EmReadModule (decomp_em_read_module())
+#define EM_READ_MODULE_COUNT (decomp_em_read_module_count())
+#else
 DECOMP_GLOBAL_ARRAY(ReadModule, EmReadModule, 4, 0x00C670A0);
+#define EM_READ_MODULE_COUNT 4
+#endif
 DECOMP_GLOBAL_ARRAY(ReadFile, EmFileTbl, 64, 0x00C11430);
 DECOMP_GLOBAL_ARRAY(ReadFile, EmFileTbl_Ada, 64, 0x00C116B0);
 DECOMP_GLOBAL_ARRAY(ReadFile, EmFileTbl_Wesker, 64, 0x00C11930);
@@ -51,5 +60,6 @@ void InitModule(ReadModule* m);
 ReadModule* SearchEmModule(u8 id);
 ReadModule* pullEmModule();
 void* EmReadSearch(u8 id, void* data_addr, u32 malloc_size);
+void EmReadInit();
 
 #endif

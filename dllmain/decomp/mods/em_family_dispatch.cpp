@@ -21,13 +21,14 @@ static const unsigned int kEmArchiveOffset = 0x380;
 
 static bool g_familyDispatch = false;
 static Em10Func g_savedSetFunc = NULL;
-static Em10Func g_slotSetFunc[4] = {};
+// Sized for em_module_slots (8); only EM_READ_MODULE_COUNT entries are used.
+static Em10Func g_slotSetFunc[8] = {};
 static Em10Func g_em10R0Init = NULL;
-static bool g_slotLogged[4] = {};
+static bool g_slotLogged[8] = {};
 
 static int emModuleSlot(const ReadModule* m)
 {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < EM_READ_MODULE_COUNT && i < 8; i++) {
         if (m == &EmReadModule[i]) {
             return i;
         }
@@ -73,7 +74,7 @@ void decomp_hook_EmModuleRelease(ReadModule* m)
 static void __cdecl em10_R0_Init_dispatch(void* em)
 {
     void* archive = *(void**) ((u8*) em + kEmArchiveOffset);
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < EM_READ_MODULE_COUNT && i < 8; i++) {
         if (EmReadModule[i].pArc == archive && g_slotSetFunc[i] != NULL) {
             if (Em10SetFunc != g_slotSetFunc[i] && !g_slotLogged[i]) {
                 g_slotLogged[i] = true;

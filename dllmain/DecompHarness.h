@@ -28,4 +28,5 @@ namespace bio4
 
 	// Mods under decomp/mods.
 	bool EmFamilyDispatch_Install();
+	bool EmModuleSlots_Install();
 }

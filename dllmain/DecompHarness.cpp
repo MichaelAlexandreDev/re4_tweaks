@@ -195,6 +195,20 @@ void re4t::init::DecompHarness()
 			}
 			bio4::EmFamilyDispatch_Install();
 		}
+		else if (mod == "em_module_slots")
+		{
+			// Every user of EmReadModule must switch tables together.
+			bool ready = true;
+			for (const char* name : { "SearchEmModule", "pullEmModule", "InitModule", "EmReadSearch", "EmReadInit" })
+				ready = ready && replacedNames.count(name);
+			if (!ready)
+			{
+				spd::log()->error("Decomp mod: em_module_slots refused, SearchEmModule, pullEmModule, InitModule, "
+					"EmReadSearch and EmReadInit must all be replaced");
+				continue;
+			}
+			bio4::EmModuleSlots_Install();
+		}
 		else
 		{
 			spd::log()->error("Decomp harness: unknown mod {} in decomp.json; ignored", mod);

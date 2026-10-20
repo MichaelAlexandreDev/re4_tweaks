@@ -12,7 +12,10 @@
 DECOMP_FUNC(void, DLL_Unlink, (void* module), 0x0040E24B);
 DECOMP_FUNC(void, DLL_Link, (void* module, void* bss, int a2, int dll), 0x0040E5CF);
 
-// Steam-only file cache calls made after a read in game mode (0x100).
+// Steam-only file cache calls made after a read in game mode (0x100), and
+// two more of the same subsystem called when the enemy modules are released.
+DECOMP_FUNC(void, FileCacheFunc958EC0, (int a0, int a1), 0x004074C8);
+DECOMP_FUNC(void, FileCacheFunc958F30, (int a0, int a1, int a2), 0x0040EE2B);
 DECOMP_FUNC(void, FileCacheRequest, (int file, int a1), 0x0040B9B5);
 DECOMP_FUNC(int, FileCacheReady, (int file), 0x00406C99);
 DECOMP_FUNC(void, FileCacheRelease, (int file, int a1), 0x00409110);
@@ -39,7 +42,7 @@ static u8 checkAshleyId(u8 id)
 ReadModule* SearchEmModule(u8 id)
 {
     id = checkAshleyId(id);
-    for (u32 i = 0; i < 4; i++) {
+    for (u32 i = 0; i < (u32) EM_READ_MODULE_COUNT; i++) {
         if (EmReadModule[i].id == id) {
             return &EmReadModule[i];
         }
@@ -51,7 +54,7 @@ ReadModule* SearchEmModule(u8 id)
 // STATUS: matching
 ReadModule* pullEmModule()
 {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < EM_READ_MODULE_COUNT; i++) {
         if (EmReadModule[i].pArc == NULL) {
             return &EmReadModule[i];
         }
@@ -78,6 +81,19 @@ void InitModule(ReadModule* m)
         Mem_free(m->pModule);
     }
     memclr_asm(m, sizeof(ReadModule));
+}
+
+// Releases every enemy module (room and chapter changes). Steam first resets
+// part of its file cache; the GameCube only ran the loop.
+// FUNCTION: BIO4 0x006AE130
+// STATUS: matching
+void EmReadInit()
+{
+    FileCacheFunc958EC0(0, 2);
+    FileCacheFunc958F30(1, 2, 1);
+    for (int i = 0; i < EM_READ_MODULE_COUNT; i++) {
+        InitModule(&EmReadModule[i]);
+    }
 }
 
 static void readWait()
