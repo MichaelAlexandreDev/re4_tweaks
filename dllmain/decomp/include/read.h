@@ -40,6 +40,13 @@ DECOMP_GLOBAL_ARRAY(ReadFile, EmFileTbl_Wesker, 64, 0x00C11930);
 DECOMP_GLOBAL_ARRAY(ReadFile, EmFileTbl_Klauser, 64, 0x00C11BB0);
 DECOMP_GLOBAL(void*, EmInitFunc, 0x00C57068);
 
+#ifdef DECOMP_HARNESS
+// Extension points (decomp/mods/em_family_dispatch.cpp).
+void decomp_hook_EmModulePrologBefore(ReadModule* m);
+void decomp_hook_EmModulePrologAfter(ReadModule* m);
+void decomp_hook_EmModuleRelease(ReadModule* m);
+#endif
+
 void InitModule(ReadModule* m);
 ReadModule* SearchEmModule(u8 id);
 ReadModule* pullEmModule();

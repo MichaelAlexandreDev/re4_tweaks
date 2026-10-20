@@ -33,13 +33,18 @@ namespace bio4
 		if (index < kMaxEntries && InterlockedIncrement(&DecompCalls[index]) == 1)
 			spd::log()->info("Decomp: first call of {} observed", kDecompEntries[index].name);
 	}
+
+	void decomp_log(const char* message, unsigned int a, unsigned int b, unsigned int c)
+	{
+		spd::log()->info("{}: {:#x} {:#x} {:#x}", message, a, b, c);
+	}
 }
 
 namespace
 {
 	constexpr char kSupportedBio4Sha256[] = "19aed4af0ab06a748ff8744d45ac5580fcd6be6b6b7e944b1ab8822a00c8ee4a";
 
-	bool LoadConfig(std::set<std::string>& enabledFunctions)
+	bool LoadConfig(std::set<std::string>& enabledFunctions, std::set<std::string>& enabledMods)
 	{
 		const auto configPath = std::filesystem::path(rootPath) / L"re4_tweaks" / L"decomp.json";
 		if (!std::filesystem::exists(configPath))
@@ -88,6 +93,24 @@ namespace
 				if (value.get<bool>())
 					enabledFunctions.insert(name);
 			}
+			if (config.contains("mods"))
+			{
+				const auto& mods = config.at("mods");
+				if (!mods.is_object())
+				{
+					spd::log()->error("Decomp harness: \"mods\" must be an object; mods ignored");
+				}
+				else
+				{
+					for (auto it = mods.begin(); it != mods.end(); ++it)
+					{
+						if (!it.value().is_boolean())
+							spd::log()->error("Decomp harness: mod {} must be true or false; ignored", it.key());
+						else if (it.value().get<bool>())
+							enabledMods.insert(it.key());
+					}
+				}
+			}
 			return true;
 		}
 		catch (const std::exception& error)
@@ -101,7 +124,8 @@ namespace
 void re4t::init::DecompHarness()
 {
 	std::set<std::string> enabledFunctions;
-	if (!LoadConfig(enabledFunctions))
+	std::set<std::string> enabledMods;
+	if (!LoadConfig(enabledFunctions, enabledMods))
 		return;
 
 	if (GameVersion() != "1.1.0")
@@ -126,6 +150,7 @@ void re4t::init::DecompHarness()
 	}
 
 	unsigned int replaced = 0;
+	std::set<std::string> replacedNames;
 	for (unsigned int i = 0; i < bio4::kDecompEntryCount; i++)
 	{
 		const auto& entry = bio4::kDecompEntries[i];
@@ -150,9 +175,29 @@ void re4t::init::DecompHarness()
 
 		injector::MakeJMP(address, entry.replacement, true);
 		replaced++;
+		replacedNames.insert(entry.name);
 		spd::log()->info("Decomp: {} replaced at {:#x} (VA {:#010x})", entry.name, expected, entry.va);
 	}
 
 	spd::log()->info("Decomp harness: {} of {} requested functions replaced",
 		replaced, enabledFunctions.size());
+
+	for (const auto& mod : enabledMods)
+	{
+		if (mod == "em_family_dispatch")
+		{
+			// Module prologs only run through the decompiled loader once
+			// EmReadSearch is replaced; InitModule forgets released slots.
+			if (!replacedNames.count("EmReadSearch") || !replacedNames.count("InitModule"))
+			{
+				spd::log()->error("Decomp mod: em_family_dispatch refused, EmReadSearch and InitModule must be replaced");
+				continue;
+			}
+			bio4::EmFamilyDispatch_Install();
+		}
+		else
+		{
+			spd::log()->error("Decomp harness: unknown mod {} in decomp.json; ignored", mod);
+		}
+	}
 }

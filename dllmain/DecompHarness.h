@@ -22,4 +22,10 @@ namespace bio4
 
 	// Called by each wrapper; logs the first call of every replaced function.
 	void decomp_count(unsigned int index);
+
+	// Log line for decomp mods: message followed by three hex values.
+	void decomp_log(const char* message, unsigned int a, unsigned int b, unsigned int c);
+
+	// Mods under decomp/mods.
+	bool EmFamilyDispatch_Install();
 }

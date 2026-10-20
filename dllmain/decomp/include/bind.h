@@ -23,6 +23,9 @@ unsigned int decomp_va(unsigned int va);
     static type (&name)[count] = *reinterpret_cast<type(*)[count]>(decomp_va(va))
 #define DECOMP_FUNC(ret, name, params, va) \
     static ret (__cdecl* const name) params = reinterpret_cast<ret(__cdecl*) params>(decomp_va(va))
+// Extension point for mods under decomp/mods: calls decomp_hook_<name> in the
+// harness, generates no code in the matching build.
+#define DECOMP_HOOK(name, args) decomp_hook_##name args
 // __thiscall member of a game class: called as __fastcall with an unused EDX,
 // which passes `this` in ECX, the arguments on the stack and lets the callee
 // clean them, exactly like __thiscall.
@@ -42,6 +45,7 @@ unsigned int decomp_va(unsigned int va);
 #define DECOMP_FUNC(ret, name, params, va) ret name params
 #define DECOMP_METHOD(ret, cls, name, params, args, va) ret name params
 #define DECOMP_METHOD0(ret, cls, name, va) ret name()
+#define DECOMP_HOOK(name, args) ((void) 0)
 #endif
 
 #endif

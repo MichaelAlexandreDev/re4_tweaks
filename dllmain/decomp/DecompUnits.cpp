@@ -5,6 +5,7 @@
 #define DECOMP_HARNESS
 namespace bio4 {
 #include "src/game/read.cpp"
+#include "mods/em_family_dispatch.cpp"
 
 static ReadModule* __cdecl DecompWrap_SearchEmModule(u8 id) { decomp_count(0); return SearchEmModule(id); }
 static ReadModule* __cdecl DecompWrap_pullEmModule() { decomp_count(1); return pullEmModule(); }

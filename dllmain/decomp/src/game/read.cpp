@@ -63,6 +63,7 @@ ReadModule* pullEmModule()
 // STATUS: matching
 void InitModule(ReadModule* m)
 {
+    DECOMP_HOOK(EmModuleRelease, (m));
     if (m->pModule != NULL && (m->flag & 2)) {
         DLL_Unlink(m->pModule);
     }
@@ -236,7 +237,9 @@ static void setEmModule(ReadModule* m, int id)
             DLL_Link(m->pModule, (m->pModule->bssSize != 0) ? m : NULL, 0, e->dll);
             m->flag |= 2;
         }
+        DECOMP_HOOK(EmModulePrologBefore, (m));
         m->pModule->prolog();
+        DECOMP_HOOK(EmModulePrologAfter, (m));
         m->pInitFunc = EmInitFunc;
     } else {
         m->pModule = NULL;
