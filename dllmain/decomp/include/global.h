@@ -7,9 +7,14 @@
 // Partial GLOBAL_WK of the Steam build. Only fields with a known offset are
 // named; names follow re4_tweaks/dllmain/SDK/global.h.
 struct GLOBAL_WK {
-    u8 pad_0000[0x54];
+    u8 pad_0000[0x20];
+    u8 Rno0;                   // 0x20  main routine; 2 = in game
+    u8 pad_0021[0x54 - 0x21];
     u32 flags_SYSTEM[1];       // 0x54  SYS_PS2_ADA_GAME = 0x1000 (Separate Ways)
-    u8 pad_0058[0x4FCB - 0x58];
+    u32 Disp_flg;              // 0x58  display flags
+    u8 pad_005C[0x4FC8 - 0x5C];
+    u8 pl_type;                // 0x4FC8  0 Leon, 1 Ashley, 2 Ada, 3 HUNK, 4 Krauser, 5 Wesker
+    u8 pad_4FC9[0x4FCB - 0x4FC9];
     u8 subCostume;             // 0x4FCB  Ashley: 0 Normal, 1 Popstar, 2 Armor
 };
 
