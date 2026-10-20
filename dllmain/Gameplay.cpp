@@ -155,6 +155,10 @@ namespace
 	std::array<EnemyFamilyConfigureRoutine, 0x100> EnemyFamilyConfigureRoutines{};
 	std::array<EnemyFamilyConfigureRoutine, 0x100> ExpectedEnemyFamilyConfigureRoutines{};
 	EnemyFamilyConfigureRoutine* EnemyFamilyConfigureSlot = nullptr;
+	// EmInitFunc (enemy constructor) and Em10SetFunc (Ganado family set
+	// routine); preloads must leave both as the intercepted request set them.
+	void** EnemyModuleConstructorSlot = nullptr;
+	void** EnemyModuleSetRoutineSlot = nullptr;
 
 	constexpr WeaponFirepowerDefinition kWeaponDefinitions[] = {
 		{ "handgun", EItemId::Ruger },
@@ -1025,7 +1029,15 @@ namespace
 		if (result != nullptr)
 		{
 			CaptureEnemyFamilyConfigureRoutine(roomId, static_cast<uint8_t>(entityId));
+			// The caller (cEmMgr::construct among others) builds the enemy with
+			// EmInitFunc right after this returns: a preload in between must not
+			// leave another family's constructor or set routine behind.
+			void* const constructor = *EnemyModuleConstructorSlot;
+			void* const setRoutine = *EnemyModuleSetRoutineSlot;
 			PreloadEnemyModules(roomId);
+			*EnemyModuleConstructorSlot = constructor;
+			if (EnemyFamilyConfigureSlot == nullptr)
+				*EnemyModuleSetRoutineSlot = setRoutine;
 		}
 		return result;
 	}
@@ -1062,8 +1074,8 @@ namespace
 		auto em20PrologPattern = hook::pattern(
 			"C7 05 68 70 C5 00 18 7A 40 00 C7 05 7C 01 C5 00 31 E8 40 00 C3");
 		const bool dispatchRequested = !dispatches->empty();
-		if (readPattern.size() != 1 || thunkPattern.size() != 1 ||
-			(dispatchRequested && (em10InitPattern.size() != 1 || em12PrologPattern.size() != 1 ||
+		if (readPattern.size() != 1 || thunkPattern.size() != 1 || em10InitPattern.size() != 1 ||
+			(dispatchRequested && (em12PrologPattern.size() != 1 ||
 				em15PrologPattern.size() != 1 || em20PrologPattern.size() != 1)))
 		{
 			spd::log()->error(
@@ -1083,6 +1095,17 @@ namespace
 				thunkTarget, readAddress);
 			return;
 		}
+
+		// EmReadSearch +0x61: mov [EmInitFunc], ecx; em10_R0_Init +0x10: mov eax, [Em10SetFunc].
+		const auto* readBytes = readPattern.get(0).get<uint8_t>(0);
+		const auto* em10InitBytes = em10InitPattern.get(0).get<uint8_t>(0);
+		if (readBytes[0x61] != 0x89 || readBytes[0x62] != 0x0D || em10InitBytes[0x10] != 0xA1)
+		{
+			spd::log()->error("Enemy module preloads disabled: unexpected EmInitFunc/Em10SetFunc operands");
+			return;
+		}
+		EnemyModuleConstructorSlot = *reinterpret_cast<void** const*>(readBytes + 0x63);
+		EnemyModuleSetRoutineSlot = *reinterpret_cast<void** const*>(em10InitBytes + 0x11);
 
 		EnemyModulePreloads = *preloads;
 		EnemyFamilyDispatches = *dispatches;
@@ -1107,8 +1130,11 @@ namespace
 		}
 		InjectHook(thunkAddress, EnemyModuleReadSearchHook, HookType::Jump);
 		spd::log()->info(
-			"Enemy module preloads installed: EmReadSearch=0x{:08X}, thunk=0x{:08X}, room_entries={}",
-			readAddress, thunkAddress, EnemyModulePreloads.size());
+			"Enemy module preloads installed: EmReadSearch=0x{:08X}, thunk=0x{:08X}, room_entries={}, "
+			"EmInitFunc=0x{:08X}, Em10SetFunc=0x{:08X}",
+			readAddress, thunkAddress, EnemyModulePreloads.size(),
+			reinterpret_cast<uintptr_t>(EnemyModuleConstructorSlot),
+			reinterpret_cast<uintptr_t>(EnemyModuleSetRoutineSlot));
 	}
 
 	void ApplyEnemyListOverrides()
