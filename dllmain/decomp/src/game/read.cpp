@@ -122,7 +122,7 @@ static bool readEmData(ReadModule* m, int id, void* addr, u32 size)
     int req;
     int ret;
     int mode;
-    void* pArc;
+    void* dst = addr;
     void* pModule = NULL;
     u32 bssSize = 0;
     u32 newSize;
@@ -175,14 +175,14 @@ static bool readEmData(ReadModule* m, int id, void* addr, u32 size)
     }
     len = info.size[0][0];
     if (addr == NULL) {
+        addr = (void*) info.addr[0][0];
         m->flag |= 4;
-        pArc = (void*) info.addr[0][0];
         if (len < size) {
-            void* old = pArc;
             newSize = size;
+            void* old = addr;
             Mem_free(old);
-            pArc = Mem_alloc(size, NULL, 0, 1, 0xD);
-            if (pArc != old) {
+            addr = Mem_alloc(newSize, NULL, 0, 1, 0xD);
+            if (addr != old) {
                 return false;
             }
         } else {
@@ -190,16 +190,15 @@ static bool readEmData(ReadModule* m, int id, void* addr, u32 size)
         }
     } else {
         m->flag &= ~4;
-        pArc = addr;
         newSize = len;
     }
     if (e->dll != 0) {
         name = FileTbl[e->dll].name;
-        if (addr == NULL) {
+        if (dst == NULL) {
 #line 1274 "src\\read.cpp"
             req = DvdReadN(name, NULL, 0, 0, 0, mode | 4, __FILE__, __LINE__);
         } else {
-            pModule = (u8*) pArc + newSize;
+            pModule = (u8*) addr + newSize;
 #line 1277 "src\\read.cpp"
             req = DvdReadN(name, pModule, 0, 0, 0, mode | 0x10, __FILE__, __LINE__);
         }
@@ -209,14 +208,14 @@ static bool readEmData(ReadModule* m, int id, void* addr, u32 size)
             }
             readWait();
         }
-        if (addr == NULL) {
+        if (dst == NULL) {
             m->flag |= 1;
         } else {
             m->flag &= ~1;
         }
     }
     m->id = id;
-    m->pArc = pArc;
+    m->pArc = addr;
     m->size = newSize;
     m->pModule = (DLLHeader*) pModule;
     m->bssSize = bssSize;
@@ -226,7 +225,7 @@ static bool readEmData(ReadModule* m, int id, void* addr, u32 size)
 // Links the module read for enemy `id` and runs its prolog, which sets
 // EmInitFunc and the family's Em10SetFunc. Steam dropped the BSS size check.
 // FUNCTION: BIO4 0x006AE040
-// STATUS: functional
+// STATUS: matching
 static void setEmModule(ReadModule* m, int id)
 {
     ReadFile* e;
@@ -259,7 +258,7 @@ static void setEmModule(ReadModule* m, int id)
         m->pInitFunc = EmInitFunc;
     } else {
         m->pModule = NULL;
-        m->flag &= ~2;
+        BitOff16(m->flag, 2);
         m->pInitFunc = NULL;
     }
 }
@@ -269,7 +268,7 @@ static void* readEm(int id, void* data_addr, u32 malloc_size);
 // The archive of enemy module `id`: the loaded slot (its init function
 // becomes EmInitFunc), or loads it (readEm).
 // FUNCTION: BIO4 0x006AE8D0
-// STATUS: functional
+// STATUS: matching
 void* EmReadSearch(u8 id, void* data_addr, u32 malloc_size)
 {
     ReadModule* m;
@@ -286,7 +285,7 @@ void* EmReadSearch(u8 id, void* data_addr, u32 malloc_size)
 // Loads enemy module `id` into a free slot with all display flags forced on
 // during the load (Steam also clears 0x800 and 0x2000). Returns the archive.
 // FUNCTION: BIO4 0x006AE800
-// STATUS: functional
+// STATUS: matching
 static void* readEm(int id, void* data_addr, u32 malloc_size)
 {
     u32 flags = pG->Disp_flg;

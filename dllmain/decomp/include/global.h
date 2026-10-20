@@ -20,6 +20,10 @@ struct GLOBAL_WK {
 
 #define SYS_PS2_ADA_GAME 0x1000
 
+// As in references/re4-gamecube/include/global.h; using the helper instead of
+// `f &= ~b` changes how MSVC schedules the surrounding stores.
+static inline void BitOff16(u16& f, u16 b) { f &= ~b; }
+
 DECOMP_GLOBAL(GLOBAL_WK*, pG, 0x00C06F3C);
 
 #endif
