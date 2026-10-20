@@ -111,6 +111,12 @@ void Init_Main()
 	// default-off and all signatures are validated before it mutates game state.
 	re4t::init::LeonKrauserBow();
 
+	// Phase 4 of the decompilation roadmap: replaces original functions with
+	// their byte-identical rewrites from decomp/. Off unless decomp.json enables
+	// each function; every signature is checked before patching. Runs after the
+	// other gameplay hooks so a conflicting patch shows up as a refused signature.
+	re4t::init::DecompHarness();
+
 	if (re4t::cfg->bEnableModExpansion)
 		re4t::init::ModExpansion();
 

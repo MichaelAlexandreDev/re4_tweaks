@@ -24,6 +24,7 @@ namespace re4t
 		void DebugDisplay();
 		void DisplayModeFix();
 		void DisplayTweaks();
+		void DecompHarness();
 		void ExceptionHandler();
 		void FrameRateFixes();
 		void FilterXXFixes();

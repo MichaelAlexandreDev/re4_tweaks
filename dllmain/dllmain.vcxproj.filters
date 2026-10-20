@@ -175,6 +175,12 @@
     <ClCompile Include="LeonKrauserBow.cpp">
       <Filter>dllmain</Filter>
     </ClCompile>
+    <ClCompile Include="DecompHarness.cpp">
+      <Filter>dllmain</Filter>
+    </ClCompile>
+    <ClCompile Include="decomp\DecompUnits.cpp">
+      <Filter>dllmain</Filter>
+    </ClCompile>
     <ClCompile Include="Trainer_ItemMgr.cpp">
       <Filter>dllmain</Filter>
     </ClCompile>

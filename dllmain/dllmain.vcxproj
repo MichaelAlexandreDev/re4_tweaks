@@ -160,6 +160,10 @@ echo | set /p dummyName=#define GIT_BRANCH ^"%VAR%^" &gt;&gt; gitparams.h</Comma
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="KeyboardMouseTweaks.cpp" />
     <ClCompile Include="LeonKrauserBow.cpp" />
+    <ClCompile Include="DecompHarness.cpp" />
+    <ClCompile Include="decomp\DecompUnits.cpp">
+      <AdditionalIncludeDirectories>decomp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="LAApatch.cpp" />
     <ClCompile Include="Misc.cpp" />
     <ClCompile Include="ModExpansion.cpp" />
@@ -186,6 +190,7 @@ echo | set /p dummyName=#define GIT_BRANCH ^"%VAR%^" &gt;&gt; gitparams.h</Comma
     <ClCompile Include="ToolMenuLights.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DecompHarness.h" />
     <ClInclude Include="..\external\eHooking\Hook.h" />
     <ClInclude Include="..\external\ImGuiFileDialog\ImGuiFileDialog.h" />
     <ClInclude Include="..\external\imgui\imconfig.h" />
