@@ -5,6 +5,7 @@
 #include "em.h"
 #include "math_sub.h"
 #include "snd.h"
+#include "ctrl.h"
 #include "types.h"
 
 // Ganado enemy (class cEm10, 0xC64 bytes on Steam). The PC port moved the
@@ -27,7 +28,6 @@ public:
                    void* m10),
                   (m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10), 0x0040385F);
 };
-class cCtrl;
 class cObjGondola;
 class PlCloth;
 class cObjGatling;
@@ -313,7 +313,9 @@ typedef char decomp_check_ClothInfo_size[sizeof(ClothInfo) == 0x60 ? 1 : -1];
 typedef char decomp_check_cEm10_size[sizeof(cEm10) == 0xC64 ? 1 : -1];
 typedef char decomp_check_Em10Work_size[sizeof(Em10Work) == 0xC64 - 0x408 ? 1 : -1];
 
-DECOMP_FUNC(int, GetEm10EyeEffectEnable, (), 0x00401CEE);
+// Decompiled in src/game/EtcModel.cpp (matching); a plain declaration so the
+// harness, which compiles every unit together, uses that definition.
+int GetEm10EyeEffectEnable();
 DECOMP_FUNC(cObj16*, SetObj16, (void* m0, void* m1, cEm* parent, cEm* target, int a4, int a5, Vec* pos, Vec* rot),
             0x0040C5C7);
 DECOMP_FUNC(cObj12*, SetObj12, (void* m0, void* m1, Vec* pos, Vec* ang), 0x00407130);

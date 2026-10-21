@@ -294,8 +294,17 @@ static inline int MotionSetCore(cModel* m, MotionWork* w, void* data, void* seq,
 DECOMP_FUNC(int, EstSet, (cModel* a, int b, Vec* pos, Vec* rot, int c, u8 d, u16 e, u8 f, void* g, void* h),
             0x004014C4);
 
-#define EFF_CORE 0
+// Effect owners verified on PC. The GameCube ESP_OWNER numbering differs
+// from the PC beyond the first entries (the EtcModel port found EFF_ET* =
+// GameCube + 4), so only checked values are defined here.
+enum {
+    EFF_CORE = 0,
+    EFF_ROOM = 1,
+    EFF_EM10 = 0x10
+};
 #define ESP_CORE_KIND_NONE 0
+
+DECOMP_FUNC(void, GameAddPoint, (int type), 0x0063AFA0);
 #define EFF_EM10 0x10
 
 #endif

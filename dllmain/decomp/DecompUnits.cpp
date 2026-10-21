@@ -5,6 +5,7 @@
 #define DECOMP_HARNESS
 namespace bio4 {
 #include "src/em10/em10.cpp"
+#include "src/game/EtcModel.cpp"
 #include "src/game/read.cpp"
 #include "mods/em_family_dispatch.cpp"
 #include "mods/em_module_slots.cpp"
@@ -30,13 +31,116 @@ static int __fastcall DecompWrap_cEm10_ckR305BomberEnable(cEm10* self, int) { de
 static void __fastcall DecompWrap_cEm10_setEvtMotion(cEm10* self, int, void* m0, void* m1, void* m2, void* m3) { decomp_count(18); self->cEm10::setEvtMotion(m0, m1, m2, m3); }
 static void __fastcall DecompWrap_cEm10_setGondolaMotion(cEm10* self, int, void* m0, void* m1, void* m2, void* m3) { decomp_count(19); self->cEm10::setGondolaMotion(m0, m1, m2, m3); }
 static void __fastcall DecompWrap_cEm10_setDrill(cEm10* self, int, void* m0, void* m1, void* m2, void* m3) { decomp_count(20); self->cEm10::setDrill(m0, m1, m2, m3); }
-static ReadModule* __cdecl DecompWrap_SearchEmModule(u8 id) { decomp_count(21); return SearchEmModule(id); }
+static void __fastcall DecompWrap_cEtcTbl_Init(cEtcTbl* self, int) { decomp_count(21); self->cEtcTbl::Init(); }
+static int __fastcall DecompWrap_cEtcTbl_IsUse(cEtcTbl* self, int) { decomp_count(22); return self->cEtcTbl::IsUse(); }
+static int __fastcall DecompWrap_cEtcTbl_RegistData(cEtcTbl* self, int, EtcSetData* d, cModel* model) { decomp_count(23); return self->cEtcTbl::RegistData(d, model); }
+static int __cdecl DecompWrap_getRoomEtc(int no, ETCMODEL_ID id, cEm** pRet, int bDispErr) { decomp_count(24); return getRoomEtc(no, id, pRet, bDispErr); }
+static int __cdecl DecompWrap_getRoomEtc2(int no, cEm** pRet, int bDispErr) { decomp_count(25); return getRoomEtc2(no, pRet, bDispErr); }
+static void* __cdecl DecompWrap_GetEtcAddr(void* arc, const char* name) { decomp_count(26); return GetEtcAddr(arc, name); }
+static int __cdecl DecompWrap_EtcModelListSet(EtcList* list) { decomp_count(27); return EtcModelListSet(list); }
+static int __cdecl DecompWrap_Et01_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(28); return Et01_init(arc, d, out); }
+static int __cdecl DecompWrap_Et02_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(29); return Et02_init(arc, d, out); }
+static int __cdecl DecompWrap_Et03_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(30); return Et03_init(arc, d, out); }
+static int __cdecl DecompWrap_Et04_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(31); return Et04_init(arc, d, out); }
+static int __cdecl DecompWrap_Et05_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(32); return Et05_init(arc, d, out); }
+static int __cdecl DecompWrap_Et15_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(33); return Et15_init(arc, d, out); }
+static int __cdecl DecompWrap_Et06_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(34); return Et06_init(arc, d, out); }
+static int __cdecl DecompWrap_Et08_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(35); return Et08_init(arc, d, out); }
+static int __cdecl DecompWrap_Et09_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(36); return Et09_init(arc, d, out); }
+static int __cdecl DecompWrap_Et0a_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(37); return Et0a_init(arc, d, out); }
+static int __cdecl DecompWrap_Et0b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(38); return Et0b_init(arc, d, out); }
+static int __cdecl DecompWrap_Et0c_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(39); return Et0c_init(arc, d, out); }
+static int __cdecl DecompWrap_Et0d_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(40); return Et0d_init(arc, d, out); }
+static int __cdecl DecompWrap_Et10_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(41); return Et10_init(arc, d, out); }
+static int __cdecl DecompWrap_Et0e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(42); return Et0e_init(arc, d, out); }
+static int __cdecl DecompWrap_Et0f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(43); return Et0f_init(arc, d, out); }
+static int __cdecl DecompWrap_Et11_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(44); return Et11_init(arc, d, out); }
+static int __cdecl DecompWrap_Et12_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(45); return Et12_init(arc, d, out); }
+static int __cdecl DecompWrap_Et13_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(46); return Et13_init(arc, d, out); }
+static int __cdecl DecompWrap_Et14_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(47); return Et14_init(arc, d, out); }
+static int __cdecl DecompWrap_Et16_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(48); return Et16_init(arc, d, out); }
+static int __cdecl DecompWrap_Et17_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(49); return Et17_init(arc, d, out); }
+static int __cdecl DecompWrap_Et18_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(50); return Et18_init(arc, d, out); }
+static int __cdecl DecompWrap_Et19_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(51); return Et19_init(arc, d, out); }
+static int __cdecl DecompWrap_Et1a_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(52); return Et1a_init(arc, d, out); }
+static int __cdecl DecompWrap_Et1b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(53); return Et1b_init(arc, d, out); }
+static int __cdecl DecompWrap_Et1c_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(54); return Et1c_init(arc, d, out); }
+static int __cdecl DecompWrap_Et1e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(55); return Et1e_init(arc, d, out); }
+static int __cdecl DecompWrap_Et1f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(56); return Et1f_init(arc, d, out); }
+static int __cdecl DecompWrap_Et20_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(57); return Et20_init(arc, d, out); }
+static int __cdecl DecompWrap_Et21_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(58); return Et21_init(arc, d, out); }
+static int __cdecl DecompWrap_Et22_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(59); return Et22_init(arc, d, out); }
+static int __cdecl DecompWrap_Et23_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(60); return Et23_init(arc, d, out); }
+static int __cdecl DecompWrap_Et24_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(61); return Et24_init(arc, d, out); }
+static int __cdecl DecompWrap_Et26_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(62); return Et26_init(arc, d, out); }
+static int __cdecl DecompWrap_Et27_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(63); return Et27_init(arc, d, out); }
+static int __cdecl DecompWrap_Et28_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(64); return Et28_init(arc, d, out); }
+static int __cdecl DecompWrap_Et2a_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(65); return Et2a_init(arc, d, out); }
+static int __cdecl DecompWrap_Et2b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(66); return Et2b_init(arc, d, out); }
+static int __cdecl DecompWrap_Et2d_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(67); return Et2d_init(arc, d, out); }
+static int __cdecl DecompWrap_Et30_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(68); return Et30_init(arc, d, out); }
+static int __cdecl DecompWrap_Et2e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(69); return Et2e_init(arc, d, out); }
+static int __cdecl DecompWrap_Et2f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(70); return Et2f_init(arc, d, out); }
+static int __cdecl DecompWrap_Et31_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(71); return Et31_init(arc, d, out); }
+static int __cdecl DecompWrap_Et32_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(72); return Et32_init(arc, d, out); }
+static int __cdecl DecompWrap_Et33_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(73); return Et33_init(arc, d, out); }
+static int __cdecl DecompWrap_Et34_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(74); return Et34_init(arc, d, out); }
+static int __cdecl DecompWrap_Et37_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(75); return Et37_init(arc, d, out); }
+static int __cdecl DecompWrap_Et38_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(76); return Et38_init(arc, d, out); }
+static int __cdecl DecompWrap_Et39_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(77); return Et39_init(arc, d, out); }
+static int __cdecl DecompWrap_Et3a_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(78); return Et3a_init(arc, d, out); }
+static int __cdecl DecompWrap_Et3b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(79); return Et3b_init(arc, d, out); }
+static int __cdecl DecompWrap_Et3c_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(80); return Et3c_init(arc, d, out); }
+static int __cdecl DecompWrap_Et3d_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(81); return Et3d_init(arc, d, out); }
+static int __cdecl DecompWrap_Et3e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(82); return Et3e_init(arc, d, out); }
+static int __cdecl DecompWrap_Et3f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(83); return Et3f_init(arc, d, out); }
+static int __cdecl DecompWrap_Et40_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(84); return Et40_init(arc, d, out); }
+static int __cdecl DecompWrap_Et41_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(85); return Et41_init(arc, d, out); }
+static int __cdecl DecompWrap_Et42_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(86); return Et42_init(arc, d, out); }
+static int __cdecl DecompWrap_Et43_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(87); return Et43_init(arc, d, out); }
+static int __cdecl DecompWrap_Et45_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(88); return Et45_init(arc, d, out); }
+static int __cdecl DecompWrap_Et46_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(89); return Et46_init(arc, d, out); }
+static int __cdecl DecompWrap_Et47_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(90); return Et47_init(arc, d, out); }
+static int __cdecl DecompWrap_Et49_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(91); return Et49_init(arc, d, out); }
+static int __cdecl DecompWrap_Et4b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(92); return Et4b_init(arc, d, out); }
+static int __cdecl DecompWrap_Et4c_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(93); return Et4c_init(arc, d, out); }
+static int __cdecl DecompWrap_Et4d_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(94); return Et4d_init(arc, d, out); }
+static int __cdecl DecompWrap_Et4e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(95); return Et4e_init(arc, d, out); }
+static int __cdecl DecompWrap_Et4f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(96); return Et4f_init(arc, d, out); }
+static int __cdecl DecompWrap_Et59_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(97); return Et59_init(arc, d, out); }
+static int __cdecl DecompWrap_Et61_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(98); return Et61_init(arc, d, out); }
+static int __cdecl DecompWrap_Et62_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(99); return Et62_init(arc, d, out); }
+static int __cdecl DecompWrap_Et63_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(100); return Et63_init(arc, d, out); }
+static int __cdecl DecompWrap_Et66_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(101); return Et66_init(arc, d, out); }
+static int __cdecl DecompWrap_Et67_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(102); return Et67_init(arc, d, out); }
+static int __cdecl DecompWrap_Et68_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(103); return Et68_init(arc, d, out); }
+static int __cdecl DecompWrap_Et69_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(104); return Et69_init(arc, d, out); }
+static int __cdecl DecompWrap_EtcGetDasAddr(int id, void** pRet_addr) { decomp_count(105); return EtcGetDasAddr(id, pRet_addr); }
+static u16* __cdecl DecompWrap_GetEtcFlgPtr(u32 etc_no, u16 room_no) { decomp_count(106); return GetEtcFlgPtr(etc_no, room_no); }
+static int __cdecl DecompWrap_getRoomEtcBreak(int no, cEm** ppEm, int bErrDisp) { decomp_count(107); return getRoomEtcBreak(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_setRoomEtcDisp(int no, int bDisp, int bErrDisp) { decomp_count(108); return setRoomEtcDisp(no, bDisp, bErrDisp); }
+static int __cdecl DecompWrap_setRoomEtcBreakDisp(int no, int bDisp, int bErrDisp) { decomp_count(109); return setRoomEtcBreakDisp(no, bDisp, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcOnLight(u32 no, cModel** ppEm, int bErrDisp) { decomp_count(110); return getRoomEtcOnLight(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcWindow(int no, cEmWindow** ppEm, int bErrDisp) { decomp_count(111); return getRoomEtcWindow(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcBox(int no, cEm** ppEm, int bErrDisp) { decomp_count(112); return getRoomEtcBox(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcDoor(int no, cEmDoor** ppEm, int bErrDisp) { decomp_count(113); return getRoomEtcDoor(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcRack(int no, cEm** ppEm, int bErrDisp) { decomp_count(114); return getRoomEtcRack(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcLadder(int no, cObjLadder** ppEm, int bErrDisp) { decomp_count(115); return getRoomEtcLadder(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcTorch(int no, cEm** ppEm, int bErrDisp) { decomp_count(116); return getRoomEtcTorch(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcSwitch(int no, cEm** ppEm, int bErrDisp) { decomp_count(117); return getRoomEtcSwitch(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcBarred(int no, cEm** ppEm, int bErrDisp) { decomp_count(118); return getRoomEtcBarred(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcDram(int no, cEm** ppEm, int bErrDisp) { decomp_count(119); return getRoomEtcDram(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcItem(int no, EtcItem** ppEm, int bErrDisp) { decomp_count(120); return getRoomEtcItem(no, ppEm, bErrDisp); }
+static ETC_AMB_TYPE __cdecl DecompWrap_GetEtcAmbType() { decomp_count(121); return GetEtcAmbType(); }
+static int __cdecl DecompWrap_GetEm10EyeEffectEnable() { decomp_count(122); return GetEm10EyeEffectEnable(); }
+static void __cdecl DecompWrap_EtcSetAddAmb(cModel* pMod, int kind) { decomp_count(123); EtcSetAddAmb(pMod, kind); }
+static ReadModule* __cdecl DecompWrap_SearchEmModule(u8 id) { decomp_count(124); return SearchEmModule(id); }
 
 static ReadModule* __cdecl DecompShadowWrap_SearchEmModule(u8 id)
 {
     using Original = ReadModule* (__cdecl*)(u8 id);
-    auto original = reinterpret_cast<Original>(decomp_shadow_original(21));
-    if (!decomp_shadow_enter(21))
+    auto original = reinterpret_cast<Original>(decomp_shadow_original(124));
+    if (!decomp_shadow_enter(124))
         return original(id);
     DecompShadowScope scope;
     shadow::Snapshot state;
@@ -57,22 +161,22 @@ static ReadModule* __cdecl DecompShadowWrap_SearchEmModule(u8 id)
     }
 
     if (!ready) {
-        decomp_shadow_skip(21, "unavailable descriptor region");
+        decomp_shadow_skip(124, "unavailable descriptor region");
         return original(id);
     }
     const auto result = shadow::compare(state, decomp_shadow_keep_original(),
         [&]() { return original(id); }, [&]() { return SearchEmModule(id); });
-    decomp_shadow_finish(21, result.difference);
+    decomp_shadow_finish(124, result.difference);
     return result.value;
 }
 
-static ReadModule* __cdecl DecompWrap_pullEmModule() { decomp_count(22); return pullEmModule(); }
+static ReadModule* __cdecl DecompWrap_pullEmModule() { decomp_count(125); return pullEmModule(); }
 
 static ReadModule* __cdecl DecompShadowWrap_pullEmModule()
 {
     using Original = ReadModule* (__cdecl*)();
-    auto original = reinterpret_cast<Original>(decomp_shadow_original(22));
-    if (!decomp_shadow_enter(22))
+    auto original = reinterpret_cast<Original>(decomp_shadow_original(125));
+    if (!decomp_shadow_enter(125))
         return original();
     DecompShadowScope scope;
     shadow::Snapshot state;
@@ -81,18 +185,18 @@ static ReadModule* __cdecl DecompShadowWrap_pullEmModule()
     bool ready = state.add("EmReadModule", reinterpret_cast<void*>(decomp_va(0x00C670A0)), 0x260);
 
     if (!ready) {
-        decomp_shadow_skip(22, "unavailable descriptor region");
+        decomp_shadow_skip(125, "unavailable descriptor region");
         return original();
     }
     const auto result = shadow::compare(state, decomp_shadow_keep_original(),
         [&]() { return original(); }, [&]() { return pullEmModule(); });
-    decomp_shadow_finish(22, result.difference);
+    decomp_shadow_finish(125, result.difference);
     return result.value;
 }
 
-static void __cdecl DecompWrap_InitModule(ReadModule* m) { decomp_count(23); InitModule(m); }
-static void __cdecl DecompWrap_EmReadInit() { decomp_count(24); EmReadInit(); }
-static void* __cdecl DecompWrap_EmReadSearch(u8 id, void* data_addr, u32 malloc_size) { decomp_count(25); return EmReadSearch(id, data_addr, malloc_size); }
+static void __cdecl DecompWrap_InitModule(ReadModule* m) { decomp_count(126); InitModule(m); }
+static void __cdecl DecompWrap_EmReadInit() { decomp_count(127); EmReadInit(); }
+static void* __cdecl DecompWrap_EmReadSearch(u8 id, void* data_addr, u32 malloc_size) { decomp_count(128); return EmReadSearch(id, data_addr, malloc_size); }
 
 const DecompEntry kDecompEntries[] = {
     { "em10InitRtnSet", 0x0043AA90u, reinterpret_cast<void*>(&DecompWrap_em10InitRtnSet), "55 8B EC 83 EC 20 A1 ? ? ? ? 33 C5 89 45 FC 56 8B F1 8A 86 01 01 00 00 3C 06 74 07 C6 86 C9 03 00 00 01 0F B6 C0 83 C0 FE 83 F8 0B 77 17 0F B6 80 ? ? ? ? FF 24 85 ? ? ? ? C6 86 CF", nullptr, 0 },
@@ -116,6 +220,109 @@ const DecompEntry kDecompEntries[] = {
     { "cEm10::setEvtMotion", 0x00436230u, reinterpret_cast<void*>(&DecompWrap_cEm10_setEvtMotion), "55 8B EC 8B 45 08 8B 55 0C 89 81 14 07 00 00 8B 45 10 89 91 24 07 00 00 8B 55 14 89 81 18 07 00 00 89 91 28 07 00 00 5D C2 10 00", nullptr, 0 },
     { "cEm10::setGondolaMotion", 0x00436270u, reinterpret_cast<void*>(&DecompWrap_cEm10_setGondolaMotion), "55 8B EC 8B 45 08 8B 55 0C 89 81 14 07 00 00 8B 45 10 89 91 18 07 00 00 8B 55 14 89 81 1C 07 00 00 89 91 20 07 00 00 5D C2 10 00", nullptr, 0 },
     { "cEm10::setDrill", 0x004362D0u, reinterpret_cast<void*>(&DecompWrap_cEm10_setDrill), "55 8B EC 8B 45 08 8B 55 0C 89 81 14 07 00 00 8B 45 10 89 91 18 07 00 00 8B 55 14 89 81 B0 06 00 00 89 91 D0 04 00 00 5D C2 10 00", nullptr, 0 },
+    { "cEtcTbl::Init", 0x00617840u, reinterpret_cast<void*>(&DecompWrap_cEtcTbl_Init), "33 C0 89 01 89 41 04 89 41 08 C3", nullptr, 0 },
+    { "cEtcTbl::IsUse", 0x00617850u, reinterpret_cast<void*>(&DecompWrap_cEtcTbl_IsUse), "33 C0 83 39 01 0F 94 C0 C3", nullptr, 0 },
+    { "cEtcTbl::RegistData", 0x00617880u, reinterpret_cast<void*>(&DecompWrap_cEtcTbl_RegistData), "55 8B EC 83 39 01 8B 45 08 75 20 0F B7 08 0F B7 50 02 51 52 68 ? ? ? ? 6A 00 6A 00 E8 BD 55 DF FF 83 C4 14 33 C0 5D C2 08 00 8B 55 0C 89 41 04 C7 01 01 00 00 00 89 51 08 B8 01 00 00 00 5D", nullptr, 0 },
+    { "getRoomEtc", 0x006178E0u, reinterpret_cast<void*>(&DecompWrap_getRoomEtc), "55 8B EC 8B 55 08 53 8B 5D 10 8D 0C 52 8D 0C 8D ? ? ? ? B8 01 00 00 00 C7 03 00 00 00 00 39 01 74 1C 39 45 14 75 12 52 68 ? ? ? ? 6A 00 6A 06 E8 48 55 DF FF 83 C4 10 33 C0 5B 5D C3 56", nullptr, 0 },
+    { "getRoomEtc2", 0x00617980u, reinterpret_cast<void*>(&DecompWrap_getRoomEtc2), "55 8B EC 8B 4D 08 8B 55 0C 8D 04 49 8D 04 85 ? ? ? ? C7 02 00 00 00 00 83 38 01 74 1C 83 7D 10 01 75 12 51 68 ? ? ? ? 6A 00 6A 06 E8 AC 54 DF FF 83 C4 10 33 C0 5D C3 8B 40 08 89 02 B8", nullptr, 0 },
+    { "GetEtcAddr", 0x00617A20u, reinterpret_cast<void*>(&DecompWrap_GetEtcAddr), "55 8B EC 8B 45 08 53 8B 18 56 57 33 FF 8D 70 20 85 DB 74 3C 8B 4D 0C 8D 46 20 8D 9B 00 00 00 00 8A 10 3A 11 75 1A 84 D2 74 12 8A 50 01 3A 51 01 75 0E 83 C0 02 83 C1 02 84 D2 75 E4 33 C0 EB 05", nullptr, 0 },
+    { "EtcModelListSet", 0x0061EB30u, reinterpret_cast<void*>(&DecompWrap_EtcModelListSet), "55 8B EC 53 57 8B 7D 08 33 C0 33 DB 66 3B 07 73 30 83 C7 12 56 8D 77 FE E8 A3 F0 FF FF 83 F8 01 75 10 0F B7 07 39 05 ? ? ? ? 73 05 A3 ? ? ? ? 8B 4D 08 0F B7 11 43 83 C7 28 3B DA 72 D5", nullptr, 0 },
+    { "Et01_init", 0x00617B90u, reinterpret_cast<void*>(&DecompWrap_Et01_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 2B B7 DE FF 6A 00 6A 59 50 E8 F7 62 DF FF 68 ? ? ? ? 56 E8 16 B7 DE FF 8B F0 8D 45 FC 50 6A 04 E8 36 D0 DE FF 83 C4 24 85 C0 75 18 6A 04 68 ?", nullptr, 0 },
+    { "Et02_init", 0x00617C70u, reinterpret_cast<void*>(&DecompWrap_Et02_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 4B B6 DE FF 6A 00 6A 5A 50 E8 17 62 DF FF 68 ? ? ? ? 56 E8 36 B6 DE FF 8B F0 8D 45 FC 50 6A 04 E8 56 CF DE FF 83 C4 24 85 C0 75 18 6A 04 68 ?", nullptr, 0 },
+    { "Et03_init", 0x00617D50u, reinterpret_cast<void*>(&DecompWrap_Et03_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 6B B5 DE FF 6A 00 6A 5B 50 E8 37 61 DF FF 68 ? ? ? ? 56 E8 56 B5 DE FF 6A 00 68 CD 00 00 00 50 E8 1F 61 DF FF 68 ? ? ? ? 56 E8 3E B5 DE FF", nullptr, 0 },
+    { "Et04_init", 0x00617E60u, reinterpret_cast<void*>(&DecompWrap_Et04_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 5B B4 DE FF 6A 00 6A 5C 50 E8 27 60 DF FF 68 ? ? ? ? 56 E8 46 B4 DE FF 8B F0 8D 45 FC 50 6A 00 E8 66 CD DE FF 83 C4 24 85 C0 75 17 50 68 ? ?", nullptr, 0 },
+    { "Et05_init", 0x00617F40u, reinterpret_cast<void*>(&DecompWrap_Et05_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 7B B3 DE FF 6A 00 6A 5D 50 E8 47 5F DF FF 68 ? ? ? ? 56 E8 66 B3 DE FF 8B F0 8D 45 FC 50 6A 03 E8 86 CC DE FF 83 C4 24 85 C0 75 18 6A 03 68 ?", nullptr, 0 },
+    { "Et15_init", 0x00618020u, reinterpret_cast<void*>(&DecompWrap_Et15_init), "55 8B EC 56 8B 75 08 57 68 ? ? ? ? 56 E8 9B B2 DE FF 6A 00 6A 6D 50 E8 67 5E DF FF 68 ? ? ? ? 56 E8 86 B2 DE FF 68 ? ? ? ? 56 8B F8 E8 79 B2 DE FF 8B 4D 0C 0F B6 51 02 52 6A 02 8D", nullptr, 0 },
+    { "Et06_init", 0x006180E0u, reinterpret_cast<void*>(&DecompWrap_Et06_init), "55 8B EC 83 EC 58 A1 ? ? ? ? 33 C5 89 45 FC 8B 45 10 53 56 8B 75 08 57 8B 7D 0C 68 ? ? ? ? 56 89 45 A8 E8 C4 B1 DE FF 68 ? ? ? ? 56 8B D8 E8 B7 B1 DE FF 0F B6 4F 02 51 8D 57 10 52", nullptr, 0 },
+    { "Et08_init", 0x00618350u, reinterpret_cast<void*>(&DecompWrap_Et08_init), "55 8B EC 83 EC 58 A1 ? ? ? ? 33 C5 89 45 FC 8B 45 10 53 56 8B 75 08 57 8B 7D 0C 68 ? ? ? ? 56 89 45 A8 E8 54 AF DE FF 68 ? ? ? ? 56 8B D8 E8 47 AF DE FF 0F B6 4F 02 51 8D 57 10 52", nullptr, 0 },
+    { "Et09_init", 0x006185C0u, reinterpret_cast<void*>(&DecompWrap_Et09_init), "55 8B EC 56 8B 75 08 57 68 ? ? ? ? 56 E8 FB AC DE FF 6A 00 6A 61 50 E8 C7 58 DF FF 68 ? ? ? ? 56 E8 E6 AC DE FF 6A 00 68 CF 00 00 00 50 E8 AF 58 DF FF 68 ? ? ? ? 56 E8 CE AC DE FF", nullptr, 0 },
+    { "Et0a_init", 0x006186C0u, reinterpret_cast<void*>(&DecompWrap_Et0a_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 FB AB DE FF 6A 00 6A 62 50 E8 C7 57 DF FF 68 ? ? ? ? 56 E8 E6 AB DE FF 8B F0 8D 45 FC 50 6A 4B E8 06 C5 DE FF 83 C4 24 85 C0 75 18 6A 4B 68 ?", nullptr, 0 },
+    { "Et0b_init", 0x006187A0u, reinterpret_cast<void*>(&DecompWrap_Et0b_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 1B AB DE FF 6A 00 6A 63 50 E8 E7 56 DF FF 68 ? ? ? ? 56 E8 06 AB DE FF 8B F0 8D 45 FC 50 6A 0D E8 26 C4 DE FF 83 C4 24 85 C0 75 18 6A 0D 68 ?", nullptr, 0 },
+    { "Et0c_init", 0x00618880u, reinterpret_cast<void*>(&DecompWrap_Et0c_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 3B AA DE FF 68 ? ? ? ? 57 8B F0 E8 2E AA DE FF 8B 4D 0C 0F B6 51 02 52 6A 02 8D 51 10 52 83 C1 1C 51 50 56 E8 B2 07 DF FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et0d_init", 0x00618940u, reinterpret_cast<void*>(&DecompWrap_Et0d_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 7B A9 DE FF 68 ? ? ? ? 57 8B F0 E8 6E A9 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 80 A1 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et10_init", 0x00618A20u, reinterpret_cast<void*>(&DecompWrap_Et10_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 9B A8 DE FF 6A 00 6A 68 50 E8 67 54 DF FF 68 ? ? ? ? 56 E8 86 A8 DE FF 8B F0 8D 45 FC 50 6A 0F E8 A6 C1 DE FF 83 C4 24 85 C0 75 18 6A 0F 68 ?", nullptr, 0 },
+    { "Et0e_init", 0x00618B00u, reinterpret_cast<void*>(&DecompWrap_Et0e_init), "55 8B EC 56 8B 75 08 57 68 ? ? ? ? 56 E8 BB A7 DE FF 68 ? ? ? ? 56 8B F8 E8 AE A7 DE FF 8B 4D 0C 0F B6 51 02 52 8D 51 10 52 83 C1 1C 51 50 57 E8 34 B0 DE FF 8B F0 83 C4 24 85 F6 75 15", nullptr, 0 },
+    { "Et0f_init", 0x00618B90u, reinterpret_cast<void*>(&DecompWrap_Et0f_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 2B A7 DE FF 68 ? ? ? ? 57 8B F0 E8 1E A7 DE FF 8B 4D 0C 0F B6 51 02 6A 01 52 8D 51 10 52 83 C1 1C 51 50 56 E8 E3 FA DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et11_init", 0x00618C40u, reinterpret_cast<void*>(&DecompWrap_Et11_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 7B A6 DE FF 6A 00 6A 69 50 E8 47 52 DF FF 68 ? ? ? ? 56 E8 66 A6 DE FF 8B F0 8D 45 FC 50 6A 09 E8 86 BF DE FF 83 C4 24 85 C0 75 18 6A 09 68 ?", nullptr, 0 },
+    { "Et12_init", 0x00618D20u, reinterpret_cast<void*>(&DecompWrap_Et12_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 9B A5 DE FF 6A 00 6A 6A 50 E8 67 51 DF FF 68 ? ? ? ? 56 E8 86 A5 DE FF 8B F0 8D 45 FC 50 6A 0B E8 A6 BE DE FF 83 C4 24 85 C0 75 18 6A 0B 68 ?", nullptr, 0 },
+    { "Et13_init", 0x00618E00u, reinterpret_cast<void*>(&DecompWrap_Et13_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 BB A4 DE FF 6A 00 6A 6B 50 E8 87 50 DF FF 68 ? ? ? ? 56 E8 A6 A4 DE FF 6A 00 68 CD 00 00 00 50 E8 6F 50 DF FF 68 ? ? ? ? 56 E8 8E A4 DE FF", nullptr, 0 },
+    { "Et14_init", 0x00618F10u, reinterpret_cast<void*>(&DecompWrap_Et14_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 AB A3 DE FF 68 ? ? ? ? 57 8B F0 E8 9E A3 DE FF 8B 4D 0C 0F B6 51 02 52 6A 00 8D 51 10 52 83 C1 1C 51 50 56 E8 22 01 DF FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et16_init", 0x00618FD0u, reinterpret_cast<void*>(&DecompWrap_Et16_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 EB A2 DE FF 68 ? ? ? ? 57 8B F0 E8 DE A2 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 F0 9A DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et17_init", 0x006190B0u, reinterpret_cast<void*>(&DecompWrap_Et17_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 0B A2 DE FF 68 ? ? ? ? 57 8B F0 E8 FE A1 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 10 9A DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et18_init", 0x00619190u, reinterpret_cast<void*>(&DecompWrap_Et18_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 2B A1 DE FF 6A 00 6A 70 50 E8 F7 4C DF FF 68 ? ? ? ? 56 E8 16 A1 DE FF 6A 00 68 CD 00 00 00 50 E8 DF 4C DF FF 68 ? ? ? ? 56 E8 FE A0 DE FF", nullptr, 0 },
+    { "Et19_init", 0x006192A0u, reinterpret_cast<void*>(&DecompWrap_Et19_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 1B A0 DE FF 68 ? ? ? ? 57 8B F0 E8 0E A0 DE FF 8B 4D 0C 0F B6 51 02 52 6A 00 8D 51 10 52 83 C1 1C 51 50 56 E8 92 FD DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et1a_init", 0x00619360u, reinterpret_cast<void*>(&DecompWrap_Et1a_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 5B 9F DE FF 68 ? ? ? ? 57 8B F0 E8 4E 9F DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 83 F1 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et1b_init", 0x00619420u, reinterpret_cast<void*>(&DecompWrap_Et1b_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 9B 9E DE FF 68 ? ? ? ? 57 8B F0 E8 8E 9E DE FF 8B 4D 0C 0F B6 51 02 6A 00 52 8D 51 10 52 83 C1 1C 51 50 56 E8 53 F2 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et1c_init", 0x006194D0u, reinterpret_cast<void*>(&DecompWrap_Et1c_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 EB 9D DE FF 68 ? ? ? ? 57 8B F0 E8 DE 9D DE FF 8B 4D 0C 0F B6 51 02 52 6A 02 8D 51 10 52 83 C1 1C 51 50 56 E8 62 FB DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et1e_init", 0x00619590u, reinterpret_cast<void*>(&DecompWrap_Et1e_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 2B 9D DE FF 6A 00 6A 69 50 E8 F7 48 DF FF 68 ? ? ? ? 56 E8 16 9D DE FF 8B F0 8D 45 FC 50 6A 09 E8 36 B6 DE FF 83 C4 24 85 C0 75 18 6A 09 68 ?", nullptr, 0 },
+    { "Et1f_init", 0x00619670u, reinterpret_cast<void*>(&DecompWrap_Et1f_init), "55 8B EC 56 8B 75 08 57 68 ? ? ? ? 56 E8 4B 9C DE FF 6A 00 6A 77 50 E8 17 48 DF FF 68 ? ? ? ? 56 E8 36 9C DE FF 68 ? ? ? ? 56 8B F8 E8 29 9C DE FF 8B 4D 0C 0F B6 51 02 52 6A 04 8D", nullptr, 0 },
+    { "Et20_init", 0x00619730u, reinterpret_cast<void*>(&DecompWrap_Et20_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 8B 9B DE FF 6A 00 6A 78 50 E8 57 47 DF FF 68 ? ? ? ? 56 E8 76 9B DE FF 6A 00 68 CD 00 00 00 50 E8 3F 47 DF FF 68 ? ? ? ? 56 E8 5E 9B DE FF", nullptr, 0 },
+    { "Et21_init", 0x00619840u, reinterpret_cast<void*>(&DecompWrap_Et21_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 7B 9A DE FF 68 ? ? ? ? 57 8B F0 E8 6E 9A DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 80 92 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et22_init", 0x00619920u, reinterpret_cast<void*>(&DecompWrap_Et22_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 9B 99 DE FF 6A 00 6A 7A 50 E8 67 45 DF FF 68 ? ? ? ? 56 E8 86 99 DE FF 6A 00 68 CD 00 00 00 50 E8 4F 45 DF FF 68 ? ? ? ? 56 E8 6E 99 DE FF", nullptr, 0 },
+    { "Et23_init", 0x00619A30u, reinterpret_cast<void*>(&DecompWrap_Et23_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 8B 98 DE FF 68 ? ? ? ? 57 8B F0 E8 7E 98 DE FF 8B 4D 0C 0F B6 51 02 52 6A 02 8D 51 10 52 83 C1 1C 51 50 56 E8 90 90 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et24_init", 0x00619B10u, reinterpret_cast<void*>(&DecompWrap_Et24_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 AB 97 DE FF 68 ? ? ? ? 57 8B F0 E8 9E 97 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 B0 8F DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et26_init", 0x00619BF0u, reinterpret_cast<void*>(&DecompWrap_Et26_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 CB 96 DE FF 68 ? ? ? ? 57 8B F0 E8 BE 96 DE FF 8B 4D 0C 0F B6 51 02 6A 02 52 8D 51 10 52 83 C1 1C 51 50 56 E8 83 EA DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et27_init", 0x00619CA0u, reinterpret_cast<void*>(&DecompWrap_Et27_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 1B 96 DE FF 68 ? ? ? ? 57 8B F0 E8 0E 96 DE FF 8B 4D 0C 0F B6 51 02 52 6A 06 8D 51 10 52 83 C1 1C 51 50 56 E8 20 8E DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et28_init", 0x00619D80u, reinterpret_cast<void*>(&DecompWrap_Et28_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 3B 95 DE FF 68 ? ? ? ? 57 8B F0 E8 2E 95 DE FF 8B 4D 0C 0F B6 51 02 6A 03 52 8D 51 10 52 83 C1 1C 51 50 56 E8 F3 E8 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et2a_init", 0x00619E30u, reinterpret_cast<void*>(&DecompWrap_Et2a_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 8B 94 DE FF 68 ? ? ? ? 57 8B F0 E8 7E 94 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 90 8C DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et2b_init", 0x00619F10u, reinterpret_cast<void*>(&DecompWrap_Et2b_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 AB 93 DE FF 68 ? ? ? ? 57 8B F0 E8 9E 93 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 B0 8B DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et2d_init", 0x00619FF0u, reinterpret_cast<void*>(&DecompWrap_Et2d_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 CB 92 DE FF 6A 00 68 85 00 00 00 50 E8 94 3E DF FF 68 ? ? ? ? 56 E8 B3 92 DE FF 8B F0 8D 45 FC 50 6A 44 E8 D3 AB DE FF 83 C4 24 85 C0 75 18 6A", nullptr, 0 },
+    { "Et30_init", 0x0061A0E0u, reinterpret_cast<void*>(&DecompWrap_Et30_init), "55 8B EC 56 8B 75 08 57 68 ? ? ? ? 56 E8 DB 91 DE FF 6A 00 68 88 00 00 00 50 E8 A4 3D DF FF 68 ? ? ? ? 56 E8 C3 91 DE FF 68 ? ? ? ? 56 8B F8 E8 B6 91 DE FF 8B 4D 0C 0F B6 51 02 52", nullptr, 0 },
+    { "Et2e_init", 0x0061A1A0u, reinterpret_cast<void*>(&DecompWrap_Et2e_init), "55 8B EC 51 56 57 8B 7D 08 68 ? ? ? ? 57 E8 1A 91 DE FF 6A 00 68 86 00 00 00 50 E8 E3 3C DF FF 68 ? ? ? ? 57 E8 02 91 DE FF 8B F0 8D 45 FC 50 6A 45 E8 22 AA DE FF 83 C4 24 85 C0 75 19", nullptr, 0 },
+    { "Et2f_init", 0x0061A2B0u, reinterpret_cast<void*>(&DecompWrap_Et2f_init), "55 8B EC 51 56 57 8B 7D 08 68 ? ? ? ? 57 E8 0A 90 DE FF 6A 00 68 87 00 00 00 50 E8 D3 3B DF FF 68 ? ? ? ? 57 E8 F2 8F DE FF 8B F0 8D 45 FC 50 6A 46 E8 12 A9 DE FF 83 C4 24 85 C0 75 19", nullptr, 0 },
+    { "Et31_init", 0x0061A3C0u, reinterpret_cast<void*>(&DecompWrap_Et31_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 FB 8E DE FF 68 ? ? ? ? 57 8B F0 E8 EE 8E DE FF 8B 4D 0C 0F B6 51 02 52 6A 02 8D 51 10 52 83 C1 1C 51 50 56 E8 00 87 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et32_init", 0x0061A4A0u, reinterpret_cast<void*>(&DecompWrap_Et32_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 1B 8E DE FF 68 ? ? ? ? 57 8B F0 E8 0E 8E DE FF 8B 4D 0C 0F B6 51 02 52 6A 04 8D 51 10 52 83 C1 1C 51 50 56 E8 20 86 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et33_init", 0x0061A590u, reinterpret_cast<void*>(&DecompWrap_Et33_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 2B 8D DE FF 68 ? ? ? ? 57 8B F0 E8 1E 8D DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 30 85 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et34_init", 0x0061A680u, reinterpret_cast<void*>(&DecompWrap_Et34_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 3B 8C DE FF 68 ? ? ? ? 57 8B F0 E8 2E 8C DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 40 84 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et37_init", 0x0061A760u, reinterpret_cast<void*>(&DecompWrap_Et37_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 5B 8B DE FF 68 ? ? ? ? 57 8B F0 E8 4E 8B DE FF 8B 4D 0C 0F B6 51 02 52 6A 02 8D 51 10 52 83 C1 1C 51 50 56 E8 60 83 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et38_init", 0x0061A820u, reinterpret_cast<void*>(&DecompWrap_Et38_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 9B 8A DE FF 68 ? ? ? ? 57 8B F0 E8 8E 8A DE FF 8B 4D 0C 0F B6 51 02 52 6A 02 8D 51 10 52 83 C1 1C 51 50 56 E8 12 E8 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et39_init", 0x0061A8E0u, reinterpret_cast<void*>(&DecompWrap_Et39_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 DB 89 DE FF 68 ? ? ? ? 57 8B F0 E8 CE 89 DE FF 8B 4D 0C 0F B6 51 02 52 6A 05 8D 51 10 52 83 C1 1C 51 50 56 E8 E0 81 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et3a_init", 0x0061A9C0u, reinterpret_cast<void*>(&DecompWrap_Et3a_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 FB 88 DE FF 68 ? ? ? ? 57 8B F0 E8 EE 88 DE FF 8B 4D 0C 0F B6 51 02 6A 04 52 8D 51 10 52 83 C1 1C 51 50 56 E8 B3 DC DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et3b_init", 0x0061AA70u, reinterpret_cast<void*>(&DecompWrap_Et3b_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 4B 88 DE FF 68 ? ? ? ? 57 8B F0 E8 3E 88 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 50 80 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et3c_init", 0x0061AB50u, reinterpret_cast<void*>(&DecompWrap_Et3c_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 6B 87 DE FF 6A 00 68 94 00 00 00 50 E8 34 33 DF FF 68 ? ? ? ? 56 E8 53 87 DE FF 8B F0 8D 45 FC 50 6A 51 E8 73 A0 DE FF 83 C4 24 85 C0 75 18 6A", nullptr, 0 },
+    { "Et3d_init", 0x0061AC40u, reinterpret_cast<void*>(&DecompWrap_Et3d_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 7B 86 DE FF 6A 00 68 95 00 00 00 50 E8 44 32 DF FF 68 ? ? ? ? 56 E8 63 86 DE FF 6A 00 68 CD 00 00 00 50 E8 2C 32 DF FF 68 ? ? ? ? 56 E8 4B", nullptr, 0 },
+    { "Et3e_init", 0x0061AD50u, reinterpret_cast<void*>(&DecompWrap_Et3e_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 6B 85 DE FF 68 ? ? ? ? 57 8B F0 E8 5E 85 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 70 7D DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et3f_init", 0x0061AE30u, reinterpret_cast<void*>(&DecompWrap_Et3f_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 8B 84 DE FF 68 ? ? ? ? 57 8B F0 E8 7E 84 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 90 7C DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et40_init", 0x0061AF10u, reinterpret_cast<void*>(&DecompWrap_Et40_init), "55 8B EC 51 56 8B 75 08 68 ? ? ? ? 56 E8 AB 83 DE FF 6A 00 68 98 00 00 00 50 E8 74 2F DF FF 68 ? ? ? ? 56 E8 93 83 DE FF 6A 00 68 CD 00 00 00 50 E8 5C 2F DF FF 68 ? ? ? ? 56 E8 7B", nullptr, 0 },
+    { "Et41_init", 0x0061B030u, reinterpret_cast<void*>(&DecompWrap_Et41_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 8B 82 DE FF 68 ? ? ? ? 57 8B F0 E8 7E 82 DE FF 8B 4D 0C 0F B6 51 02 52 6A 07 8D 51 10 52 83 C1 1C 51 50 56 E8 90 7A DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et42_init", 0x0061B110u, reinterpret_cast<void*>(&DecompWrap_Et42_init), "55 8B EC 51 56 57 8B 7D 08 68 ? ? ? ? 57 E8 AA 81 DE FF 6A 00 68 9A 00 00 00 50 E8 73 2D DF FF 68 ? ? ? ? 57 E8 92 81 DE FF 8B F0 8D 45 FC 50 6A 5D E8 B2 9A DE FF 83 C4 24 85 C0 75 19", nullptr, 0 },
+    { "Et43_init", 0x0061B220u, reinterpret_cast<void*>(&DecompWrap_Et43_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 9B 80 DE FF 68 ? ? ? ? 57 8B F0 E8 8E 80 DE FF 8B 4D 0C 0F B6 51 02 6A 05 52 8D 51 10 52 83 C1 1C 51 50 56 E8 53 D4 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et45_init", 0x0061B2D0u, reinterpret_cast<void*>(&DecompWrap_Et45_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 EB 7F DE FF 68 ? ? ? ? 57 8B F0 E8 DE 7F DE FF 8B 4D 0C 0F B6 51 02 52 6A 07 8D 51 10 52 83 C1 1C 51 50 56 E8 F0 77 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et46_init", 0x0061B3B0u, reinterpret_cast<void*>(&DecompWrap_Et46_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 0B 7F DE FF 68 ? ? ? ? 57 8B F0 E8 FE 7E DE FF 8B 4D 0C 0F B6 51 02 52 6A 04 8D 51 10 52 83 C1 1C 51 50 56 E8 10 77 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et47_init", 0x0061B4A0u, reinterpret_cast<void*>(&DecompWrap_Et47_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 1B 7E DE FF 68 ? ? ? ? 57 8B F0 E8 0E 7E DE FF 8B 4D 0C 0F B6 51 02 52 6A 07 8D 51 10 52 83 C1 1C 51 50 56 E8 20 76 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et49_init", 0x0061B580u, reinterpret_cast<void*>(&DecompWrap_Et49_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 3B 7D DE FF 68 ? ? ? ? 57 8B F0 E8 2E 7D DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 40 75 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et4b_init", 0x0061B660u, reinterpret_cast<void*>(&DecompWrap_Et4b_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 5B 7C DE FF 68 ? ? ? ? 57 8B F0 E8 4E 7C DE FF 8B 4D 0C 0F B6 51 02 6A 06 52 8D 51 10 52 83 C1 1C 51 50 56 E8 13 D0 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et4c_init", 0x0061B710u, reinterpret_cast<void*>(&DecompWrap_Et4c_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 AB 7B DE FF 68 ? ? ? ? 57 8B F0 E8 9E 7B DE FF 8B 4D 0C 0F B6 51 02 6A 07 52 8D 51 10 52 83 C1 1C 51 50 56 E8 63 CF DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et4d_init", 0x0061B7C0u, reinterpret_cast<void*>(&DecompWrap_Et4d_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 FB 7A DE FF 68 ? ? ? ? 57 8B F0 E8 EE 7A DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 00 73 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et4e_init", 0x0061B8A0u, reinterpret_cast<void*>(&DecompWrap_Et4e_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 1B 7A DE FF 68 ? ? ? ? 57 8B F0 E8 0E 7A DE FF 8B 4D 0C 0F B6 51 02 52 6A 05 8D 51 10 52 83 C1 1C 51 50 56 E8 20 72 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et4f_init", 0x0061B980u, reinterpret_cast<void*>(&DecompWrap_Et4f_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 3B 79 DE FF 68 ? ? ? ? 57 8B F0 E8 2E 79 DE FF 8B 4D 0C 0F B6 51 02 6A 06 52 8D 51 10 52 83 C1 1C 51 50 56 E8 F3 CC DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et59_init", 0x0061BA30u, reinterpret_cast<void*>(&DecompWrap_Et59_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 8B 78 DE FF 68 ? ? ? ? 57 8B F0 E8 7E 78 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 90 70 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et61_init", 0x0061BB10u, reinterpret_cast<void*>(&DecompWrap_Et61_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 AB 77 DE FF 68 ? ? ? ? 57 8B F0 E8 9E 77 DE FF 8B 4D 0C 0F B6 51 02 6A 08 52 8D 51 10 52 83 C1 1C 51 50 56 E8 63 CB DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et62_init", 0x0061BBC0u, reinterpret_cast<void*>(&DecompWrap_Et62_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 FB 76 DE FF 68 ? ? ? ? 57 8B F0 E8 EE 76 DE FF 8B 4D 0C 0F B6 51 02 52 6A 07 8D 51 10 52 83 C1 1C 51 50 56 E8 00 6F DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et63_init", 0x0061BCA0u, reinterpret_cast<void*>(&DecompWrap_Et63_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 1B 76 DE FF 68 ? ? ? ? 57 8B F0 E8 0E 76 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 20 6E DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et66_init", 0x0061BD80u, reinterpret_cast<void*>(&DecompWrap_Et66_init), "55 8B EC 56 8B 75 08 57 68 ? ? ? ? 56 E8 3B 75 DE FF 6A 00 68 BE 00 00 00 50 E8 04 21 DF FF 68 ? ? ? ? 56 E8 23 75 DE FF 68 ? ? ? ? 56 8B F8 E8 16 75 DE FF 8B 4D 0C 0F B6 51 02 52", nullptr, 0 },
+    { "Et67_init", 0x0061BE40u, reinterpret_cast<void*>(&DecompWrap_Et67_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 7B 74 DE FF 68 ? ? ? ? 57 8B F0 E8 6E 74 DE FF 8B 4D 0C 0F B6 51 02 6A 08 52 8D 51 10 52 83 C1 1C 51 50 56 E8 33 C8 DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et68_init", 0x0061BEF0u, reinterpret_cast<void*>(&DecompWrap_Et68_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 CB 73 DE FF 68 ? ? ? ? 57 8B F0 E8 BE 73 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 D0 6B DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "Et69_init", 0x0061BFD0u, reinterpret_cast<void*>(&DecompWrap_Et69_init), "55 8B EC 56 57 8B 7D 08 68 ? ? ? ? 57 E8 EB 72 DE FF 68 ? ? ? ? 57 8B F0 E8 DE 72 DE FF 8B 4D 0C 0F B6 51 02 52 6A 01 8D 51 10 52 83 C1 1C 51 50 56 E8 F0 6A DE FF 8B F0 83 C4 28 85 F6", nullptr, 0 },
+    { "EtcGetDasAddr", 0x0061C0B0u, reinterpret_cast<void*>(&DecompWrap_EtcGetDasAddr), "55 8B EC A1 ? ? ? ? 85 C0 75 0D 8B 45 0C C7 00 00 00 00 00 33 C0 5D C3 8B 4D 0C 89 01 B8 01 00 00 00 5D C3", nullptr, 0 },
+    { "GetEtcFlgPtr", 0x0061C0E0u, reinterpret_cast<void*>(&DecompWrap_GetEtcFlgPtr), "55 8B EC 56 8B 75 08 83 FE 40 72 19 6A 40 56 68 ? ? ? ? 6A 00 6A 06 E8 62 0D DF FF 83 C4 14 33 C0 5E 5D C3 8B 45 0C 50 B9 ? ? ? ? E8 95 EC DE FF 85 C0 74 E9 8D 44 70 28 5E 5D C3", nullptr, 0 },
+    { "getRoomEtcBreak", 0x0061E880u, reinterpret_cast<void*>(&DecompWrap_getRoomEtcBreak), "55 8B EC 56 8B 75 08 57 8B 7D 0C 6A 00 57 56 E8 99 AE DE FF 83 C4 0C 83 F8 01 75 09 5F B8 01 00 00 00 5E 5D C3 6A 00 57 56 E8 18 E3 DE FF 83 C4 0C 83 F8 01 74 E6 6A 00 57 56 E8 08 5B DE FF 83", nullptr, 0 },
+    { "setRoomEtcDisp", 0x0061EB90u, reinterpret_cast<void*>(&DecompWrap_setRoomEtcDisp), "55 8B EC 56 8B 75 08 57 8B 7D 0C 6A 00 57 56 E8 3E 00 DF FF 83 C4 0C 83 F8 01 74 2A 8D 04 76 83 3C 85 ? ? ? ? 01 8D 04 85 ? ? ? ? 75 1F 8B 40 08 83 FF 01 75 0A 83 48 04 02 8B C7 5F 5E", nullptr, 0 },
+    { "setRoomEtcBreakDisp", 0x0061E950u, reinterpret_cast<void*>(&DecompWrap_setRoomEtcBreakDisp), "55 8B EC 51 56 8B 75 08 6A 00 8D 45 FC 50 56 E8 C9 AD DE FF 83 C4 0C 83 F8 01 74 64 6A 00 8D 4D FC 51 56 E8 4E E2 DE FF 83 C4 0C 83 F8 01 74 50 6A 00 8D 55 FC 52 56 E8 3B 5A DE FF 83 C4 0C 83", nullptr, 0 },
+    { "getRoomEtcOnLight", 0x0061EAA0u, reinterpret_cast<void*>(&DecompWrap_getRoomEtcOnLight), "55 8B EC 8B 45 0C 56 8B 75 08 6A 00 50 56 E8 53 56 DE FF 83 C4 0C 85 C0 74 08 B8 01 00 00 00 5E 5D C3 83 7D 10 00 74 46 8D 04 76 83 3C 85 ? ? ? ? 01 8D 04 85 ? ? ? ? 74 19 56 68 ? ?", nullptr, 0 },
+    { "getRoomEtcWindow", 0x0061C130u, reinterpret_cast<void*>(&DecompWrap_getRoomEtcWindow), "55 8B EC 8B 55 0C 53 56 8B 75 08 8D 0C 76 B8 01 00 00 00 C7 02 00 00 00 00 57 39 04 8D ? ? ? ? 75 1C 8B 3C 8D ? ? ? ? 33 DB 66 3B 1F 75 0E 8B 0C 8D ? ? ? ? 5F 5E 89 0A 5B 5D C3 C7", nullptr, 0 },
+    { "getRoomEtcBox", 0x0061C690u, reinterpret_cast<void*>(&DecompWrap_getRoomEtcBox), "55 8B EC 8B 55 0C 53 56 8B 75 08 8D 0C 76 B8 01 00 00 00 C7 02 00 00 00 00 57 39 04 8D ? ? ? ? 75 1A 8B 3C 8D ? ? ? ? 66 3B 07 75 0E 8B 0C 8D ? ? ? ? 5F 5E 89 0A 5B 5D C3 C7 02 00", nullptr, 0 },
+    { "getRoomEtcDoor", 0x0061C810u, reinterpret_cast<void*>(&DecompWrap_getRoomEtcDoor), "55 8B EC 8B 55 0C 53 56 8B 75 08 8D 0C 76 B8 01 00 00 00 C7 02 00 00 00 00 57 39 04 8D ? ? ? ? 75 1F 8B 3C 8D ? ? ? ? BB 03 00 00 00 66 3B 1F 75 0E 8B 0C 8D ? ? ? ? 5F 5E 89 0A 5B", nullptr, 0 },
+    { "getRoomEtcRack", 0x0061CF10u, reinterpret_cast<void*>(&DecompWrap_getRoomEtcRack), "55 8B EC 8B 55 0C 53 56 8B 75 08 8D 0C 76 B8 01 00 00 00 C7 02 00 00 00 00 57 39 04 8D ? ? ? ? 75 1F 8B 3C 8D ? ? ? ? BB 04 00 00 00 66 3B 1F 75 0E 8B 0C 8D ? ? ? ? 5F 5E 89 0A 5B", nullptr, 0 },
+    { "getRoomEtcLadder", 0x0061D040u, reinterpret_cast<void*>(&DecompWrap_getRoomEtcLadder), "55 8B EC 8B 55 0C 53 56 8B 75 08 8D 0C 76 B8 01 00 00 00 C7 02 00 00 00 00 57 39 04 8D ? ? ? ? 75 1F 8B 3C 8D ? ? ? ? BB 06 00 00 00 66 3B 1F 75 0E 8B 0C 8D ? ? ? ? 5F 5E 89 0A 5B", nullptr, 0 },
+    { "getRoomEtcTorch", 0x0061D0F0u, reinterpret_cast<void*>(&DecompWrap_getRoomEtcTorch), "55 8B EC 8B 55 0C 53 56 8B 75 08 8D 0C 76 B8 01 00 00 00 C7 02 00 00 00 00 57 39 04 8D ? ? ? ? 75 1F 8B 3C 8D ? ? ? ? BB 14 00 00 00 66 3B 1F 75 0E 8B 0C 8D ? ? ? ? 5F 5E 89 0A 5B", nullptr, 0 },
+    { "getRoomEtcSwitch", 0x0061D2A0u, reinterpret_cast<void*>(&DecompWrap_getRoomEtcSwitch), "55 8B EC 8B 55 0C 56 8B 75 08 8D 0C 76 B8 01 00 00 00 C7 02 00 00 00 00 39 04 8D ? ? ? ? 75 21 53 57 8B 3C 8D ? ? ? ? BB 0E 00 00 00 66 3B 1F 5F 5B 75 0C 8B 0C 8D ? ? ? ? 89 0A 5E", nullptr, 0 },
+    { "getRoomEtcBarred", 0x0061D350u, reinterpret_cast<void*>(&DecompWrap_getRoomEtcBarred), "55 8B EC 8B 55 0C 53 56 8B 75 08 8D 0C 76 B8 01 00 00 00 C7 02 00 00 00 00 57 39 04 8D ? ? ? ? 75 1F 8B 3C 8D ? ? ? ? BB 0F 00 00 00 66 3B 1F 75 0E 8B 0C 8D ? ? ? ? 5F 5E 89 0A 5B", nullptr, 0 },
+    { "getRoomEtcDram", 0x0061D590u, reinterpret_cast<void*>(&DecompWrap_getRoomEtcDram), "55 8B EC 8B 55 0C 53 56 8B 75 08 8D 0C 76 B8 01 00 00 00 C7 02 00 00 00 00 57 39 04 8D ? ? ? ? 75 1F 8B 3C 8D ? ? ? ? BB 12 00 00 00 66 3B 1F 75 0E 8B 0C 8D ? ? ? ? 5F 5E 89 0A 5B", nullptr, 0 },
+    { "getRoomEtcItem", 0x0061D670u, reinterpret_cast<void*>(&DecompWrap_getRoomEtcItem), "55 8B EC 8B 55 0C 56 8B 75 08 8D 0C 76 B8 01 00 00 00 C7 02 00 00 00 00 39 04 8D ? ? ? ? 75 21 53 57 8B 3C 8D ? ? ? ? BB 1A 00 00 00 66 3B 1F 5F 5B 75 0C 8B 0C 8D ? ? ? ? 89 0A 5E", nullptr, 0 },
+    { "GetEtcAmbType", 0x0061D720u, reinterpret_cast<void*>(&DecompWrap_GetEtcAmbType), "A1 ? ? ? ? 0F B7 80 AC 4F 00 00 B9 00 04 00 00 66 3B C1 0F 84 A0 01 00 00 BA 03 04 00 00 66 3B C2 0F 84 92 01 00 00 B9 02 04 00 00 66 3B C1 75 06 B8 03 00 00 00 C3 BA 04 04 00 00 66 3B C2", nullptr, 0 },
+    { "GetEm10EyeEffectEnable", 0x0061D950u, reinterpret_cast<void*>(&DecompWrap_GetEm10EyeEffectEnable), "A1 ? ? ? ? 0F B7 80 AC 4F 00 00 B9 08 01 00 00 66 3B C1 0F 84 BD 00 00 00 BA 06 01 00 00 66 3B C2 0F 84 AF 00 00 00 B9 02 01 00 00 66 3B C1 0F 84 A1 00 00 00 BA 09 01 00 00 66 3B C2 0F 84", nullptr, 0 },
+    { "EtcSetAddAmb", 0x0061DA60u, reinterpret_cast<void*>(&DecompWrap_EtcSetAddAmb), "55 8B EC 51 53 32 DB 88 5D FF 88 5D FE E8 EB C8 DE FF 83 F8 04 0F 87 C1 00 00 00 FF 24 85 ? ? ? ? 8B 45 0C 8A 8C 40 ? ? ? ? 8A 9C 40 ? ? ? ? 8A 94 40 ? ? ? ? 88 4D FF 88 55 FE", nullptr, 0 },
     { "SearchEmModule", 0x006AD4D0u, reinterpret_cast<void*>(&DecompWrap_SearchEmModule), "55 8B EC 8A 4D 08 80 F9 03 74 0A 80 F9 05 74 05 80 F9 0C 75 2C 8B 15 ? ? ? ? 8A 82 CB 4F 00 00 84 C0 75 04 B1 03 EB 0D 3C 02 0F 95 C1 FE C9 80 E1 07 80 C1 05 F7 42 54 00 10 00 00 74 02 B1", reinterpret_cast<void*>(&DecompShadowWrap_SearchEmModule), 6 },
     { "pullEmModule", 0x006AD570u, reinterpret_cast<void*>(&DecompWrap_pullEmModule), "33 C0 B9 ? ? ? ? 83 39 00 74 12 81 C1 98 00 00 00 40 81 F9 ? ? ? ? 7C EC 33 C0 C3 69 C0 98 00 00 00 05 ? ? ? ? C3", reinterpret_cast<void*>(&DecompShadowWrap_pullEmModule), 7 },
     { "InitModule", 0x006ADAA0u, reinterpret_cast<void*>(&DecompWrap_InitModule), "55 8B EC 56 8B 75 08 8B 86 88 00 00 00 85 C0 74 12 F6 86 82 00 00 00 02 74 09 50 E8 8B 07 D6 FF 83 C4 04 8B 86 84 00 00 00 85 C0 74 21 0F B7 8E 82 00 00 00 F6 C1 04 74 15 50 F6 C1 08 74 07 E8", nullptr, 0 },

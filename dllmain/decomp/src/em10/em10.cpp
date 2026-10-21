@@ -677,6 +677,7 @@ void em10_R1_Work(cEm10* em);
 void em10_R1_R300TakeAshley(cEm10* em);
 void em10_R1_R320Gatling(cEm10* em);
 void em10_R1_R321DeadBody(cEm10* em);
+void em10_R1_R300Gatling(cEm10* em);
 void em10_R1_br_EvtDash(cEm10* em);
 void em10_R1_br_EvtWalk(cEm10* em);
 void em10_R1_Find(cEm10* em);
@@ -726,6 +727,7 @@ static void em10SetWalkMotion(cEm10* em, int a);
 static void em10SetDashMotion(cEm10* em);
 extern "C" void em10SetRtnFind(cEm10* em);
 static void em10MouthPartsReset(cEm10* em);
+static void em10SetDmWaterEff(cEm10* em, int a);
 extern "C" void em10SetTakeawayPosUpdate(cEm10* em);
 extern "C" int em10ReturnPosCk(cEm10* em);
 static int em10IgnitionCk(cEm10* em);
@@ -773,7 +775,6 @@ DECOMP_FUNC(void, em10_R1_R100Cliff, (cEm10* em), 0x0043D3F0);
 DECOMP_FUNC(void, em10_R1_R101Bucket, (cEm10* em), 0x00478D80);
 DECOMP_FUNC(void, em10_R1_UFOCatch, (cEm10* em), 0x0043D730);
 DECOMP_FUNC(void, em10_R1_R30FBullJump, (cEm10* em), 0x00463990);
-DECOMP_FUNC(void, em10_R1_R300Gatling, (cEm10* em), 0x00463C70);
 DECOMP_FUNC(void, em10_R1_R101Cart, (cEm10* em), 0x00479B40);
 DECOMP_FUNC(void, em10_R1_EvtDash, (cEm10* em), 0x0043D930);
 DECOMP_FUNC(void, em10_R1_EvtWalk, (cEm10* em), 0x0043DDE0);
@@ -926,11 +927,11 @@ DECOMP_FUNC(void, em10WaistMove, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10ScaleCompress, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10FindCk, (cEm10* em, int a), 0x00426B00);
 DECOMP_FUNC(int, em10FindCk2, (cEm10* em), 0x004305E0);
-DECOMP_FUNC(int, em10SomebodyFindNowCk, (cEm10* em), 0x00000000);
+DECOMP_FUNC(int, em10SomebodyFindNowCk, (cEm10* em), 0x004490F0);
 DECOMP_FUNC(int, em10FindFloorCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10SomebodyDamageNowCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10SomebodyNearCk, (cEm10* em), 0x00449380);
-DECOMP_FUNC(void, em10FindNotify, (cEm10* em), 0x00000000);
+DECOMP_FUNC(void, em10FindNotify, (cEm10* em), 0x00449490);
 DECOMP_FUNC(void, em10WalkRtnSet, (cEm10* em), 0x00478050);
 DECOMP_FUNC(int, em10BackCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10SlopeMove, (cEm10* em), 0x00000000);
@@ -988,7 +989,6 @@ DECOMP_FUNC(int, em10SearchParasite, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10ParasiteGoOut, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10SetDamageVoice, (cEm10* em, u16 a, u16 b), 0x00437480);
 DECOMP_FUNC(int, em10ChgParasiteCk, (cEm10* em), 0x00457C80);
-DECOMP_FUNC(void, em10SetDmWaterEff, (cEm10* em, int a), 0x004375D0);
 DECOMP_FUNC(void, em10SetTakeawayPos, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10GotoPosCk, (cEm10* em), 0x0044B330);
 DECOMP_FUNC(void, em10SetWaterEff, (cEm10* em), 0x00000000);
@@ -1050,7 +1050,6 @@ void em10_R1_R100Cliff(cEm10* em);
 void em10_R1_R101Bucket(cEm10* em);
 void em10_R1_UFOCatch(cEm10* em);
 void em10_R1_R30FBullJump(cEm10* em);
-void em10_R1_R300Gatling(cEm10* em);
 void em10_R1_R101Cart(cEm10* em);
 void em10_R1_EvtDash(cEm10* em);
 void em10_R1_EvtWalk(cEm10* em);
@@ -1265,7 +1264,6 @@ extern "C" int em10SearchParasite(cEm10* em);
 extern "C" void em10ParasiteGoOut(cEm10* em);
 void em10SetDamageVoice(cEm10* em, u16 a, u16 b);
 int em10ChgParasiteCk(cEm10* em);
-void em10SetDmWaterEff(cEm10* em, int a);
 extern "C" void em10SetTakeawayPos(cEm10* em);
 int em10GotoPosCk(cEm10* em);
 void em10SetWaterEff(cEm10* em);
@@ -2692,7 +2690,7 @@ extern "C" cModel* em10SearchTruck(cEm10* em)
 // chance). 1 = it did (the damage reaction is skipped).
 // FUNCTION: BIO4 0x00457C80
 // STATUS: stub
-#if 0 // PARKED: CTRL12_ID_CNT_PARASITE, Ctrl12CntCk
+#if 0 // PARKED: Ctrl12CntCk
 static int em10ChgParasiteCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -2963,7 +2961,7 @@ void cEm10::setNoSuspend(int on)
 // Ganado's arrow on a hit to its quiver part, and makes the Ganado find the player.
 // FUNCTION: BIO4 0x00457D30
 // STATUS: stub
-#if 0 // PARKED: C2051, C2227, C2228, DMG_TYPE_ENV_FIRE, DMG_TYPE_FIRE, DMG_TYPE_FLAME, DMG_TYPE_LAMP, DmgMgr, EmDeadCk, GameAddPoint, LVADD_CRITICALHIT, LifeDownSet, LifeDownSet2, YARARE_INFO, pLog, part
+#if 0 // PARKED: C2051, C2227, C2228, DMG_TYPE_ENV_FIRE, DMG_TYPE_FIRE, DMG_TYPE_FLAME, DMG_TYPE_LAMP, DmgMgr, EmDeadCk, LVADD_CRITICALHIT, LifeDownSet, LifeDownSet2, YARARE_INFO, pLog, part
 static void em10DmCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -3268,7 +3266,7 @@ void em10DmSetWep00(cEm10* em)
 // robed type 6 dies at once, type 2 / 0xA / 0xD / 0x16 use the gatling / claw reactions.
 // FUNCTION: BIO4 0x00458B90
 // STATUS: stub
-#if 0 // PARKED: C2227, EmReserveDropItem, EmSetDie, GameAddPoint, LVADD_CRITICALHIT, YARARE_INFO, part
+#if 0 // PARKED: C2227, EmReserveDropItem, EmSetDie, LVADD_CRITICALHIT, YARARE_INFO, part
 void em10DmSetWep02(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -3568,7 +3566,7 @@ void em10DmSetWep02(cEm10* em)
 // loses it, chainsaw Ganados only flinch, shield carriers take Dm_Small.
 // FUNCTION: BIO4 0x00459860
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, GameAddPoint, LVADD_CRITICALHIT, YARARE_INFO, part
+#if 0 // PARKED: C1003, C2227, LVADD_CRITICALHIT, YARARE_INFO, part
 void em10DmSetWep03(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -3786,7 +3784,7 @@ void em10DmSetWep03(cEm10* em)
 // otherwise the Ganado is blown away (Dm_Blow) or reacts like a bullet hit on the gatling / claw types.
 // FUNCTION: BIO4 0x0045A110
 // STATUS: stub
-#if 0 // PARKED: C2227, G_ROOM_ID, GameAddPoint, LVADD_CRITICALHIT, YARARE_INFO, part, set
+#if 0 // PARKED: C2227, G_ROOM_ID, LVADD_CRITICALHIT, YARARE_INFO, part, set
 void em10DmSetWep09(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -4083,7 +4081,7 @@ void em10DmSetWep23(cEm10* em)
 // Damage blood / hit effect by weapon (near: the shot came from close range).
 // FUNCTION: BIO4 0x00435780
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, C2228, Camera, EmDmBloodSet2, YARARE_INFO, cEsp, cam, esp, part
+#if 0 // PARKED: C1003, C2227, C2228, Camera, Ctrl12Ck, EmDmBloodSet2, EmGetDmPos, YARARE_INFO, cEsp, cam, esp, part
 static void em10BloodSet(cEm10* em, int near)
 {
     Em10Work* w = EM10_WK(em);
@@ -5891,7 +5889,7 @@ void em10_R1_R303FireDash(cEm10* em)
 // the first hit damages the gondola, the second breaks it (cObjGondola setDamage / setBreak).
 // FUNCTION: BIO4 0x0044C7A0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, EFF_ROOM, SetPlDamage, SetSubDamage, cObjGondola, throughOn
+#if 0 // PARKED: C2227, C2228, SetPlDamage, SetSubDamage, cObjGondola, throughOn
 void em10_R1_R10FGJump(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -7032,7 +7030,7 @@ void em10_R1_R100Cliff(cEm10* em)
 // Room 101: the Ganado carrying a bucket between the two positions of its route (x38D picks it).
 // FUNCTION: BIO4 0x00478D80
 // STATUS: stub
-#if 0 // PARKED: C1003, C2228, Motion, MotionSetCore, RouteCkToPos, ang, em10_r101_bucket_pos2
+#if 0 // PARKED: C1003, C2228, EffectEspDelete, Motion, MotionSetCore, RouteCkToPos, ang, em10_r101_bucket_pos2
 void em10_R1_R101Bucket(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -7341,7 +7339,6 @@ void em10_R1_R320Gatling(cEm10* em)
 // (setEvtMotion evtMot[0]/[4]) with its SE 0xB3 and effect, then walks.
 // FUNCTION: BIO4 0x00463C70
 // STATUS: stub
-#if 0 // PARKED: EFF_ROOM
 void em10_R1_R300Gatling(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -7372,7 +7369,6 @@ void em10_R1_R300Gatling(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x09: room 101 villager pushing the cart (pCart) along em10_r101_cart_route, turning at the
 // points, with the cart creak SE / effect 0x16 every 15..45 frames; drops it for the player.
@@ -7803,7 +7799,7 @@ void em10_R1_br_Walk(cEm10* em)
 // breath, chainsaw and behind-player SEs and the chainsaw walk attack.
 // FUNCTION: BIO4 0x00479F80
 // STATUS: stub
-#if 0 // PARKED: CTRL12_ID_BACKSIGN, Ctrl12Ck
+#if 0 // PARKED: Ctrl12Ck
 void em10_R1_Walk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -8818,7 +8814,7 @@ void em10_R1_SitDown(cEm10* em)
 // and walk; turns around first (step 2/3) when the player is more than 135 deg behind.
 // FUNCTION: BIO4 0x00466C20
 // STATUS: stub
-#if 0 // PARKED: C2227, CTRL12_ID_EM10_ATK, CTRL12_ID_EM10_NOT_NEAR, Ctrl12Ck
+#if 0 // PARKED: C2227, Ctrl12Ck
 void em10_R1_Stay(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -9826,7 +9822,7 @@ void em10_R1_LadderReset(cEm10* em)
 // the way (em10FallWaterCk), lands with the snap / SE 5 / motion 0x25 and a dust effect, then walks.
 // FUNCTION: BIO4 0x0046A130
 // STATUS: stub
-#if 0 // PARKED: C2228, EFF_ROOM, EstSetEm10WaterFall, SatMgr
+#if 0 // PARKED: C2228, EstSetEm10WaterFall, SatMgr
 void em10_R1_JumpDown(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -9926,7 +9922,7 @@ void em10_R1_JumpDown(cEm10* em)
 // falls / lands like JumpDown (flags 0x00181000 during the leap, then 0x10080000).
 // FUNCTION: BIO4 0x0046A880
 // STATUS: stub
-#if 0 // PARKED: C2228, EFF_ROOM, EstSetEm10WaterFall, MotionAddSpeed, MotionGetSpeed, SatMgr
+#if 0 // PARKED: C2228, EstSetEm10WaterFall, MotionAddSpeed, MotionGetSpeed, SatMgr
 void em10_R1_Jump(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -10399,7 +10395,7 @@ void em10_R1_ParasiteAtk(cEm10* em)
 // re-arm (0x131, effect 0x1F), or side-step when the player closes in; flag 0x200 = aiming.
 // FUNCTION: BIO4 0x0046B800
 // STATUS: stub
-#if 0 // PARKED: C1003, CTRL12_ID_EM10_THROW, Ctrl12Ck, EmDeadCk, SetWeapon, be_flag, fRand0_1, fRand1_1, mat
+#if 0 // PARKED: C1003, Ctrl12Ck, Em10AtkTbl, EmDeadCk, SetWeapon, be_flag, fRand0_1, fRand1_1, mat, setEffDamage, setEffHit, setSeDamage, setSeHit, setSeHitWall, setSeThrow, setShot
 void em10_R1_ShotBowgun(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -10628,7 +10624,7 @@ void em10_R1_ShotBowgun(cEm10* em)
 // with Em10AtkTbl[7], SE 0xB1), recovers (0x18A) and drops the empty launcher (setWeaponFall).
 // FUNCTION: BIO4 0x0046C5D0
 // STATUS: stub
-#if 0 // PARKED: CTRL12_ID_EM10_THROW, Ctrl12Ck, Em10AtkTbl, EmDeadCk, SetWeapon, be_flag, getPartsPtr, mat, setEffDamage, setEffHit, setEffWater, setRocket, setSeDamage, setSeHit, setSeHitWall, setSeThrow
+#if 0 // PARKED: Ctrl12Ck, Em10AtkTbl, EmDeadCk, SetWeapon, be_flag, getPartsPtr, mat, setEffDamage, setEffHit, setEffWater, setRocket, setSeDamage, setSeHit, setSeHitWall, setSeThrow
 void em10_R1_ShotRocket(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -11538,7 +11534,7 @@ void em10_R1_RocketWait(cEm10* em)
 // weapon / hand parts (EM10_AXE_SWEEP_CK segments); Atk_wait 15/45/90 by rank afterwards.
 // FUNCTION: BIO4 0x0046E610
 // STATUS: stub
-#if 0 // PARKED: GameAddPoint, LVADD_ESCAPEATTACK, getPartsPtr, mat
+#if 0 // PARKED: LVADD_ESCAPEATTACK, getPartsPtr, mat
 void em10_R1_AxeAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -11697,7 +11693,7 @@ void em10_R1_AxeAtk(cEm10* em)
 // the shield / hand part (attack kind 4), then Atk_wait by rank and back to the walk.
 // FUNCTION: BIO4 0x0046EFA0
 // STATUS: stub
-#if 0 // PARKED: GameAddPoint, LVADD_ESCAPEATTACK
+#if 0 // PARKED: LVADD_ESCAPEATTACK
 void em10_R1_ShieldAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -11774,7 +11770,7 @@ void em10_R1_ShieldAtk(cEm10* em)
 // em10TorchFrameAtkCk / Sub set the player / partner on fire, the flame effect 0x23 and SE 0x8D play.
 // FUNCTION: BIO4 0x0046F400
 // STATUS: stub
-#if 0 // PARKED: GameAddPoint, LVADD_ESCAPEATTACK
+#if 0 // PARKED: LVADD_ESCAPEATTACK
 void em10_R1_TorchFrame(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -11839,7 +11835,7 @@ void em10_R1_TorchFrame(cEm10* em)
 // EM10_SUKI_SWEEP_CK), sparks 0x44 when the tool hits a wall; Atk_wait by rank afterwards.
 // FUNCTION: BIO4 0x0046F7D0
 // STATUS: stub
-#if 0 // PARKED: EstSet, GameAddPoint, LVADD_ESCAPEATTACK, mat
+#if 0 // PARKED: EstSet, LVADD_ESCAPEATTACK, mat
 void em10_R1_SukiAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -11944,7 +11940,7 @@ void em10_R1_SukiAtk(cEm10* em)
 // (EM10_SCYTHE_SWEEP_CK), then Atk_wait by rank.
 // FUNCTION: BIO4 0x0046FE60
 // STATUS: stub
-#if 0 // PARKED: GameAddPoint, LVADD_ESCAPEATTACK, mat
+#if 0 // PARKED: LVADD_ESCAPEATTACK, mat
 void em10_R1_ScytheAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12029,7 +12025,7 @@ void em10_R1_ScytheAtk(cEm10* em)
 // critical claw attack (em10ClawCriAtkCk) or, having lost the player, FindLost.
 // FUNCTION: BIO4 0x00470440
 // STATUS: stub
-#if 0 // PARKED: GameAddPoint, LVADD_ESCAPEATTACK
+#if 0 // PARKED: LVADD_ESCAPEATTACK
 void em10_R1_ClawAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12172,7 +12168,7 @@ void em10_R1_br_CSawWalkAtk(cEm10* em)
 // Turn180 / Stay / death exits as Walk.
 // FUNCTION: BIO4 0x0045E980
 // STATUS: stub
-#if 0 // PARKED: CTRL12_ID_BACKSIGN, Ctrl12Ck
+#if 0 // PARKED: Ctrl12Ck
 void em10_R1_CSawWalkAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12435,7 +12431,7 @@ void em10_R1_br_ClawCriAtk(cEm10* em)
 // wall hit sparks 0x7C, the claws stuck in the ground (0x11A, effect 0x7E, SEs 0x73/0x74), then walk.
 // FUNCTION: BIO4 0x00471350
 // STATUS: stub
-#if 0 // PARKED: C2228, EatMgr, GameAddPoint, LVADD_ESCAPEATTACK
+#if 0 // PARKED: C2228, EatMgr, LVADD_ESCAPEATTACK
 void em10_R1_ClawCriAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12664,7 +12660,7 @@ void em10_R1_ClawCriHit(cEm10* em)
 // Go_pos; a miss goes back to the walk; the swing also breaks doors / racks in the way (kind 2).
 // FUNCTION: BIO4 0x00471F30
 // STATUS: stub
-#if 0 // PARKED: GameAddPoint, LVADD_ESCAPEATTACK
+#if 0 // PARKED: LVADD_ESCAPEATTACK
 void em10_R1_C_SawAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12713,7 +12709,7 @@ void em10_R1_C_SawAtk(cEm10* em)
 // plem10_C_SawHit shows the decapitation) or breaks free (0xFE / 0xFD) with Atk_wait by rank.
 // FUNCTION: BIO4 0x004721A0
 // STATUS: stub
-#if 0 // PARKED: C1003, CTRL12_ID_EM10_ATK, Ctrl12Set
+#if 0 // PARKED: C2059, C2227, Ctrl12Set, EmCatchPLSet, LVADD_PL_DAMAGE, PlGachaInit, PlSetDamageSe, pSys, set
 void em10_R1_C_SawHit(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12841,7 +12837,7 @@ void em10_R1_C_SawHit(cEm10* em)
 // the player; a miss returns to the walk.
 // FUNCTION: BIO4 0x004729B0
 // STATUS: stub
-#if 0 // PARKED: GameAddPoint, LVADD_ESCAPEATTACK
+#if 0 // PARKED: LVADD_ESCAPEATTACK
 void em10_R1_C_SawCriAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12885,7 +12881,7 @@ void em10_R1_C_SawCriAtk(cEm10* em)
 // no escape) with the blood effect 0x4F and the critical camera, then Stay.
 // FUNCTION: BIO4 0x0044F8A0
 // STATUS: stub
-#if 0 // PARKED: C2059, C2227, CTRL12_ID_EM10_ATK, CTRL12_ID_EM10_THROW, Ctrl12Set, EmCatchPLSet, GameAddPoint, LVADD_PL_DAMAGE, pSys
+#if 0 // PARKED: C2059, C2227, Ctrl12Set, EmCatchPLSet, LVADD_PL_DAMAGE, pSys
 void em10_R1_C_SawCriHit(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12980,7 +12976,7 @@ void em10_R1_br_Catch(cEm10* em)
 // target (player or Ashley), turning with the TmpF limit; on a miss back to the walk (escape point).
 // FUNCTION: BIO4 0x00472BF0
 // STATUS: stub
-#if 0 // PARKED: GameAddPoint, LVADD_ESCAPEATTACK
+#if 0 // PARKED: LVADD_ESCAPEATTACK
 void em10_R1_Catch(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13073,7 +13069,7 @@ void em10_R1_Catch(cEm10* em)
 // Ganado, a mash above 30 lands a critical) into DownWakeWait, with the cut-in camera em10CamMove.
 // FUNCTION: BIO4 0x00473050
 // STATUS: stub
-#if 0 // PARKED: CTRL12_ID_EM10_NOT_NEAR, Ctrl12Set, EmCatchMotionMove, EmCatchPLSet, GameAddPoint, LVADD_CRITICALHIT, LVADD_PL_DAMAGE, LifeDownSet2, PlGachaGet, PlGachaInit, PlGachaMove, PlSetDamageSe, QuakeExec, set, shooting_mode
+#if 0 // PARKED: Ctrl12Set, EmCatchMotionMove, EmCatchPLSet, LVADD_CRITICALHIT, LVADD_PL_DAMAGE, LifeDownSet2, PlGachaGet, PlGachaInit, PlGachaMove, PlSetDamageSe, QuakeExec, set, shooting_mode
 void em10_R1_NeckHang(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13256,7 +13252,7 @@ void em10_R1_NeckHang(cEm10* em)
 // the partner (EmCatchSubSet), then the throw-off 0x292 and DownWakeWait; no button mash.
 // FUNCTION: BIO4 0x0043FDC0
 // STATUS: stub
-#if 0 // PARKED: CTRL12_ID_EM10_NOT_NEAR, Ctrl12Set, EmCatchMotionMove, EmCatchSubSet, set
+#if 0 // PARKED: Ctrl12Set, EmCatchMotionMove, EmCatchSubSet, set
 void em10_R1_NeckHang_Luis(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13325,7 +13321,7 @@ void em10_R1_NeckHang_Luis(cEm10* em)
 // then DownWakeWait.
 // FUNCTION: BIO4 0x00440300
 // STATUS: stub
-#if 0 // PARKED: CTRL12_ID_EM10_NOT_NEAR, Ctrl12Set, EmCatchMotionMove, EmCatchPLSet, GameAddPoint, LVADD_PL_DAMAGE, LifeDownSet2, PlGachaGet, PlGachaInit, PlGachaMove, PlSetFace, set
+#if 0 // PARKED: Ctrl12Set, EmCatchMotionMove, EmCatchPLSet, LVADD_PL_DAMAGE, LifeDownSet2, PlGachaGet, PlGachaInit, PlGachaMove, PlSetFace, set
 void em10_R1_NeckHang_Ashley(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13447,7 +13443,7 @@ void em10_R1_NeckHang_Ashley(cEm10* em)
 // 0x295 (damage on the Ganado, critical over 40), the hold ends by itself into the release 0x57.
 // FUNCTION: BIO4 0x00473CE0
 // STATUS: stub
-#if 0 // PARKED: CTRL12_ID_EM10_ATK, CTRL12_ID_EM10_NOT_NEAR, CTRL12_ID_EM10_THROW, Ctrl12Set, EmCatchMotionMove, EmCatchPLSet, GameAddPoint, LVADD_CRITICALHIT, LifeDownSet2, PlGachaGet, PlGachaInit, PlGachaMove, PlSetDamageSe, set, shooting_mode
+#if 0 // PARKED: Ctrl12Set, EmCatchMotionMove, EmCatchPLSet, LVADD_CRITICALHIT, LifeDownSet2, PlGachaGet, PlGachaInit, PlGachaMove, PlSetDamageSe, set, shooting_mode
 void em10_R1_Backhold(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13583,7 +13579,7 @@ void em10_R1_Backhold(cEm10* em)
 // after the blast (flag 0x400000).
 // FUNCTION: BIO4 0x0044FDD0
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, C2228, Camera, EmCatchPLSet, EmReserveDropItem, EmSetDie, PlGachaInit, PlGachaMove, PlSetDamageSe, cam, set, setLost, setReset
+#if 0 // PARKED: C2227, C2228, Camera, EmCatchMotionMove, EmCatchPLSet, EmReserveDropItem, EmSetDie, PlGachaGet, PlGachaInit, PlGachaMove, PlSetDamageSe, cam, set, setLost, setReset
 void em10_R1_Bombhold(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13748,7 +13744,7 @@ void em10_R1_br_DashCatch(cEm10* em)
 // towards him; a miss ends in the fall / splash effect (0x33 in water, 0x34 dust) and the walk.
 // FUNCTION: BIO4 0x004745A0
 // STATUS: stub
-#if 0 // PARKED: EFF_ROOM, GameAddPoint, LVADD_ESCAPEATTACK
+#if 0 // PARKED: LVADD_ESCAPEATTACK
 void em10_R1_DashCatch(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13794,7 +13790,7 @@ void em10_R1_DashCatch(cEm10* em)
 // take-away camera (em10CamMoveTakeaway) and sets the "Ashley taken" bit Status_flg[1] bit6.
 // FUNCTION: BIO4 0x00474850
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, DPF_SCR, DpfFlagOn, EFF_PL01, EFF_ROOM, EffectDeleteAll, EmCatchMotionMove, EmCatchSubSet, EmMgr, EstSetEm10WaterFall, GXColor, ObjMgr, SatMgr, SceEventStart, bio4_GXSetCopyClear, cObj, isAlive, set, throughOn
+#if 0 // PARKED: C1003, C2227, EmCatchMotionMove, EmCatchSubSet, EstSetEm10WaterFall, set
 void em10_R1_TakeAway(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -14086,7 +14082,7 @@ extern "C" void em10CamMoveTakeaway(cEm10* em)
 // returns to the walk or to DownWakeWait; may hide again (em10HideRtnCk) after 10 frames.
 // FUNCTION: BIO4 0x00475800
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, YARARE_INFO, hit
+#if 0 // PARKED: C2227, YARARE_INFO, ckAtkEnable, hit, setDamage, vB8, vC0
 void em10_R1_Dm_Small(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -14918,7 +14914,7 @@ void em10_R1_Dm_Gatling(cEm10* em)
 // DownWakeWait.
 // FUNCTION: BIO4 0x0045F1A0
 // STATUS: stub
-#if 0 // PARKED: C2227, EFF_ROOM, EstSetEm10WaterFall, LifeDownSet, ckAtkEnable, set, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, EstSetEm10WaterFall, LifeDownSet, ckAtkEnable, set, setDamage, vB8, vC0
 void em10_R1_Dm_FS(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15032,7 +15028,7 @@ void em10_R1_Dm_FS(cEm10* em)
 // Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x0045F750
 // STATUS: stub
-#if 0 // PARKED: C2227, LifeDownSet, ckAtkEnable, set, setDamage, vB8, vC0
+#if 0 // PARKED: C1003
 void em10_R1_Dm_KneeKick(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15191,7 +15187,7 @@ void em10_R1_Dm_NeckBreak(cEm10* em)
 // 0x2B6 takes extra damage, then Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x00440ED0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, DMG_TYPE_PUSH, DmgMgr, EFF_ROOM, EstSetEm10WaterFall, LifeDownSet2, SatMgr, ckAtkEnable, set, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, C2228, DMG_TYPE_PUSH, DmgMgr, EstSetEm10WaterFall, LifeDownSet2, SatMgr, ckAtkEnable, set, setDamage, vB8, vC0
 void em10_R1_Dm_Showtay(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15319,7 +15315,7 @@ void em10_R1_Dm_Showtay(cEm10* em)
 // and drops the weapon / shield, scores a critical; then Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x00460050
 // STATUS: stub
-#if 0 // PARKED: C2227, GameAddPoint, LVADD_CRITICALHIT, ckAtkEnable, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, LVADD_CRITICALHIT, ckAtkEnable, setDamage, vB8, vC0
 void em10_R1_Dm_Heel(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15490,7 +15486,7 @@ void em10_R1_Dm_DashDown(cEm10* em)
 // damage), then Die_Cramp or DownWakeWait; Landing_ck marks the landing.
 // FUNCTION: BIO4 0x00441890
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, EFF_ROOM, EstSetEm10WaterFall, LifeDownSet2, MotionAddSpeed, MotionGetSpeed, SatMgr, ckAtkEnable, set, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, C2228, EstSetEm10WaterFall, LifeDownSet2, MotionAddSpeed, MotionGetSpeed, SatMgr, ckAtkEnable, set, setDamage, vB8, vC0
 void em10_R1_Dm_Blow(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15794,7 +15790,7 @@ void em10_R1_Dm_Blow(cEm10* em)
 // off (motion 0x5B/0x5C), then Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x00442B00
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, ckAtkEnable, setDamage, vB8
+#if 0 // PARKED: C2227, ckAtkEnable, set, setDamage, vB8, vC0
 void em10_R1_Dm_Fence(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15862,7 +15858,7 @@ void em10_R1_Dm_Fence(cEm10* em)
 // scores a critical; then Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x00442DA0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, GameAddPoint, LVADD_CRITICALHIT, LifeDownSet2, SatMgr, ckAtkEnable, set, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, C2228, LVADD_CRITICALHIT, LifeDownSet2, SatMgr, ckAtkEnable, set, setDamage, vB8, vC0
 void em10_R1_Dm_Ladder(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -16000,7 +15996,7 @@ void em10_R1_Dm_Ladder(cEm10* em)
 // 10F fall sets Status_flg[1] bit17.
 // FUNCTION: BIO4 0x004433D0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, EFF_ROOM, EstSetEm10WaterFall, LifeDownSet2, SatMgr, ckAtkEnable, set, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, C2228, EstSetEm10WaterFall, LifeDownSet2, SatMgr, ckAtkEnable, set, setDamage, vB8, vC0
 void em10_R1_Dm_Roof(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -16224,7 +16220,7 @@ void em10_R1_Dm_Roof(cEm10* em)
 // motion 0x3D (front) / 0x49 (back), scores a critical, then Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x00443F60
 // STATUS: stub
-#if 0 // PARKED: C2227, GameAddPoint, LVADD_CRITICALHIT, ckAtkEnable, setDamage, vB8, vC0
+#if 0 // PARKED: C1003, C2227, ckAtkEnable, setDamage, vB8
 void em10_R1_Dm_KneeDown(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -16537,7 +16533,7 @@ void em10_R1_Dm_TakeAway(cEm10* em)
 // lit dynamite, explodes (Die_Bomb 5).
 // FUNCTION: BIO4 0x004507E0
 // STATUS: stub
-#if 0 // PARKED: C2227, CTRL12_ID_EM10_LOST, Ctrl12Ck, Ctrl12CntAdd, Ctrl12Set, EffectEfmDelete, EffectEspDelete, EffectEspgenDelete, EmReserveDropItem, EmSetDie, EmSetDieCnt, EmSetDropItem, setLostWait
+#if 0 // PARKED: C2227, Ctrl12Ck, Ctrl12CntAdd, Ctrl12Set, EffectEfmDelete, EffectEspDelete, EffectEspgenDelete, EmReserveDropItem, EmSetDie, EmSetDieCnt, EmSetDropItem, setLostWait
 void em10_R1_Die_Cramp(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -16642,7 +16638,7 @@ void em10_R1_Die_Cramp(cEm10* em)
 // the weapons, breaks the core and hides itself (flag 0x400000, no collision).
 // FUNCTION: BIO4 0x00450C80
 // STATUS: stub
-#if 0 // PARKED: EFF_ROOM, EmReserveDropItem, EmSetDie, setLost, setReset
+#if 0 // PARKED: EmReserveDropItem, EmSetDie, setLost, setReset
 void em10_R1_Die_Lost(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -16837,7 +16833,7 @@ void em10_R1_Die_Down(cEm10* em)
 // (or waits 60 frames as a fixed corpse for the special sets).
 // FUNCTION: BIO4 0x00444EF0
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, EffectEspDelete, EmReserveDropItem
+#if 0 // PARKED: C2227, EffectEfmDelete, EffectEspDelete, EffectEspgenDelete, EmReserveDropItem, EmSetDropItem, fRand1_1, setLostWait
 void em10_R1_Die_Normal(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -17078,7 +17074,7 @@ void em10_R1_Die_Bomb(cEm10* em)
 // Route bookkeeping run every frame: distances / angles to the player, partner and goto point.
 // FUNCTION: BIO4 0x00451630
 // STATUS: stub
-#if 0 // PARKED: C2228, Draw_line3d, EatMgr, RouteCkEscEm, RouteCkPosToPosDis, RouteCkToEm, RouteCkToPos, SatMgr, VECNormalize
+#if 0 // PARKED: C1003, C2228, Draw_line3d, EatMgr, SatMgr, VECNormalize
 static void em10RouteCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -17436,7 +17432,7 @@ extern "C" int em10SetWanderRoute(cEm10* em)
 // player / partner. Returns 1 when a routine was set.
 // FUNCTION: BIO4 0x00460AF0
 // STATUS: stub
-#if 0 // PARKED: CTRL12_ID_EM10_ATK, Ctrl12Ck
+#if 0 // PARKED: Ctrl12Ck
 static int em10AtkRtnCk(cEm10* em, int a)
 {
     Em10Work* w = EM10_WK(em);
@@ -17823,7 +17819,7 @@ static int em10CsawHitCk(cEm10* em)
 // when the head cannot be lost. Returns 1 when the head is gone.
 // FUNCTION: BIO4 0x00452BC0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, CTRL12_ID_BIGEFF, CTRL12_ID_CNT_PARASITE, Ctrl12Ck, Ctrl12CntAdd, Ctrl12CntCk, Ctrl12Set, EffectEfmDelete, EffectEspDelete, EffectEspgenDelete, EmReserveDropItem, EmSetDie, ObjMgr, cObj12
+#if 0 // PARKED: C2227, C2228, Ctrl12Ck, Ctrl12CntAdd, Ctrl12CntCk, Ctrl12Set, EffectEfmDelete, EffectEspDelete, EffectEspgenDelete, EmReserveDropItem, EmSetDie, ObjMgr, cObj12
 int em10LostHead(cEm10* em, int a, int b)
 {
     Em10Work* w = EM10_WK(em);
@@ -19961,7 +19957,7 @@ static int em10JumpCk(cEm10* em)
 // (0x2C). 1 when set.
 // FUNCTION: BIO4 0x0042F790
 // STATUS: stub
-#if 0 // PARKED: C2228, CTRL12_ID_EM10_ATK, CTRL12_ID_EM10_THROW, Ctrl12Ck, Ctrl12Set, SatMgr
+#if 0 // PARKED: C2228, Ctrl12Ck, Ctrl12Set, SatMgr
 extern "C" int em10ClawCriAtkCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -20254,7 +20250,7 @@ static int em10GotoCk(cEm10* em)
 // Critical-hit (head burst / kick) cut-in camera: fixed offsets from the player matrix, optional shake.
 // FUNCTION: BIO4 0x00431910
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, C2228, Camera, c, fRand1_1, pSys
+#if 0 // PARKED: C1003, C2227, C2228, Camera, VECNormalize, c, fRand1_1, pSys
 extern "C" void em10CamMoveCri(cEm10* em, u32 no, int shake)
 {
     Em10Work* w = EM10_WK(em);
@@ -20943,7 +20939,7 @@ extern "C" int em10StayCk(cEm10* em)
 // (plemDmFrame damage routine, ctrl12 NOT_NEAR 30). 1 = hit.
 // FUNCTION: BIO4 0x00456F30
 // STATUS: stub
-#if 0 // PARKED: CTRL12_ID_EM10_NOT_NEAR, Ctrl12Set, EmDeadCk, SetPlDamage, set
+#if 0 // PARKED: Ctrl12Set, EmDeadCk, SetPlDamage, set
 extern "C" int em10TorchFrameAtkCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -20976,7 +20972,7 @@ extern "C" int em10TorchFrameAtkCk(cEm10* em)
 // Torch swing hit on the partner: registers a burn damage (kind 0x18) on her cDmgInfo. 1 = hit.
 // FUNCTION: BIO4 0x004331A0
 // STATUS: stub
-#if 0 // PARKED: C2227, CTRL12_ID_EM10_NOT_NEAR, Ctrl12Set, Em10AtkTbl, EmAtkHitSubCk2, EmDeadCk, YARARE_INFO, hit, set
+#if 0 // PARKED: C2227, Ctrl12Set, Em10AtkTbl, EmAtkHitSubCk2, EmDeadCk, YARARE_INFO, hit, set
 extern "C" int em10TorchFrameAtkCkSub(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -21889,7 +21885,7 @@ int em10HideToStepCk(cEm10* em, int a)
 // who sees him, plays Se_tbl[16] and locks the tell for 300 frames (ctrl12 BACKSIGN) for all.
 // FUNCTION: BIO4 0x004372D0
 // STATUS: stub
-#if 0 // PARKED: CTRL12_ID_BACKSIGN, Ctrl12Ck, Ctrl12Set
+#if 0 // PARKED: Ctrl12Ck, Ctrl12Set
 extern "C" void em10BehindSeCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -21950,7 +21946,6 @@ static void em10SetDamageVoice(cEm10* em, u16 a, u16 b)
 // at most every Water_eff_wait3 frames.
 // FUNCTION: BIO4 0x004375D0
 // STATUS: stub
-#if 0 // PARKED: EFF_ROOM
 static void em10SetDmWaterEff(cEm10* em, int a)
 {
     Em10Work* w = EM10_WK(em);
@@ -21977,7 +21972,6 @@ static void em10SetDmWaterEff(cEm10* em, int a)
         }
     }
 }
-#endif // PARKED
 
 // While carrying Ashley: passing an EMI type 5 sub 1 waypoint (within 4000, same height) redirects
 // Route_target to the exit (sub 0) of the same route state.
@@ -22304,7 +22298,7 @@ static void em10BombThrow(cEm10* em)
 // plays the water entry effect / SE there.
 // FUNCTION: BIO4 0x00439F00
 // STATUS: stub
-#if 0 // PARKED: AtEffInfo, C2227, C2228, EFF_ROOM, EatGetEffectType, EatMgr, EstSetEm10WaterFall, info
+#if 0 // PARKED: AtEffInfo, C2227, C2228, EatGetEffectType, EatMgr, EstSetEm10WaterFall, info
 extern "C" void em10FallWaterCk(cEm10* em)
 {
     Vec hit;
