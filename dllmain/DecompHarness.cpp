@@ -40,11 +40,14 @@ namespace bio4
 	}
 }
 
+#include "DecompShadowWin32.h"
+
 namespace
 {
 	constexpr char kSupportedBio4Sha256[] = "19aed4af0ab06a748ff8744d45ac5580fcd6be6b6b7e944b1ab8822a00c8ee4a";
 
-	bool LoadConfig(std::set<std::string>& enabledFunctions, std::set<std::string>& enabledMods)
+	bool LoadConfig(std::set<std::string>& enabledFunctions, std::set<std::string>& enabledMods,
+		std::set<std::string>& enabledShadows)
 	{
 		const auto configPath = std::filesystem::path(rootPath) / L"re4_tweaks" / L"decomp.json";
 		if (!std::filesystem::exists(configPath))
@@ -93,6 +96,26 @@ namespace
 				if (value.get<bool>())
 					enabledFunctions.insert(name);
 			}
+			if (config.contains("shadow"))
+			{
+				const auto& shadow = config.at("shadow");
+				if (!shadow.is_object())
+					throw std::runtime_error("shadow must be an object");
+				for (auto it = shadow.begin(); it != shadow.end(); ++it)
+				{
+					if (!it.value().is_boolean())
+						throw std::runtime_error("shadow switches must be boolean");
+					if (it.value().get<bool>())
+						enabledShadows.insert(it.key());
+				}
+			}
+			if (!enabledShadows.empty())
+			{
+				const auto keep = config.value("shadow_keep", std::string("decompiled"));
+				if (keep != "original" && keep != "decompiled")
+					throw std::runtime_error("shadow_keep must be original or decompiled");
+				bio4::ShadowKeepOriginal = keep == "original";
+			}
 			if (config.contains("mods"))
 			{
 				const auto& mods = config.at("mods");
@@ -125,7 +148,8 @@ void re4t::init::DecompHarness()
 {
 	std::set<std::string> enabledFunctions;
 	std::set<std::string> enabledMods;
-	if (!LoadConfig(enabledFunctions, enabledMods))
+	std::set<std::string> enabledShadows;
+	if (!LoadConfig(enabledFunctions, enabledMods, enabledShadows))
 		return;
 
 	if (GameVersion() != "1.1.0")
@@ -149,13 +173,32 @@ void re4t::init::DecompHarness()
 			spd::log()->error("Decomp harness: unknown function {} in decomp.json; ignored", name);
 	}
 
+	for (const auto& name : enabledShadows)
+	{
+		if (!known.count(name))
+			spd::log()->error("Decomp shadow: {} refused, unknown or non-replaceable function", name);
+	}
+	if (!enabledShadows.empty() && !bio4::decomp_shadow_verify_executable(kSupportedBio4Sha256))
+	{
+		spd::log()->error("Decomp harness disabled: shadow requires the exact supported executable SHA-256");
+		return;
+	}
+
+	unsigned int shadowed = 0;
 	unsigned int replaced = 0;
 	std::set<std::string> replacedNames;
 	for (unsigned int i = 0; i < bio4::kDecompEntryCount; i++)
 	{
 		const auto& entry = bio4::kDecompEntries[i];
-		if (!enabledFunctions.count(entry.name))
+		const bool shadow = enabledShadows.count(entry.name) != 0;
+		if (!shadow && !enabledFunctions.count(entry.name))
 			continue;
+		if (shadow && (!entry.shadowReplacement || enabledMods.count("em_module_slots")))
+		{
+			spd::log()->error("Decomp shadow: {} refused ({})", entry.name,
+				!entry.shadowReplacement ? "no audited reversible descriptor" : "incompatible with em_module_slots");
+			continue; // Never silently substitute a refused shadow request.
+		}
 
 		auto pattern = hook::pattern(entry.signature);
 		const uintptr_t expected = bio4::decomp_va(entry.va);
@@ -173,6 +216,19 @@ void re4t::init::DecompHarness()
 			continue;
 		}
 
+		if (shadow)
+		{
+			if (!bio4::decomp_shadow_install(i, address))
+			{
+				spd::log()->error("Decomp shadow: {} refused, unable to install audited trampoline", entry.name);
+				continue;
+			}
+			++shadowed;
+			spd::log()->info("Decomp shadow: {} installed at {:#x} (VA {:#010x}), keep={}",
+				entry.name, expected, entry.va, bio4::ShadowKeepOriginal ? "original" : "decompiled");
+			continue;
+		}
+
 		injector::MakeJMP(address, entry.replacement, true);
 		replaced++;
 		replacedNames.insert(entry.name);
@@ -181,6 +237,9 @@ void re4t::init::DecompHarness()
 
 	spd::log()->info("Decomp harness: {} of {} requested functions replaced",
 		replaced, enabledFunctions.size());
+
+	if (!enabledShadows.empty())
+		spd::log()->info("Decomp shadow: {} of {} requested functions installed", shadowed, enabledShadows.size());
 
 	for (const auto& mod : enabledMods)
 	{
