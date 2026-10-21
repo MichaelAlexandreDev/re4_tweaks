@@ -6,25 +6,163 @@
 
 DECOMP_FUNC(void, em10SetWaitMotion, (cEm10* em, int a), 0x00432250);
 
-// em10SetWalkMotion receives the enemy in ESI (compiler-chosen convention);
-// until it is decompiled here, the matching build calls it as a plain extern
-// and the harness through this thunk.
-#ifdef DECOMP_HARNESS
+#define EM10_WALK_MOT(base)                    \
+    m0 = (MotionData*) PL_ARC_PTR(em->subArc, base); \
+    switch (v) {                               \
+    case 0:                                    \
+    default:                                   \
+        m1 = PL_ARC_PTR(em->subArc, base + 1); \
+        break;                                 \
+    case 1:                                    \
+        m1 = PL_ARC_PTR(em->subArc, base + 2); \
+        break;                                 \
+    case 2:                                    \
+        m1 = PL_ARC_PTR(em->subArc, base + 3); \
+        break;                                 \
+    case 3:                                    \
+        m1 = PL_ARC_PTR(em->subArc, base + 4); \
+        break;                                 \
+    case 4:                                    \
+        m1 = PL_ARC_PTR(em->subArc, base + 5); \
+        break;                                 \
+    }
+
+// FUNCTION: BIO4 0x004323E0
+// STATUS: functional
+// Walk motion by weapon kind and set-number variant (5 walk styles, water / event overrides).
+// Static: the enemy arrives in ESI.
 static void em10SetWalkMotion(cEm10* em, int a)
 {
-    void* fn = reinterpret_cast<void*>(decomp_va(0x004323E0));
-    __asm {
-        push esi
-        mov esi, em
-        push a
-        call fn
-        add esp, 4
-        pop esi
+    Em10Work* w = EM10_WK(em);
+    u32 kind;
+    int flag;
+    u32 v;
+    MotionData* m0;
+    void* m1;
+
+    kind = 0;
+    if (w->Ganado == 1) {
+        kind = 8;
+    }
+    if (em->type == 6) {
+        kind = 7;
+    }
+    if (w->pWeapon) {
+        if (!(w->Be_flg & 0x20000000) && (w->Be_flg & 0x100)) {
+            kind = 3;
+        }
+        if (w->Wep_type == 1) {
+            kind = 4;
+        }
+        if (w->Wep_type == 4) {
+            kind = 5;
+        }
+        if (w->Wep_type == 8 || w->Wep_type == 0xC) {
+            kind = 6;
+        }
+        if (w->Wep_type == 6) {
+            kind = 9;
+        }
+        if (w->Wep_type == 0xC) {
+            kind = 0xC;
+        }
+    }
+    if (w->pShield) {
+        kind = 0xA;
+    }
+    if (em->type == 0xA) {
+        kind = 0xB;
+    }
+    if (em->type == 0xD) {
+        kind = 0xB;
+    }
+    if (em->type == 2) {
+        kind = 0xD;
+    }
+    flag = (em->flag & 0x01000000) ? 0x45 : 5;
+    v = em->emset_no % 5;
+    if (CheckInWater(em, 0)) {
+        v = 1;
+    }
+    if ((pG->flags_SYSTEM[0] & 0x80000000) || (pG->flags_SYSTEM[0] & 0x40000000)) {
+        if (v == 2) {
+            v = 1;
+        }
+        if (v == 4) {
+            v = 3;
+        }
+    }
+    switch (kind) {
+    case 0:
+    case 1:
+    case 2:
+    default:
+        switch (w->Walk_type) {
+        case 0:
+        default:
+            EM10_WALK_MOT(8);
+            break;
+        case 1:
+            EM10_WALK_MOT(0xE);
+            break;
+        }
+        break;
+    case 3:
+        EM10_WALK_MOT(0xD8);
+        break;
+    case 4:
+        EM10_WALK_MOT(0x14B);
+        break;
+    case 5:
+        if (w->Be_flg & 0x100) {
+            m0 = (MotionData*) PL_ARC_PTR(em->subArc, 0xEF);
+            m1 = PL_ARC_PTR(em->subArc, 0xF0);
+        } else {
+            m0 = (MotionData*) PL_ARC_PTR(em->subArc, 0xED);
+            m1 = PL_ARC_PTR(em->subArc, 0xEE);
+        }
+        break;
+    case 6:
+        EM10_WALK_MOT(0x126);
+        if (!(w->Be_flg & 0x100)) {
+            m0 = (MotionData*) PL_ARC_PTR(em->subArc, 0x124);
+            m1 = PL_ARC_PTR(em->subArc, 0x125);
+        }
+        break;
+    case 7:
+        m0 = (MotionData*) PL_ARC_PTR(em->subArc, 0xA8);
+        m1 = PL_ARC_PTR(em->subArc, 0xAB);
+        break;
+    case 8:
+        EM10_WALK_MOT(0xCE);
+        break;
+    case 9:
+        m0 = (MotionData*) PL_ARC_PTR(em->subArc, 0x13B);
+        m1 = PL_ARC_PTR(em->subArc, 0x13C);
+        break;
+    case 0xA:
+        m0 = (MotionData*) PL_ARC_PTR(em->subArc, 0x166);
+        m1 = PL_ARC_PTR(em->subArc, 0x167);
+        break;
+    case 0xB:
+        m0 = (MotionData*) PL_ARC_PTR(em->subArc, 0x109);
+        m1 = PL_ARC_PTR(em->subArc, 0x10A);
+        break;
+    case 0xC:
+        m0 = (MotionData*) PL_ARC_PTR(em->subArc, 0x17D);
+        m1 = PL_ARC_PTR(em->subArc, 0x17E);
+        break;
+    case 0xD:
+        m0 = (MotionData*) PL_ARC_PTR(em->subArc, 0x190);
+        m1 = PL_ARC_PTR(em->subArc, 0x191);
+        break;
+    }
+    {
+        u32 fr = (u32) ((f32) (u16) (m0->maxFrame & 0x3FFF) * (f32) em->r_no_3 / 256.0f);
+        MotionSetCore(em, MOTION(em), m0, m1, a, flag, (f32) fr, 0);
     }
 }
-#else
-void em10SetWalkMotion(cEm10* em, int a);
-#endif
+#undef EM10_WALK_MOT
 
 // FUNCTION: BIO4 0x00439120
 // STATUS: matching
@@ -307,10 +445,18 @@ void __fastcall em10InitRtnSet(cEm10* em)
     default:
         em10SetWaitMotion(em, 0);
         em->setStatus(EM_STATUS_ACTIVE);
-        if (em->type == 6 || (em->Character != 1 && em->Character != 3)) {
+        if (em->type == 6) {
             EmRoutineSet(em, 1, 0, 0, 0);
         } else {
-            EmRoutineSet(em, 1, 1, 0, 0);
+            switch (em->Character) {
+            case 1:
+            case 3:
+                EmRoutineSet(em, 1, 1, 0, 0);
+                break;
+            default:
+                EmRoutineSet(em, 1, 0, 0, 0);
+                break;
+            }
         }
         break;
     case 0xE:

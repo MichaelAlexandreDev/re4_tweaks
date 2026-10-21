@@ -4,17 +4,20 @@
 
 #define DECOMP_HARNESS
 namespace bio4 {
+#include "src/em10/em10.cpp"
 #include "src/game/read.cpp"
 #include "mods/em_family_dispatch.cpp"
 #include "mods/em_module_slots.cpp"
 
-static ReadModule* __cdecl DecompWrap_SearchEmModule(u8 id) { decomp_count(0); return SearchEmModule(id); }
-static ReadModule* __cdecl DecompWrap_pullEmModule() { decomp_count(1); return pullEmModule(); }
-static void __cdecl DecompWrap_InitModule(ReadModule* m) { decomp_count(2); InitModule(m); }
-static void __cdecl DecompWrap_EmReadInit() { decomp_count(3); EmReadInit(); }
-static void* __cdecl DecompWrap_EmReadSearch(u8 id, void* data_addr, u32 malloc_size) { decomp_count(4); return EmReadSearch(id, data_addr, malloc_size); }
+static void __fastcall DecompWrap_em10InitRtnSet(cEm10* em) { decomp_count(0); em10InitRtnSet(em); }
+static ReadModule* __cdecl DecompWrap_SearchEmModule(u8 id) { decomp_count(1); return SearchEmModule(id); }
+static ReadModule* __cdecl DecompWrap_pullEmModule() { decomp_count(2); return pullEmModule(); }
+static void __cdecl DecompWrap_InitModule(ReadModule* m) { decomp_count(3); InitModule(m); }
+static void __cdecl DecompWrap_EmReadInit() { decomp_count(4); EmReadInit(); }
+static void* __cdecl DecompWrap_EmReadSearch(u8 id, void* data_addr, u32 malloc_size) { decomp_count(5); return EmReadSearch(id, data_addr, malloc_size); }
 
 const DecompEntry kDecompEntries[] = {
+    { "em10InitRtnSet", 0x0043AA90u, reinterpret_cast<void*>(&DecompWrap_em10InitRtnSet), "55 8B EC 83 EC 20 A1 ? ? ? ? 33 C5 89 45 FC 56 8B F1 8A 86 01 01 00 00 3C 06 74 07 C6 86 C9 03 00 00 01 0F B6 C0 83 C0 FE 83 F8 0B 77 17 0F B6 80 ? ? ? ? FF 24 85 ? ? ? ? C6 86 CF" },
     { "SearchEmModule", 0x006AD4D0u, reinterpret_cast<void*>(&DecompWrap_SearchEmModule), "55 8B EC 8A 4D 08 80 F9 03 74 0A 80 F9 05 74 05 80 F9 0C 75 2C 8B 15 ? ? ? ? 8A 82 CB 4F 00 00 84 C0 75 04 B1 03 EB 0D 3C 02 0F 95 C1 FE C9 80 E1 07 80 C1 05 F7 42 54 00 10 00 00 74 02 B1" },
     { "pullEmModule", 0x006AD570u, reinterpret_cast<void*>(&DecompWrap_pullEmModule), "33 C0 B9 ? ? ? ? 83 39 00 74 12 81 C1 98 00 00 00 40 81 F9 ? ? ? ? 7C EC 33 C0 C3 69 C0 98 00 00 00 05 ? ? ? ? C3" },
     { "InitModule", 0x006ADAA0u, reinterpret_cast<void*>(&DecompWrap_InitModule), "55 8B EC 56 8B 75 08 8B 86 88 00 00 00 85 C0 74 12 F6 86 82 00 00 00 02 74 09 50 E8 8B 07 D6 FF 83 C4 04 8B 86 84 00 00 00 85 C0 74 21 0F B7 8E 82 00 00 00 F6 C1 04 74 15 50 F6 C1 08 74 07 E8" },

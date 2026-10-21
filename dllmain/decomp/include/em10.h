@@ -276,6 +276,7 @@ DECOMP_FUNC(cObj16*, SetObj16, (void* m0, void* m1, cEm* parent, cEm* target, in
 DECOMP_FUNC(cObj12*, SetObj12, (void* m0, void* m1, Vec* pos, Vec* ang), 0x00407130);
 DECOMP_FUNC(void, Obj12Regist_6700E0, (cObj12* obj), 0x004068A7);
 DECOMP_FUNC(cCtrl*, GetCtrlDragon, (int no), 0x0040A55B);
+DECOMP_FUNC(int, CheckInWater, (cModel* m, int a), 0x0040846D);
 DECOMP_FUNC(cObjChain*, SetChain, (void* m0, void* m1, Vec* pos, Vec* rot), 0x0040B749);
 
 // Chain and belt tables of em10.cpp (game data, bound by address).
