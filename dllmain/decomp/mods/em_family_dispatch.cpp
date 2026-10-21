@@ -8,13 +8,9 @@
 // Em10_R0_move_tbl[0] with the routine of the slot whose archive the enemy
 // was built from (cEm10 +0x380).
 
+#include "em10.h"
 #include "read.h"
 #include "types.h"
-
-typedef void (__cdecl* Em10Func)(void* em);
-
-DECOMP_GLOBAL(Em10Func, Em10SetFunc, 0x00C5017C);
-DECOMP_GLOBAL_ARRAY(Em10Func, Em10_R0_move_tbl, 5, 0x00BF39B0);
 
 static const unsigned int kEm10R0InitVa = 0x00461580;
 static const unsigned int kEmArchiveOffset = 0x380;
@@ -71,7 +67,7 @@ void decomp_hook_EmModuleRelease(ReadModule* m)
     }
 }
 
-static void __cdecl em10_R0_Init_dispatch(void* em)
+static void __cdecl em10_R0_Init_dispatch(cEm10* em)
 {
     void* archive = *(void**) ((u8*) em + kEmArchiveOffset);
     for (int i = 0; i < EM_READ_MODULE_COUNT && i < 8; i++) {

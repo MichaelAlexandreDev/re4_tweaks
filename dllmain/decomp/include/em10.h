@@ -26,6 +26,14 @@ public:
                   (m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10), 0x0040385F);
 };
 class cCtrl;
+class cObjGondola;
+class PlCloth;
+class cObjGatling;
+class cObj;
+class cModelInfo;
+class cSubChar;
+class cEm10;
+typedef void (*Em10Func)(cEm10*);
 
 // CLOTH_INFO (0x60 bytes): chain / cloth simulation setup (re4_tweaks SDK cloth.h).
 struct ClothAtSet {
@@ -243,10 +251,39 @@ struct Em10Work {
 
 class cEm10 : public cEm {
 public:
-    virtual void setHand(int a, int b);
+    // Overrides of cModel / cEm virtuals.
+    virtual void move();
+    virtual void setNoSuspend(int onoff);
+    virtual int checkThrow();
+    // cEm10 virtuals, in vtable order (GameCube em10.h, re4_tweaks SDK).
+    virtual void setHand(int no, int type);
     virtual void setWeaponFall();
     virtual int ckFindPL();
     virtual void setFindPL();
+    virtual void clearFindPL();
+    virtual int ckParasite();
+    virtual u32 ckGoto();
+    virtual void setGoto(Vec* pos, int range);
+    virtual void setGotoSwitch(cModel* sw, int near, Vec* pos);
+    virtual int ckResetEnable();
+    virtual void setReset();
+    virtual void chgSet(u8 no);
+    virtual void setEvtMotion(void* m0, void* m1, void* m2, void* m3);
+    virtual void setGondolaMotion(void* m0, void* m1, void* m2, void* m3);
+    virtual void setR11DMotion(void* m0);
+    virtual void setDrill(void* m0, void* m1, void* m2, void* m3);
+    virtual void setGatling(void* g, void* m0, void* m1, void* m2, void* m3);
+    virtual void setGatlingMode(u8 mode);
+    virtual int ckBombFire();
+    virtual int ckShiled();
+    virtual int ckBowgunFire();
+    virtual void setSwitch(cModel* sw);
+    virtual void setLost();
+    virtual void setWeapon(void* bin, void* tpl, int type);
+    virtual int ckWeapon();
+    virtual int ckTakeAway();
+    virtual void setUFOCatch(void* m0, void* m1);
+    virtual int ckR305BomberEnable();
 
     u8 free[0xC64 - 0x408];   // 0x408  Em10Work
 };
@@ -278,7 +315,28 @@ DECOMP_FUNC(cObj12*, SetObj12, (void* m0, void* m1, Vec* pos, Vec* ang), 0x00407
 DECOMP_FUNC(void, SetCartObj, (cObj12* obj), 0x004068A7);
 DECOMP_FUNC(cCtrl*, GetCtrlDragon, (int no), 0x0040A55B);
 DECOMP_FUNC(int, CheckInWater, (cModel* m, int a), 0x0040846D);
+// Engine functions used by em10.cpp (real addresses; the game calls them
+// through the incremental-link table).
+DECOMP_FUNC(f32, GetXZAngle, (Vec* v0, Vec* v1), 0x006CFE10);
+DECOMP_FUNC(void, RouteCkGetPoint, (int no, Vec* out), 0x006B0F90);
+DECOMP_FUNC(int, RouteCkGetPointNumber, (), 0x006B1010);
+DECOMP_FUNC(int, RouteCkGetNearPoint, (Vec* pos), 0x006B2260);
+DECOMP_FUNC(int, ChkWaterEffectEnable, (Vec* pos), 0x00616260);
+
+extern "C" double __cdecl fabs(double x);
+#pragma intrinsic(fabs)
+static inline f32 fabsf(f32 x) { return (f32) fabs(x); }
 DECOMP_FUNC(cObjChain*, SetChain, (void* m0, void* m1, Vec* pos, Vec* rot), 0x0040B749);
+
+// Per-module set function the family prolog stores (EmXXSet), run by em10_R0_Init.
+DECOMP_GLOBAL(Em10Func, Em10SetFunc, 0x00C5017C);
+
+// Routine tables of em10.cpp (function pointers, bound by address).
+DECOMP_GLOBAL_ARRAY(Em10Func, Em10_R0_move_tbl, 5, 0x00BF39B0);
+DECOMP_GLOBAL_ARRAY(Em10Func, Em10_R1_move_tbl, 0xDE, 0x00BF39C8);
+DECOMP_GLOBAL_ARRAY(Em10Func, Em10_R1_dmg_tbl, 22, 0x00BF3D40);
+DECOMP_GLOBAL_ARRAY(Em10Func, Em10_R1_die_tbl, 6, 0x00BF3D98);
+DECOMP_GLOBAL_ARRAY(Em10Func, Em10DmSetWep_tbl, 46, 0x00BF3DB0);
 
 // Chain and belt tables of em10.cpp (game data, bound by address).
 DECOMP_GLOBAL_ARRAY(u8, em10_chain_parts, 4, 0x00BF39C4);

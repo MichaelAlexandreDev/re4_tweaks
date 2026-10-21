@@ -17,7 +17,7 @@ namespace bio4
 	namespace
 	{
 		constexpr unsigned int kImageBase = 0x00400000u;
-		constexpr unsigned int kMaxEntries = 64;
+		constexpr unsigned int kMaxEntries = 1024;
 		volatile LONG DecompCalls[kMaxEntries] = {};
 	}
 

@@ -10,14 +10,54 @@ namespace bio4 {
 #include "mods/em_module_slots.cpp"
 
 static void __fastcall DecompWrap_em10InitRtnSet(cEm10* em) { decomp_count(0); em10InitRtnSet(em); }
-static ReadModule* __cdecl DecompWrap_SearchEmModule(u8 id) { decomp_count(1); return SearchEmModule(id); }
-static ReadModule* __cdecl DecompWrap_pullEmModule() { decomp_count(2); return pullEmModule(); }
-static void __cdecl DecompWrap_InitModule(ReadModule* m) { decomp_count(3); InitModule(m); }
-static void __cdecl DecompWrap_EmReadInit() { decomp_count(4); EmReadInit(); }
-static void* __cdecl DecompWrap_EmReadSearch(u8 id, void* data_addr, u32 malloc_size) { decomp_count(5); return EmReadSearch(id, data_addr, malloc_size); }
+static void __cdecl DecompWrap_em10_R1_R321DeadBody(cEm10* em) { decomp_count(1); em10_R1_R321DeadBody(em); }
+static void __cdecl DecompWrap_em10_R0_Damage(cEm10* em) { decomp_count(2); em10_R0_Damage(em); }
+static int __fastcall DecompWrap_cEm10_ckParasite(cEm10* self, int) { decomp_count(3); return self->cEm10::ckParasite(); }
+static int __fastcall DecompWrap_cEm10_ckBombFire(cEm10* self, int) { decomp_count(4); return self->cEm10::ckBombFire(); }
+static int __fastcall DecompWrap_cEm10_ckShiled(cEm10* self, int) { decomp_count(5); return self->cEm10::ckShiled(); }
+static int __fastcall DecompWrap_cEm10_ckBowgunFire(cEm10* self, int) { decomp_count(6); return self->cEm10::ckBowgunFire(); }
+static u32 __fastcall DecompWrap_cEm10_ckGoto(cEm10* self, int) { decomp_count(7); return self->cEm10::ckGoto(); }
+static void __fastcall DecompWrap_cEm10_setSwitch(cEm10* self, int, cModel* sw) { decomp_count(8); self->cEm10::setSwitch(sw); }
+static int __fastcall DecompWrap_cEm10_checkThrow(cEm10* self, int) { decomp_count(9); return self->cEm10::checkThrow(); }
+static int __fastcall DecompWrap_cEm10_ckResetEnable(cEm10* self, int) { decomp_count(10); return self->cEm10::ckResetEnable(); }
+static void __fastcall DecompWrap_cEm10_chgSet(cEm10* self, int, u8 no) { decomp_count(11); self->cEm10::chgSet(no); }
+static void __fastcall DecompWrap_cEm10_setR11DMotion(cEm10* self, int, void* m0) { decomp_count(12); self->cEm10::setR11DMotion(m0); }
+static void __fastcall DecompWrap_cEm10_setGatlingMode(cEm10* self, int, u8 no) { decomp_count(13); self->cEm10::setGatlingMode(no); }
+static void __fastcall DecompWrap_cEm10_setUFOCatch(cEm10* self, int, void* m0, void* m1) { decomp_count(14); self->cEm10::setUFOCatch(m0, m1); }
+static int __fastcall DecompWrap_cEm10_ckWeapon(cEm10* self, int) { decomp_count(15); return self->cEm10::ckWeapon(); }
+static int __fastcall DecompWrap_cEm10_ckTakeAway(cEm10* self, int) { decomp_count(16); return self->cEm10::ckTakeAway(); }
+static int __fastcall DecompWrap_cEm10_ckR305BomberEnable(cEm10* self, int) { decomp_count(17); return self->cEm10::ckR305BomberEnable(); }
+static void __fastcall DecompWrap_cEm10_setEvtMotion(cEm10* self, int, void* m0, void* m1, void* m2, void* m3) { decomp_count(18); self->cEm10::setEvtMotion(m0, m1, m2, m3); }
+static void __fastcall DecompWrap_cEm10_setGondolaMotion(cEm10* self, int, void* m0, void* m1, void* m2, void* m3) { decomp_count(19); self->cEm10::setGondolaMotion(m0, m1, m2, m3); }
+static void __fastcall DecompWrap_cEm10_setDrill(cEm10* self, int, void* m0, void* m1, void* m2, void* m3) { decomp_count(20); self->cEm10::setDrill(m0, m1, m2, m3); }
+static ReadModule* __cdecl DecompWrap_SearchEmModule(u8 id) { decomp_count(21); return SearchEmModule(id); }
+static ReadModule* __cdecl DecompWrap_pullEmModule() { decomp_count(22); return pullEmModule(); }
+static void __cdecl DecompWrap_InitModule(ReadModule* m) { decomp_count(23); InitModule(m); }
+static void __cdecl DecompWrap_EmReadInit() { decomp_count(24); EmReadInit(); }
+static void* __cdecl DecompWrap_EmReadSearch(u8 id, void* data_addr, u32 malloc_size) { decomp_count(25); return EmReadSearch(id, data_addr, malloc_size); }
 
 const DecompEntry kDecompEntries[] = {
     { "em10InitRtnSet", 0x0043AA90u, reinterpret_cast<void*>(&DecompWrap_em10InitRtnSet), "55 8B EC 83 EC 20 A1 ? ? ? ? 33 C5 89 45 FC 56 8B F1 8A 86 01 01 00 00 3C 06 74 07 C6 86 C9 03 00 00 01 0F B6 C0 83 C0 FE 83 F8 0B 77 17 0F B6 80 ? ? ? ? FF 24 85 ? ? ? ? C6 86 CF" },
+    { "em10_R1_R321DeadBody", 0x00429180u, reinterpret_cast<void*>(&DecompWrap_em10_R1_R321DeadBody), "55 8B EC 8B 45 08 C7 80 FC 00 00 00 03 00 00 00 5D C3" },
+    { "em10_R0_Damage", 0x0042B1E0u, reinterpret_cast<void*>(&DecompWrap_em10_R0_Damage), "55 8B EC 8B 45 08 83 88 B0 04 00 00 08 0F B6 88 FD 00 00 00 8B 14 8D ? ? ? ? 50 FF D2 83 C4 04 5D C3" },
+    { "cEm10::ckParasite", 0x00433C20u, reinterpret_cast<void*>(&DecompWrap_cEm10_ckParasite), "33 C0 39 81 BC 06 00 00 0F 95 C0 C3" },
+    { "cEm10::ckBombFire", 0x00433C30u, reinterpret_cast<void*>(&DecompWrap_cEm10_ckBombFire), "D9 EE D8 99 40 07 00 00 DF E0 F6 C4 05 7A 06 B8 01 00 00 00 C3 33 C0 C3" },
+    { "cEm10::ckShiled", 0x00433C50u, reinterpret_cast<void*>(&DecompWrap_cEm10_ckShiled), "33 C0 39 81 18 06 00 00 0F 95 C0 C3" },
+    { "cEm10::ckBowgunFire", 0x00433C60u, reinterpret_cast<void*>(&DecompWrap_cEm10_ckBowgunFire), "33 C0 80 B9 F0 07 00 00 08 75 09 38 81 0C 08 00 00 0F 95 C0 C3" },
+    { "cEm10::ckGoto", 0x00433C80u, reinterpret_cast<void*>(&DecompWrap_cEm10_ckGoto), "8B 81 10 07 00 00 C3" },
+    { "cEm10::setSwitch", 0x00433EF0u, reinterpret_cast<void*>(&DecompWrap_cEm10_setSwitch), "55 8B EC 8B 45 08 89 81 70 06 00 00 5D C2 04 00" },
+    { "cEm10::checkThrow", 0x004361E0u, reinterpret_cast<void*>(&DecompWrap_cEm10_checkThrow), "D9 EE D8 99 9C 07 00 00 DF E0 F6 C4 05 7B 03 33 C0 C3 B8 01 00 00 00 C3" },
+    { "cEm10::ckResetEnable", 0x00436200u, reinterpret_cast<void*>(&DecompWrap_cEm10_ckResetEnable), "33 C0 38 81 F5 07 00 00 0F 95 C0 C3" },
+    { "cEm10::chgSet", 0x00436210u, reinterpret_cast<void*>(&DecompWrap_cEm10_chgSet), "55 8B EC 8A 45 08 88 81 BE 07 00 00 88 81 95 03 00 00 5D C2 04 00" },
+    { "cEm10::setR11DMotion", 0x004362B0u, reinterpret_cast<void*>(&DecompWrap_cEm10_setR11DMotion), "55 8B EC 8B 45 08 89 81 14 07 00 00 5D C2 04 00" },
+    { "cEm10::setGatlingMode", 0x00436380u, reinterpret_cast<void*>(&DecompWrap_cEm10_setGatlingMode), "55 8B EC 8A 45 08 88 81 BF 07 00 00 5D C2 04 00" },
+    { "cEm10::setUFOCatch", 0x004363A0u, reinterpret_cast<void*>(&DecompWrap_cEm10_setUFOCatch), "55 8B EC 8B 45 08 8B 55 0C 89 81 14 07 00 00 89 91 18 07 00 00 C7 81 FC 00 00 00 01 65 00 00 5D C2 08 00" },
+    { "cEm10::ckWeapon", 0x00439EB0u, reinterpret_cast<void*>(&DecompWrap_cEm10_ckWeapon), "33 C0 39 81 10 06 00 00 0F 95 C0 C3" },
+    { "cEm10::ckTakeAway", 0x00439EC0u, reinterpret_cast<void*>(&DecompWrap_cEm10_ckTakeAway), "8B 81 B0 04 00 00 C1 E8 0E 83 E0 01 C3" },
+    { "cEm10::ckR305BomberEnable", 0x00439ED0u, reinterpret_cast<void*>(&DecompWrap_cEm10_ckR305BomberEnable), "B0 01 38 81 FC 00 00 00 74 03 33 C0 C3 80 B9 FD 00 00 00 6A 75 F4 33 D2 38 81 FE 00 00 00 0F 94 C2 8B C2 C3" },
+    { "cEm10::setEvtMotion", 0x00436230u, reinterpret_cast<void*>(&DecompWrap_cEm10_setEvtMotion), "55 8B EC 8B 45 08 8B 55 0C 89 81 14 07 00 00 8B 45 10 89 91 24 07 00 00 8B 55 14 89 81 18 07 00 00 89 91 28 07 00 00 5D C2 10 00" },
+    { "cEm10::setGondolaMotion", 0x00436270u, reinterpret_cast<void*>(&DecompWrap_cEm10_setGondolaMotion), "55 8B EC 8B 45 08 8B 55 0C 89 81 14 07 00 00 8B 45 10 89 91 18 07 00 00 8B 55 14 89 81 1C 07 00 00 89 91 20 07 00 00 5D C2 10 00" },
+    { "cEm10::setDrill", 0x004362D0u, reinterpret_cast<void*>(&DecompWrap_cEm10_setDrill), "55 8B EC 8B 45 08 8B 55 0C 89 81 14 07 00 00 8B 45 10 89 91 18 07 00 00 8B 55 14 89 81 B0 06 00 00 89 91 D0 04 00 00 5D C2 10 00" },
     { "SearchEmModule", 0x006AD4D0u, reinterpret_cast<void*>(&DecompWrap_SearchEmModule), "55 8B EC 8A 4D 08 80 F9 03 74 0A 80 F9 05 74 05 80 F9 0C 75 2C 8B 15 ? ? ? ? 8A 82 CB 4F 00 00 84 C0 75 04 B1 03 EB 0D 3C 02 0F 95 C1 FE C9 80 E1 07 80 C1 05 F7 42 54 00 10 00 00 74 02 B1" },
     { "pullEmModule", 0x006AD570u, reinterpret_cast<void*>(&DecompWrap_pullEmModule), "33 C0 B9 ? ? ? ? 83 39 00 74 12 81 C1 98 00 00 00 40 81 F9 ? ? ? ? 7C EC 33 C0 C3 69 C0 98 00 00 00 05 ? ? ? ? C3" },
     { "InitModule", 0x006ADAA0u, reinterpret_cast<void*>(&DecompWrap_InitModule), "55 8B EC 56 8B 75 08 8B 86 88 00 00 00 85 C0 74 12 F6 86 82 00 00 00 02 74 09 50 E8 8B 07 D6 FF 83 C4 04 8B 86 84 00 00 00 85 C0 74 21 0F B7 8E 82 00 00 00 F6 C1 04 74 15 50 F6 C1 08 74 07 E8" },

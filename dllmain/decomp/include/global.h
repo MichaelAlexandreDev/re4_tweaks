@@ -4,6 +4,23 @@
 #include "bind.h"
 #include "types.h"
 
+// EMI points of the room (enemy info: hide / goto / route spots); Steam
+// layout from re4_tweaks SDK EMINFO_WK / EMINFO_DATA, GameCube names.
+struct EmiEntry {
+    u8 type;              // 0x00
+    u8 sub;               // 0x01
+    u8 state;             // 0x02
+    u8 pad_3;
+    Vec pos;              // 0x04
+    f32 rotY;             // 0x10
+    u8 pad_14[0x40 - 0x14];
+};
+struct EmiData {
+    u32 n;                // 0x0
+    u32 id;               // 0x4
+    EmiEntry entry[256];  // 0x8
+};
+
 // Partial GLOBAL_WK of the Steam build. Only fields with a known offset are
 // named; names follow re4_tweaks/dllmain/SDK/global.h.
 struct GLOBAL_WK {
@@ -14,7 +31,9 @@ struct GLOBAL_WK {
     u32 Disp_flg;              // 0x58  display flags
     u8 pad_005C[0x70 - 0x5C];
     f32 deltaTime;             // 0x70  frame time scale of the PC port (timers add deltaTime - 1)
-    u8 pad_0074[0x4FAC - 0x74];
+    u8 pad_0074[0x4F30 - 0x74];
+    EmiData* pEmi;             // 0x4F30
+    u8 pad_4F34[0x4FAC - 0x4F34];
     u16 curRoomId;             // 0x4FAC  G_ROOM_ID
     u8 pad_4FAE[0x4FC8 - 0x4FAE];
     u8 pl_type;                // 0x4FC8  0 Leon, 1 Ashley, 2 Ada, 3 HUNK, 4 Krauser, 5 Wesker
