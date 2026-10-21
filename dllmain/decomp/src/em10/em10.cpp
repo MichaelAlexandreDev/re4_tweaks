@@ -720,7 +720,6 @@ extern "C" void em10CsawSignSe(cEm10* em);
 extern "C" void em10WeaponInit(cEm10* em);
 static int em10ClimbOverCk(cEm10* em);
 static int em10WindowCk(cEm10* em);
-static void em10ReturnStartPosCk(cEm10* em);
 static int em10GotoCk(cEm10* em);
 void em10SetWaitMotion(cEm10* em, int a);
 static void em10SetWalkMotion(cEm10* em, int a);
@@ -906,6 +905,7 @@ DECOMP_FUNC(int, em10JumpDownCk2, (cEm10* em), 0x00447750);
 DECOMP_FUNC(int, em10JumpDownCk, (cEm10* em), 0x004540F0);
 DECOMP_FUNC(int, em10JumpCk, (cEm10* em), 0x00437E00);
 DECOMP_FUNC(int, em10BullJumpCk, (cEm10* em), 0x00000000);
+DECOMP_FUNC(void, em10ReturnStartPosCk, (cEm10* em), 0x0042EB40);
 DECOMP_FUNC(int, em10ParasiteAtkCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10ShotBowgunCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10ShotRocketCk, (cEm10* em), 0x00000000);
@@ -925,7 +925,7 @@ DECOMP_FUNC(int, em10HeadLockCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10NeckMove, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10WaistMove, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10ScaleCompress, (cEm10* em), 0x00000000);
-DECOMP_FUNC(int, em10FindCk, (cEm10* em, int a), 0x00426B00);
+DECOMP_FUNC(int, em10FindCk, (cEm10* em, int a), 0x00000000);
 DECOMP_FUNC(int, em10FindCk2, (cEm10* em), 0x004305E0);
 DECOMP_FUNC(int, em10SomebodyFindNowCk, (cEm10* em), 0x004490F0);
 DECOMP_FUNC(int, em10FindFloorCk, (cEm10* em), 0x00000000);
@@ -1181,6 +1181,7 @@ extern "C" int em10JumpDownCk2(cEm10* em);
 int em10JumpDownCk(cEm10* em);
 int em10JumpCk(cEm10* em);
 extern "C" int em10BullJumpCk(cEm10* em);
+void em10ReturnStartPosCk(cEm10* em);
 extern "C" int em10ParasiteAtkCk(cEm10* em);
 extern "C" int em10ShotBowgunCk(cEm10* em);
 extern "C" int em10ShotRocketCk(cEm10* em);
@@ -2382,6 +2383,7 @@ static int em10ClimbOverCk(cEm10* em)
 // Wrapper of em10ReturnPosCk (the walk / dash branch checks).
 // FUNCTION: BIO4 0x0042EB40
 // STATUS: stub
+#if 0 // PARKED: EmDeadCk
 static void em10ReturnStartPosCk(cEm10* em)
 {
     em10ReturnPosCk(em);
@@ -2392,9 +2394,7 @@ static void em10ReturnStartPosCk(cEm10* em)
 // 15000 (6000 when heading somewhere) and 60 deg, or very close, when another Ganado is being hurt
 // nearby, on the bell alarm (Status_flg[1] bit29, SeInfo.pos within 25000), when the room forces the
 // alert (Status_flg[0] bit23), or when it is dead / headless. Calls em10SetRtnFind and returns 1.
-// FUNCTION: BIO4 0x00426B00
-// STATUS: stub
-#if 0 // PARKED: EmDeadCk
+// Address unknown: 0x00426B00 (from the call alignment) is a PC f32-timer helper.
 int em10FindCk(cEm10* em, int a)
 {
     Em10Work* w = EM10_WK(em);
