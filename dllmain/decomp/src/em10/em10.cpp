@@ -499,7 +499,7 @@ void __fastcall em10InitRtnSet(cEm10* em)
         if (w->mot[48] && w->mot[49]) {
             w->pCart = SetObj12(w->mot[48], w->mot[49], &em->pos, &em->ang);
         }
-        Obj12Regist_6700E0(w->pCart);
+        SetCartObj(w->pCart);
         em10SetWaitMotion(em, 0);
         em->setStatus(EM_STATUS_ACTIVE);
         EmRoutineSet(em, 1, 9, 0, 0);
