@@ -12,7 +12,11 @@ struct GLOBAL_WK {
     u8 pad_0021[0x54 - 0x21];
     u32 flags_SYSTEM[1];       // 0x54  SYS_PS2_ADA_GAME = 0x1000 (Separate Ways)
     u32 Disp_flg;              // 0x58  display flags
-    u8 pad_005C[0x4FC8 - 0x5C];
+    u8 pad_005C[0x70 - 0x5C];
+    f32 deltaTime;             // 0x70  frame time scale of the PC port (timers add deltaTime - 1)
+    u8 pad_0074[0x4FAC - 0x74];
+    u16 curRoomId;             // 0x4FAC  G_ROOM_ID
+    u8 pad_4FAE[0x4FC8 - 0x4FAE];
     u8 pl_type;                // 0x4FC8  0 Leon, 1 Ashley, 2 Ada, 3 HUNK, 4 Krauser, 5 Wesker
     u8 pad_4FC9[0x4FCB - 0x4FC9];
     u8 subCostume;             // 0x4FCB  Ashley: 0 Normal, 1 Popstar, 2 Armor
