@@ -13,6 +13,7 @@ typedef float f32;
 struct Vec {
     f32 x, y, z;
 };
+typedef f32 Mtx[3][4];
 
 #ifndef NULL
 #define NULL 0

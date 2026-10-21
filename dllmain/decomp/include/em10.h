@@ -3,6 +3,8 @@
 
 #include "bind.h"
 #include "em.h"
+#include "math_sub.h"
+#include "snd.h"
 #include "types.h"
 
 // Ganado enemy (class cEm10, 0xC64 bytes on Steam). The PC port moved the
@@ -90,7 +92,11 @@ struct Em10Work {
     Vec Scale;                // 0x090 (0x498)
     Vec Campos;               // 0x09C (0x4A4)
     u32 Be_flg;               // 0x0A8 (0x4B0)
-    f32 Timer[5];             // 0x0AC (0x4B4)
+    f32 Timer;                // 0x0AC (0x4B4)
+    f32 Timer2;               // 0x0B0 (0x4B8)
+    f32 Timer3;               // 0x0B4 (0x4BC)
+    f32 Timer4;               // 0x0B8 (0x4C0)
+    f32 Timer5;               // 0x0BC (0x4C4)
     f32 TmpF;                 // 0x0C0 (0x4C8)
     f32 TmpF2;                // 0x0C4 (0x4CC)
     u32 TmpU32;               // 0x0C8 (0x4D0)
@@ -317,15 +323,12 @@ DECOMP_FUNC(cCtrl*, GetCtrlDragon, (int no), 0x0040A55B);
 DECOMP_FUNC(int, CheckInWater, (cModel* m, int a), 0x0040846D);
 // Engine functions used by em10.cpp (real addresses; the game calls them
 // through the incremental-link table).
-DECOMP_FUNC(f32, GetXZAngle, (Vec* v0, Vec* v1), 0x006CFE10);
 DECOMP_FUNC(void, RouteCkGetPoint, (int no, Vec* out), 0x006B0F90);
 DECOMP_FUNC(int, RouteCkGetPointNumber, (), 0x006B1010);
 DECOMP_FUNC(int, RouteCkGetNearPoint, (Vec* pos), 0x006B2260);
 DECOMP_FUNC(int, ChkWaterEffectEnable, (Vec* pos), 0x00616260);
 
-extern "C" double __cdecl fabs(double x);
-#pragma intrinsic(fabs)
-static inline f32 fabsf(f32 x) { return (f32) fabs(x); }
+
 DECOMP_FUNC(cObjChain*, SetChain, (void* m0, void* m1, Vec* pos, Vec* rot), 0x0040B749);
 
 // Per-module set function the family prolog stores (EmXXSet), run by em10_R0_Init.

@@ -90,6 +90,8 @@ struct cAtariInfo {
     u8 pad_1C[0x4C - 0x1C];
 };
 
+class cModelInfo;
+
 class cModel {
 public:
     // cUnit, cCoord and cModel virtuals (re4_tweaks SDK order).
@@ -100,27 +102,72 @@ public:
     virtual void move();
     virtual void setNoSuspend(int onoff);
 
+    // cUnit
     u32 be_flag;          // 0x004
-    u8 pad_008[0x70 - 0x8];
-    Vec world;            // 0x070  world position (cCoord)
+    cModel* pNext;        // 0x008
+    // cCoord (same offsets as the GameCube)
+    Mtx mat;              // 0x00C  world matrix
+    Mtx l_mat;            // 0x03C  local matrix
+    cModel* pParent;      // 0x06C
+    Vec world;            // 0x070
     Vec world_old;        // 0x07C
     Vec world_old2;       // 0x088
     Vec pos;              // 0x094
     Vec ang;              // 0x0A0
     Vec scale;            // 0x0AC
     Vec r_scale;          // 0x0B8
-    u8 pad_0C4[0xFC - 0xC4];
+    Mtx prevMat;          // 0x0C4
+    // cModel
+    cModel* pParts;       // 0x0F4  child parts list
+    u32 guid;             // 0x0F8
     u8 r_no_0;            // 0x0FC
     u8 r_no_1;            // 0x0FD
     u8 r_no_2;            // 0x0FE
     u8 r_no_3;            // 0x0FF
     u8 id;                // 0x100
     u8 type;              // 0x101
-    u8 pad_102[0x1D8 - 0x102];
+    u8 nParts;            // 0x102
+    u8 alpha_omit;        // 0x103
+    Vec speed;            // 0x104
+    Vec pos_old;          // 0x110
+    Vec Wall_norm;        // 0x11C
+    Vec* pFloor_norm;     // 0x128
+    u8 z_mode;            // 0x12C
+    u8 TevScaleGroup;     // 0x12D
+    u8 kindid;            // 0x12E
+    u8 ot_type;           // 0x12F
+    void* pCldShMd;       // 0x130
+    u8 Shd_color;         // 0x134
+    u8 CullMode;          // 0x135
+    u8 Shader_type;       // 0x136
+    u8 Refract_pow;       // 0x137
+    u8 Refract_ratio;     // 0x138
+    u8 AddAmb_r;          // 0x139
+    u8 AddAmb_g;          // 0x13A
+    u8 AddAmb_b;          // 0x13B
+    int Fix_parts;        // 0x13C
+    Vec Fix_pos;          // 0x140
+    u8 invisible_trg;     // 0x14C
+    u8 invisible_old;     // 0x14D
+    u8 invisible_mode;    // 0x14E
+    u8 invisible_busy;    // 0x14F
+    u32 invisible_timer;  // 0x150
+    f32 invisible_factor; // 0x154
+    f32 invisible_factor2; // 0x158
+    cModelInfo* pModelInfo;       // 0x15C
+    cModelInfo* pShadowModelInfo; // 0x160
+    u8 LightInfo[0x1D8 - 0x164];  // 0x164  cLightInfo
     MotionWork Motion;    // 0x1D8
-    u8 pad_2A8[0x2B4 - 0x2A8];
+    MotionWork* pMotionB; // 0x2A8
+    s16* pXFlip;          // 0x2AC
+    u32* pDblJnt;         // 0x2B0
     cAtariInfo atari;     // 0x2B4
-    u8 pad_300[0x324 - 0x300];
+    Vec* inscreen_pos;    // 0x300
+    u32 pPath;            // 0x304
+    void* pFsdTbl;        // 0x308
+    u8 litArea[0x10];     // 0x30C  EmLightArea
+    void* pTexChg;        // 0x31C
+    u8 field_320[4];      // 0x320
 
     DECOMP_METHOD(cModel*, cModel, getPartsPtr, (int no), (no), 0x00402BE9);
 };
@@ -128,7 +175,18 @@ public:
 #define MOTION(m) (&(m)->Motion)
 
 enum {
-    EM_STATUS_ACTIVE = 5
+    EM_STATUS_ATTACKING = 0,
+    EM_STATUS_LOCKOFF = 1,
+    EM_STATUS_MIST_ON = 2,
+    EM_STATUS_IK_OFF = 3,
+    EM_STATUS_ALERT = 4,
+    EM_STATUS_ACTIVE = 5,
+    EM_STATUS_DOGCK = 6,
+    EM_STATUS_DOGATK = 7,
+    EM_STATUS_ITEMSET = 8,
+    EM_STATUS_LOOK_ME = 9,
+    EM_STATUS_DONT_FIRE = 10,
+    EM_STATUS_ASHLEY_NO_HELP = 11
 };
 
 class cEm : public cModel {
@@ -140,23 +198,50 @@ public:
     s16 hp;               // 0x324
     s16 hp_max;           // 0x326
     cDmgInfo dmg;         // 0x328
-    u8 pad_344[0x380 - 0x344];
+    u8 hitInfo[0x378 - 0x344];  // 0x344  YARARE_INFO
+    f32 l_pl;             // 0x378  squared distance to the player
+    f32 l_sub;            // 0x37C  squared distance to the partner
     PlArc* subArc;        // 0x380
     PlArc* subArc2;       // 0x384
-    u8 pad_388[0x395 - 0x388];
+    Vec lockOfs;          // 0x388
+    u8 lockParts;         // 0x394
     u8 set;               // 0x395  ESL set: chooses the initial role
-    u8 pad_396[0x3A0 - 0x396];
+    u8 pad_396[2];
+    void (*pScenario)(cEm*);  // 0x398
+    u8 pad_39C[4];
     u8 emset_no;          // 0x3A0  ESL row index (0xFF when not from a list)
-    u8 pad_3A1[0x3C9 - 0x3A1];
+    u8 x3A1;              // 0x3A1
+    u8 pad_3A2[2];
+    Vec Catch_pos_adj;    // 0x3A4
+    Vec Catch_at_adj;     // 0x3B0
+    f32 Catch_dir;        // 0x3BC
+    cEm* pEmCatch;        // 0x3C0
+    u8 RckStat;           // 0x3C4
+    s8 RckMy;             // 0x3C5
+    s8 RckTo;             // 0x3C6
+    s8 RckNear;           // 0x3C7
+    s8 RckRno;            // 0x3C8
     u8 RckPad0;           // 0x3C9  PC: set to 1 at init for every type but 6
-    u8 pad_3CA[0x3D0 - 0x3CA];
+    u8 pad_3CA[2];
+    u32 status;           // 0x3CC  setStatus / clearStatus bits
     u32 flag;             // 0x3D0  ESL flags
     f32 Guard_r;          // 0x3D4
     u8 Character;         // 0x3D8
-    u8 pad_3D9[0x408 - 0x3D9];
+    u8 itemFlag;          // 0x3D9
+    u8 pad_3DA[4];
+    u16 Item_id;          // 0x3DE
+    u16 Item_num;         // 0x3E0
+    u16 Item_flg;         // 0x3E2
+    u16 Auto_item_flg;    // 0x3E4
+    u8 pad_3E6[2];
+    u32 flags_3E8;        // 0x3E8  PC addition
+    Vec x3EC;             // 0x3EC  PC addition
+    Vec lockOfs1;         // 0x3F8  PC addition (second lock-on point)
+    int lockParts1;       // 0x404  PC addition
 
     DECOMP_METHOD(void, cEm, setStatus, (int id), (id), 0x0040BCE9);
     DECOMP_METHOD(void, cEm, clearStatus, (int id), (id), 0x0040BDDE);
+    int checkStatus(int stat) { return (status >> stat) & 1; }
 };
 
 DECOMP_OFFSET_CHECK(cModel, be_flag, 0x4);
@@ -168,6 +253,13 @@ DECOMP_OFFSET_CHECK(cEm, set, 0x395);
 DECOMP_OFFSET_CHECK(cEm, flag, 0x3D0);
 DECOMP_OFFSET_CHECK(cModel, world, 0x70);
 DECOMP_OFFSET_CHECK(cEm, dmg, 0x328);
+DECOMP_OFFSET_CHECK(cEm, l_pl, 0x378);
+DECOMP_OFFSET_CHECK(cEm, status, 0x3CC);
+DECOMP_OFFSET_CHECK(cModel, prevMat, 0xC4);
+DECOMP_OFFSET_CHECK(cModel, pModelInfo, 0x15C);
+DECOMP_OFFSET_CHECK(cModel, pMotionB, 0x2A8);
+typedef char decomp_check_cModel_size[sizeof(cModel) == 0x324 ? 1 : -1];
+typedef char decomp_check_cEm_size[sizeof(cEm) == 0x408 ? 1 : -1];
 
 // Player and partner (Ashley); layouts beyond cEm are not needed yet.
 class cPlayer : public cEm {
