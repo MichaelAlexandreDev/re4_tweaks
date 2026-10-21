@@ -201,6 +201,7 @@ static void* __cdecl DecompWrap_EmReadSearch(u8 id, void* data_addr, u32 malloc_
 static void __fastcall DecompWrap_MapZoomIn_init(MapZoomIn* self, int, SUB_SCREEN* wk) { decomp_count(129); self->MapZoomIn::init(wk); }
 static void __fastcall DecompWrap_MapZoomOut_init(MapZoomOut* self, int, SUB_SCREEN* wk) { decomp_count(130); self->MapZoomOut::init(wk); }
 static void __fastcall DecompWrap_SsMapInit_init(SsMapInit* self, int, SUB_SCREEN* wk) { decomp_count(131); self->SsMapInit::init(wk); }
+static void __fastcall DecompWrap_MapModeSelect_quit(MapModeSelect* self, int, SUB_SCREEN* wk) { decomp_count(132); self->MapModeSelect::quit(wk); }
 
 const DecompEntry kDecompEntries[] = {
     { "em10InitRtnSet", 0x0043AA90u, reinterpret_cast<void*>(&DecompWrap_em10InitRtnSet), "55 8B EC 83 EC 20 A1 ? ? ? ? 33 C5 89 45 FC 56 8B F1 8A 86 01 01 00 00 3C 06 74 07 C6 86 C9 03 00 00 01 0F B6 C0 83 C0 FE 83 F8 0B 77 17 0F B6 80 ? ? ? ? FF 24 85 ? ? ? ? C6 86 CF", nullptr, 0 },
@@ -335,6 +336,7 @@ const DecompEntry kDecompEntries[] = {
     { "MapZoomIn::init", 0x0077C4B0u, reinterpret_cast<void*>(&DecompWrap_MapZoomIn_init), "6A 00 6A 00 6A 00 6A 00 6A 04 6A 00 C6 41 10 00 E8 FC E8 C8 FF 83 C4 18 C2 04 00", nullptr, 0 },
     { "MapZoomOut::init", 0x0077C4E0u, reinterpret_cast<void*>(&DecompWrap_MapZoomOut_init), "6A 00 6A 00 6A 00 6A 00 6A 05 6A 00 C6 41 10 00 E8 CC E8 C8 FF 83 C4 18 C2 04 00", nullptr, 0 },
     { "SsMapInit::init", 0x0077C190u, reinterpret_cast<void*>(&DecompWrap_SsMapInit_init), "55 8B EC 8B 55 08 33 C0 83 7A 2C 02 0F 95 C0 48 83 E0 02 89 41 10 A1 ? ? ? ? F7 40 54 00 10 00 C0 74 07 83 88 D4 52 00 00 40 5D C2 04 00", nullptr, 0 },
+    { "MapModeSelect::quit", 0x0077C920u, reinterpret_cast<void*>(&DecompWrap_MapModeSelect_quit), "6A 10 6A 10 B9 ? ? ? ? E8 C9 CC C8 FF 80 88 8A 00 00 00 0F 6A 00 6A 00 6A 00 6A 00 6A 05 6A 00 E8 7B E4 C8 FF 83 C4 18 C2 04 00", nullptr, 0 },
 };
 const unsigned int kDecompEntryCount = sizeof(kDecompEntries) / sizeof(kDecompEntries[0]);
 }

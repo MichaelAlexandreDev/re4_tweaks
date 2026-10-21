@@ -5,6 +5,19 @@
 #include "global.h"
 #include "snd.h"
 
+// Local subset of the Steam ID system used by the mode-menu close path.
+// ECX is &IdSub, unitPtr takes two stack bytes promoted to 32-bit slots,
+// and the returned ID_UNIT has rev_flag at +0x8A.
+struct MapIdUnit {
+    u8 pad_00[0x8A];
+    u8 rev_flag;  // 0x8A
+};
+class MapIdSystem {
+public:
+    DECOMP_METHOD(MapIdUnit*, MapIdSystem, unitPtr, (u8 mark, u8 group), (mark, group), 0x004095F7);
+};
+DECOMP_GLOBAL(MapIdSystem, MapIdSub, 0x00C7AB28);
+
 // Zoom-in animation start (10 frames).
 // FUNCTION: BIO4 0x0077C4B0
 // STATUS: matching
@@ -768,11 +781,9 @@ void MapModeSelect::move(SUB_SCREEN* wk)
 
 // Hides the mode menu panel.
 // FUNCTION: BIO4 0x0077C920
-// STATUS: stub
-#if 0 // PARKED: C2227, C2228, IDC_SSCRN_NEAR_0, IdSub, MapModeSelect, SndCall
+// STATUS: matching
 void MapModeSelect::quit(SUB_SCREEN* wk)
 {
-    IdSub.unitPtr(0x10, IDC_SSCRN_NEAR_0)->rev_flag |= 0xF;
+    MapIdSub.unitPtr(0x10, 0x10)->rev_flag |= 0xF;
     SndCall(0, 5, 0, 0, 0, 0);
 }
-#endif // PARKED

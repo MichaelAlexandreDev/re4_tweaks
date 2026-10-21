@@ -32,4 +32,9 @@ public:
     void init(SUB_SCREEN* wk);
 };
 
+class MapModeSelect {
+public:
+    void quit(SUB_SCREEN* wk);
+};
+
 #endif
