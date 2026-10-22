@@ -7,8 +7,12 @@ namespace bio4 {
 #include "src/em10/em10.cpp"
 #include "src/em25/em25.cpp"
 #include "src/game/EtcModel.cpp"
+#include "src/game/et00.cpp"
 #include "src/game/read.cpp"
+#include "src/sscrn/ss_file.cpp"
+#include "src/sscrn/ss_item.cpp"
 #include "src/sscrn/ss_map.cpp"
+#include "src/sscrn/ss_shop.cpp"
 #include "mods/em_family_dispatch.cpp"
 #include "mods/em_module_slots.cpp"
 
@@ -174,13 +178,43 @@ static int __cdecl DecompWrap_getRoomEtcItem(int no, EtcItem** ppEm, int bErrDis
 static ETC_AMB_TYPE __cdecl DecompWrap_GetEtcAmbType() { decomp_count(159); return GetEtcAmbType(); }
 static int __cdecl DecompWrap_GetEm10EyeEffectEnable() { decomp_count(160); return GetEm10EyeEffectEnable(); }
 static void __cdecl DecompWrap_EtcSetAddAmb(cModel* pMod, int kind) { decomp_count(161); EtcSetAddAmb(pMod, kind); }
-static ReadModule* __cdecl DecompWrap_SearchEmModule(u8 id) { decomp_count(162); return SearchEmModule(id); }
+static int __cdecl DecompWrap_EtXX_init(void* arc, EtcSetData* d, cModel** out, int flag, const char* bin, const char* tpl, const char* eff, int effId) { decomp_count(162); return EtXX_init(arc, d, out, flag, bin, tpl, eff, effId); }
+static int __cdecl DecompWrap_Et00_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(163); return Et00_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et07_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(164); return Et07_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et1d_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(165); return Et1d_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et25_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(166); return Et25_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et29_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(167); return Et29_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et2c_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(168); return Et2c_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et35_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(169); return Et35_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et36_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(170); return Et36_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et44_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(171); return Et44_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et48_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(172); return Et48_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et4a_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(173); return Et4a_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et50_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(174); return Et50_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et51_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(175); return Et51_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et52_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(176); return Et52_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et53_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(177); return Et53_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et54_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(178); return Et54_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et55_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(179); return Et55_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et56_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(180); return Et56_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et57_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(181); return Et57_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et58_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(182); return Et58_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et5a_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(183); return Et5a_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et5b_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(184); return Et5b_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et5c_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(185); return Et5c_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et5d_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(186); return Et5d_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et5e_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(187); return Et5e_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et5f_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(188); return Et5f_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et60_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(189); return Et60_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et64_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(190); return Et64_init_decomp(arc, d, out, flag); }
+static int __cdecl DecompWrap_Et65_init_decomp(void* arc, EtcSetData* d, cModel** out, int flag) { decomp_count(191); return Et65_init_decomp(arc, d, out, flag); }
+static ReadModule* __cdecl DecompWrap_SearchEmModule(u8 id) { decomp_count(192); return SearchEmModule(id); }
 
 static ReadModule* __cdecl DecompShadowWrap_SearchEmModule(u8 id)
 {
     using Original = ReadModule* (__cdecl*)(u8 id);
-    auto original = reinterpret_cast<Original>(decomp_shadow_original(162));
-    if (!decomp_shadow_enter(162))
+    auto original = reinterpret_cast<Original>(decomp_shadow_original(192));
+    if (!decomp_shadow_enter(192))
         return original(id);
     DecompShadowScope scope;
     shadow::Snapshot state;
@@ -201,22 +235,22 @@ static ReadModule* __cdecl DecompShadowWrap_SearchEmModule(u8 id)
     }
 
     if (!ready) {
-        decomp_shadow_skip(162, "unavailable descriptor region");
+        decomp_shadow_skip(192, "unavailable descriptor region");
         return original(id);
     }
     const auto result = shadow::compare(state, decomp_shadow_keep_original(),
         [&]() { return original(id); }, [&]() { return SearchEmModule(id); });
-    decomp_shadow_finish(162, result.difference);
+    decomp_shadow_finish(192, result.difference);
     return result.value;
 }
 
-static ReadModule* __cdecl DecompWrap_pullEmModule() { decomp_count(163); return pullEmModule(); }
+static ReadModule* __cdecl DecompWrap_pullEmModule() { decomp_count(193); return pullEmModule(); }
 
 static ReadModule* __cdecl DecompShadowWrap_pullEmModule()
 {
     using Original = ReadModule* (__cdecl*)();
-    auto original = reinterpret_cast<Original>(decomp_shadow_original(163));
-    if (!decomp_shadow_enter(163))
+    auto original = reinterpret_cast<Original>(decomp_shadow_original(193));
+    if (!decomp_shadow_enter(193))
         return original();
     DecompShadowScope scope;
     shadow::Snapshot state;
@@ -225,22 +259,48 @@ static ReadModule* __cdecl DecompShadowWrap_pullEmModule()
     bool ready = state.add("EmReadModule", reinterpret_cast<void*>(decomp_va(0x00C670A0)), 0x260);
 
     if (!ready) {
-        decomp_shadow_skip(163, "unavailable descriptor region");
+        decomp_shadow_skip(193, "unavailable descriptor region");
         return original();
     }
     const auto result = shadow::compare(state, decomp_shadow_keep_original(),
         [&]() { return original(); }, [&]() { return pullEmModule(); });
-    decomp_shadow_finish(163, result.difference);
+    decomp_shadow_finish(193, result.difference);
     return result.value;
 }
 
-static void __cdecl DecompWrap_InitModule(ReadModule* m) { decomp_count(164); InitModule(m); }
-static void __cdecl DecompWrap_EmReadInit() { decomp_count(165); EmReadInit(); }
-static void* __cdecl DecompWrap_EmReadSearch(u8 id, void* data_addr, u32 malloc_size) { decomp_count(166); return EmReadSearch(id, data_addr, malloc_size); }
-static void __fastcall DecompWrap_MapZoomIn_init(MapZoomIn* self, int, SUB_SCREEN* wk) { decomp_count(167); self->MapZoomIn::init(wk); }
-static void __fastcall DecompWrap_MapZoomOut_init(MapZoomOut* self, int, SUB_SCREEN* wk) { decomp_count(168); self->MapZoomOut::init(wk); }
-static void __fastcall DecompWrap_SsMapInit_init(SsMapInit* self, int, SUB_SCREEN* wk) { decomp_count(169); self->SsMapInit::init(wk); }
-static void __fastcall DecompWrap_MapModeSelect_quit(MapModeSelect* self, int, SUB_SCREEN* wk) { decomp_count(170); self->MapModeSelect::quit(wk); }
+static void __cdecl DecompWrap_InitModule(ReadModule* m) { decomp_count(194); InitModule(m); }
+static void __cdecl DecompWrap_EmReadInit() { decomp_count(195); EmReadInit(); }
+static void* __cdecl DecompWrap_EmReadSearch(u8 id, void* data_addr, u32 malloc_size) { decomp_count(196); return EmReadSearch(id, data_addr, malloc_size); }
+static void __fastcall DecompWrap_SsFileInit_init(SsFileInit* self, int, FileSubScreen* wk) { decomp_count(197); self->SsFileInit::init(wk); }
+static void __fastcall DecompWrap_MessageDisplay_quit(MessageDisplay* self, int, FileSubScreen*) { decomp_count(198); self->MessageDisplay::quit(FileSubScreen); }
+static void __fastcall DecompWrap_SsFileMain_quit(SsFileMain* self, int, FileSubScreen* wk) { decomp_count(199); self->SsFileMain::quit(wk); }
+static void __fastcall DecompWrap_SsItemInit_init(SsItemInit* self, int, ItemSubScreen* wk) { decomp_count(200); self->SsItemInit::init(wk); }
+static void __fastcall DecompWrap_SsItemMain_quit(SsItemMain* self, int, ItemSubScreen* wk) { decomp_count(201); self->SsItemMain::quit(wk); }
+static void __fastcall DecompWrap_ItemSelect_move(ItemSelect* self, int, ItemSubScreen* wk) { decomp_count(202); self->ItemSelect::move(wk); }
+static void __fastcall DecompWrap_ItemCombine_quit(ItemCombine* self, int, ItemSubScreen* wk) { decomp_count(203); self->ItemCombine::quit(wk); }
+static f32 __cdecl DecompWrap_zoomInLimit() { decomp_count(204); return zoomInLimit(); }
+static void __cdecl DecompWrap_sscrn_map_out_init(SUB_SCREEN* wk) { decomp_count(205); sscrn_map_out_init(wk); }
+static void __fastcall DecompWrap_MapZoomIn_init(MapZoomIn* self, int, SUB_SCREEN* wk) { decomp_count(206); self->MapZoomIn::init(wk); }
+static void __fastcall DecompWrap_MapZoomOut_init(MapZoomOut* self, int, SUB_SCREEN* wk) { decomp_count(207); self->MapZoomOut::init(wk); }
+static u8 __cdecl DecompWrap_zoomMove(SsMapWork* m, int max, int cnt) { decomp_count(208); return zoomMove(m, max, cnt); }
+static void __fastcall DecompWrap_SsMapInit_init(SsMapInit* self, int, SUB_SCREEN* wk) { decomp_count(209); self->SsMapInit::init(wk); }
+static void __fastcall DecompWrap_SsMapMain_quit(SsMapMain* self, int, SUB_SCREEN* wk) { decomp_count(210); self->SsMapMain::quit(wk); }
+static void __fastcall DecompWrap_MapZoomIn_move(MapZoomIn* self, int, SUB_SCREEN* wk) { decomp_count(211); self->MapZoomIn::move(wk); }
+static void __fastcall DecompWrap_MapModeSelect_quit(MapModeSelect* self, int, SUB_SCREEN* wk) { decomp_count(212); self->MapModeSelect::quit(wk); }
+static f32 __cdecl DecompWrap_zoomOutLimit() { decomp_count(213); return zoomOutLimit(); }
+static bool __cdecl DecompWrap_shopScrnOutFunc(SUB_SCREEN* wk) { decomp_count(214); return shopScrnOutFunc(wk); }
+static void __fastcall DecompWrap_SsShopMain_move(SsShopMain* self, int, SUB_SCREEN* wk) { decomp_count(215); self->SsShopMain::move(wk); }
+static void __fastcall DecompWrap_SsShopMain_quit(SsShopMain* self, int, SUB_SCREEN* wk) { decomp_count(216); self->SsShopMain::quit(wk); }
+static void __fastcall DecompWrap_SellItemNum_init(SellItemNum* self, int, SUB_SCREEN* wk) { decomp_count(217); self->SellItemNum::init(wk); }
+static void __fastcall DecompWrap_SellConfirm_move(SellConfirm* self, int, SUB_SCREEN* wk) { decomp_count(218); self->SellConfirm::move(wk); }
+static void __fastcall DecompWrap_SellConfirm_quit(SellConfirm* self, int, SUB_SCREEN* wk) { decomp_count(219); self->SellConfirm::quit(wk); }
+static void __fastcall DecompWrap_BuyItemNum_init(BuyItemNum* self, int, SUB_SCREEN* wk) { decomp_count(220); self->BuyItemNum::init(wk); }
+static void __fastcall DecompWrap_BuyConfirm_init(BuyConfirm* self, int, SUB_SCREEN* wk) { decomp_count(221); self->BuyConfirm::init(wk); }
+static void __fastcall DecompWrap_BuyPuzzleEnd_init(BuyPuzzleEnd* self, int, SUB_SCREEN* wk) { decomp_count(222); self->BuyPuzzleEnd::init(wk); }
+static void __fastcall DecompWrap_BuyPuzzleEnd_move(BuyPuzzleEnd* self, int, SUB_SCREEN* wk) { decomp_count(223); self->BuyPuzzleEnd::move(wk); }
+static void __fastcall DecompWrap_LvUpConfirm_init(LvUpConfirm* self, int, SUB_SCREEN* wk) { decomp_count(224); self->LvUpConfirm::init(wk); }
+static void __fastcall DecompWrap_LvUpConfirm_quit(LvUpConfirm* self, int, SUB_SCREEN* wk) { decomp_count(225); self->LvUpConfirm::quit(wk); }
+static int __cdecl DecompWrap_itemTexNo(int id) { decomp_count(226); return itemTexNo(id); }
 
 const DecompEntry kDecompEntries[] = {
     { "em10InitRtnSet", 0x0043AA90u, reinterpret_cast<void*>(&DecompWrap_em10InitRtnSet), "55 8B EC 83 EC 20 A1 ? ? ? ? 33 C5 89 45 FC 56 8B F1 8A 86 01 01 00 00 3C 06 74 07 C6 86 C9 03 00 00 01 0F B6 C0 83 C0 FE 83 F8 0B 77 17 0F B6 80 ? ? ? ? FF 24 85 ? ? ? ? C6 86 CF", nullptr, 0 },
@@ -405,15 +465,71 @@ const DecompEntry kDecompEntries[] = {
     { "GetEtcAmbType", 0x0061D720u, reinterpret_cast<void*>(&DecompWrap_GetEtcAmbType), "A1 ? ? ? ? 0F B7 80 AC 4F 00 00 B9 00 04 00 00 66 3B C1 0F 84 A0 01 00 00 BA 03 04 00 00 66 3B C2 0F 84 92 01 00 00 B9 02 04 00 00 66 3B C1 75 06 B8 03 00 00 00 C3 BA 04 04 00 00 66 3B C2", nullptr, 0 },
     { "GetEm10EyeEffectEnable", 0x0061D950u, reinterpret_cast<void*>(&DecompWrap_GetEm10EyeEffectEnable), "A1 ? ? ? ? 0F B7 80 AC 4F 00 00 B9 08 01 00 00 66 3B C1 0F 84 BD 00 00 00 BA 06 01 00 00 66 3B C2 0F 84 AF 00 00 00 B9 02 01 00 00 66 3B C1 0F 84 A1 00 00 00 BA 09 01 00 00 66 3B C2 0F 84", nullptr, 0 },
     { "EtcSetAddAmb", 0x0061DA60u, reinterpret_cast<void*>(&DecompWrap_EtcSetAddAmb), "55 8B EC 51 53 32 DB 88 5D FF 88 5D FE E8 EB C8 DE FF 83 F8 04 0F 87 C1 00 00 00 FF 24 85 ? ? ? ? 8B 45 0C 8A 8C 40 ? ? ? ? 8A 9C 40 ? ? ? ? 8A 94 40 ? ? ? ? 88 4D FF 88 55 FE", nullptr, 0 },
+    { "EtXX_init", 0x00617030u, reinterpret_cast<void*>(&DecompWrap_EtXX_init), "55 8B EC 8B 45 18 56 57 8B 7D 08 50 57 E8 8C C2 DE FF 8B 4D 1C 51 57 8B F0 E8 80 C2 DE FF 8B 4D 0C 0F B6 51 02 57 52 8B 55 14 52 8D 51 10 52 83 C1 1C 51 50 56 E8 45 18 DF FF 8B F0 83 C4 2C 85", nullptr, 0 },
+    { "Et00_init_decomp", 0x00617100u, reinterpret_cast<void*>(&DecompWrap_Et00_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 6A 58 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 4A 53 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et07_init_decomp", 0x00617140u, reinterpret_cast<void*>(&DecompWrap_Et07_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 6A 5F 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 0A 53 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et1d_init_decomp", 0x00617180u, reinterpret_cast<void*>(&DecompWrap_Et1d_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 6A 75 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 CA 52 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et25_init_decomp", 0x006171C0u, reinterpret_cast<void*>(&DecompWrap_Et25_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 6A 7D 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 8A 52 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et29_init_decomp", 0x00617200u, reinterpret_cast<void*>(&DecompWrap_Et29_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 81 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 47 52 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et2c_init_decomp", 0x00617240u, reinterpret_cast<void*>(&DecompWrap_Et2c_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 84 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 07 52 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et35_init_decomp", 0x00617280u, reinterpret_cast<void*>(&DecompWrap_Et35_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 8D 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 C7 51 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et36_init_decomp", 0x006172C0u, reinterpret_cast<void*>(&DecompWrap_Et36_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 8E 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 87 51 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et44_init_decomp", 0x00617300u, reinterpret_cast<void*>(&DecompWrap_Et44_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 9C 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 47 51 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et48_init_decomp", 0x00617340u, reinterpret_cast<void*>(&DecompWrap_Et48_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 A0 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 07 51 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et4a_init_decomp", 0x00617380u, reinterpret_cast<void*>(&DecompWrap_Et4a_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 A2 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 C7 50 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et50_init_decomp", 0x006173C0u, reinterpret_cast<void*>(&DecompWrap_Et50_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 A8 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 87 50 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et51_init_decomp", 0x00617400u, reinterpret_cast<void*>(&DecompWrap_Et51_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 A9 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 47 50 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et52_init_decomp", 0x00617440u, reinterpret_cast<void*>(&DecompWrap_Et52_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 AA 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 07 50 DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et53_init_decomp", 0x00617480u, reinterpret_cast<void*>(&DecompWrap_Et53_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 AB 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 C7 4F DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et54_init_decomp", 0x006174C0u, reinterpret_cast<void*>(&DecompWrap_Et54_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 AC 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 87 4F DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et55_init_decomp", 0x00617500u, reinterpret_cast<void*>(&DecompWrap_Et55_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 AD 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 47 4F DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et56_init_decomp", 0x00617540u, reinterpret_cast<void*>(&DecompWrap_Et56_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 AE 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 07 4F DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et57_init_decomp", 0x00617580u, reinterpret_cast<void*>(&DecompWrap_Et57_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 AF 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 C7 4E DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et58_init_decomp", 0x006175C0u, reinterpret_cast<void*>(&DecompWrap_Et58_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 B0 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 87 4E DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et5a_init_decomp", 0x00617600u, reinterpret_cast<void*>(&DecompWrap_Et5a_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 B2 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 47 4E DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et5b_init_decomp", 0x00617640u, reinterpret_cast<void*>(&DecompWrap_Et5b_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 B3 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 07 4E DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et5c_init_decomp", 0x00617680u, reinterpret_cast<void*>(&DecompWrap_Et5c_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 B4 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 C7 4D DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et5d_init_decomp", 0x006176C0u, reinterpret_cast<void*>(&DecompWrap_Et5d_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 B5 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 87 4D DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et5e_init_decomp", 0x00617700u, reinterpret_cast<void*>(&DecompWrap_Et5e_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 B6 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 47 4D DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et5f_init_decomp", 0x00617740u, reinterpret_cast<void*>(&DecompWrap_Et5f_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 B7 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 07 4D DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et60_init_decomp", 0x00617780u, reinterpret_cast<void*>(&DecompWrap_Et60_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 B8 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 C7 4C DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et64_init_decomp", 0x006177C0u, reinterpret_cast<void*>(&DecompWrap_Et64_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 BC 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 87 4C DF FF 83 C4 20 5D C3", nullptr, 0 },
+    { "Et65_init_decomp", 0x00617800u, reinterpret_cast<void*>(&DecompWrap_Et65_init_decomp), "55 8B EC 8B 45 14 8B 4D 10 8B 55 0C 68 BD 00 00 00 68 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 50 8B 45 08 51 52 50 E8 47 4C DF FF 83 C4 20 5D C3", nullptr, 0 },
     { "SearchEmModule", 0x006AD4D0u, reinterpret_cast<void*>(&DecompWrap_SearchEmModule), "55 8B EC 8A 4D 08 80 F9 03 74 0A 80 F9 05 74 05 80 F9 0C 75 2C 8B 15 ? ? ? ? 8A 82 CB 4F 00 00 84 C0 75 04 B1 03 EB 0D 3C 02 0F 95 C1 FE C9 80 E1 07 80 C1 05 F7 42 54 00 10 00 00 74 02 B1", reinterpret_cast<void*>(&DecompShadowWrap_SearchEmModule), 6 },
     { "pullEmModule", 0x006AD570u, reinterpret_cast<void*>(&DecompWrap_pullEmModule), "33 C0 B9 ? ? ? ? 83 39 00 74 12 81 C1 98 00 00 00 40 81 F9 ? ? ? ? 7C EC 33 C0 C3 69 C0 98 00 00 00 05 ? ? ? ? C3", reinterpret_cast<void*>(&DecompShadowWrap_pullEmModule), 7 },
     { "InitModule", 0x006ADAA0u, reinterpret_cast<void*>(&DecompWrap_InitModule), "55 8B EC 56 8B 75 08 8B 86 88 00 00 00 85 C0 74 12 F6 86 82 00 00 00 02 74 09 50 E8 8B 07 D6 FF 83 C4 04 8B 86 84 00 00 00 85 C0 74 21 0F B7 8E 82 00 00 00 F6 C1 04 74 15 50 F6 C1 08 74 07 E8", nullptr, 0 },
     { "EmReadInit", 0x006AE130u, reinterpret_cast<void*>(&DecompWrap_EmReadInit), "56 6A 02 6A 00 E8 8E 93 D5 FF 6A 01 6A 02 6A 01 E8 E6 0C D6 FF 83 C4 14 BE ? ? ? ? 8D 49 00 8B 46 06 85 C0 74 0E F6 06 02 74 09 50 E8 E9 00 D6 FF 83 C4 04 8B 4E 02 85 C9 74 1B 0F B7 06 A8", nullptr, 0 },
     { "EmReadSearch", 0x006AE8D0u, reinterpret_cast<void*>(&DecompWrap_EmReadSearch), "55 8B EC 53 8A 5D 08 88 5D 08 80 FB 03 74 0A 80 FB 05 74 05 80 FB 0C 75 32 8B 0D ? ? ? ? 8A 81 CB 4F 00 00 84 C0 75 04 B3 03 EB 0D 3C 02 0F 95 C3 FE CB 80 E3 07 80 C3 05 F7 41 54 00 10 00", nullptr, 0 },
+    { "SsFileInit::init", 0x0076B740u, reinterpret_cast<void*>(&DecompWrap_SsFileInit_init), "55 8B EC 8B 55 08 33 C0 83 7A 2C 40 0F 95 C0 48 83 E0 02 89 41 10 5D C2 04 00", nullptr, 0 },
+    { "MessageDisplay::quit", 0x0076C530u, reinterpret_cast<void*>(&DecompWrap_MessageDisplay_quit), "56 33 F6 56 B9 ? ? ? ? E8 90 08 CA FF 46 83 FE 10 7C EF 6A 3F E8 9B CD C9 FF A1 ? ? ? ? 81 48 54 00 04 00 00 83 C4 04 6A 1D 6A 00 B9 ? ? ? ? C6 05 ? ? ? ? 01 E8 88 D0 C9 FF 80", nullptr, 0 },
+    { "SsFileMain::quit", 0x0076CC40u, reinterpret_cast<void*>(&DecompWrap_SsFileMain_quit), "55 8B EC 56 8B F1 8B 4E 1C 85 C9 74 08 8B 01 8B 10 6A 01 FF D2 8B 4E 20 85 C9 74 08 8B 01 8B 10 6A 01 FF D2 C7 46 24 00 00 00 00 33 F6 8D 49 00 56 B9 ? ? ? ? E8 53 01 CA FF 46 83 FE 10 7C", nullptr, 0 },
+    { "SsItemInit::init", 0x0076EE30u, reinterpret_cast<void*>(&DecompWrap_SsItemInit_init), "55 8B EC 8B 55 08 33 C0 81 7A 2C 80 00 00 00 0F 95 C0 48 83 E0 02 89 41 10 C6 05 ? ? ? ? 00 5D C2 04 00", nullptr, 0 },
+    { "SsItemMain::quit", 0x0076F8D0u, reinterpret_cast<void*>(&DecompWrap_SsItemMain_quit), "55 8B EC 56 8B F1 8B 4E 14 57 85 C9 74 08 8B 01 8B 10 6A 01 FF D2 8B 4E 18 85 C9 74 08 8B 01 8B 10 6A 01 FF D2 8B 4E 1C 85 C9 74 08 8B 01 8B 10 6A 01 FF D2 8B 4E 20 85 C9 74 08 8B 01 8B 10 6A", nullptr, 0 },
+    { "ItemSelect::move", 0x00771800u, reinterpret_cast<void*>(&DecompWrap_ItemSelect_move), "55 8B EC 53 8B 5D 08 56 57 8B BB 00 03 00 00 8A 47 01 8B F1 C7 46 10 00 00 00 00 53 88 45 0B C6 83 63 02 00 00 01 E8 3B 3C C9 FF 83 C4 04 84 C0 74 0E 5F C7 46 10 01 00 00 00 5E 5B 5D C2 04 00", nullptr, 0 },
+    { "ItemCombine::quit", 0x0076F3B0u, reinterpret_cast<void*>(&DecompWrap_ItemCombine_quit), "55 8B EC 8B 45 08 53 56 8B B0 00 03 00 00 57 0F BE 7E 01 32 DB 8B C7 83 E8 00 88 5D 08 74 07 48 75 09 B3 70 EB 02 B3 60 88 5D 08 8B 4D 08 6A 16 51 B9 ? ? ? ? E8 0C A2 C9 FF 80 88 8A 00 00", nullptr, 0 },
+    { "zoomInLimit", 0x0077BA40u, reinterpret_cast<void*>(&DecompWrap_zoomInLimit), "55 8B EC 83 EC 0C D9 05 ? ? ? ? A1 ? ? ? ? DD 05 ? ? ? ? DC C9 D9 C9 DD 5D F4 D8 88 34 01 00 00 DC 0D ? ? ? ? DC 35 ? ? ? ? D9 5D FC D9 45 FC E8 75 3D 2F 00 D9 5D FC D9 45", nullptr, 0 },
+    { "sscrn_map_out_init", 0x0077C460u, reinterpret_cast<void*>(&DecompWrap_sscrn_map_out_init), "6A 10 6A 00 B9 ? ? ? ? E8 89 D1 C8 FF 80 08 08 80 A0 8A 00 00 00 F0 6A 00 50 B9 ? ? ? ? E8 22 5E C8 FF 6A 1D 6A 03 B9 ? ? ? ? E8 64 D1 C8 FF 80 88 8A 00 00 00 0F C3", nullptr, 0 },
     { "MapZoomIn::init", 0x0077C4B0u, reinterpret_cast<void*>(&DecompWrap_MapZoomIn_init), "6A 00 6A 00 6A 00 6A 00 6A 04 6A 00 C6 41 10 00 E8 FC E8 C8 FF 83 C4 18 C2 04 00", nullptr, 0 },
     { "MapZoomOut::init", 0x0077C4E0u, reinterpret_cast<void*>(&DecompWrap_MapZoomOut_init), "6A 00 6A 00 6A 00 6A 00 6A 05 6A 00 C6 41 10 00 E8 CC E8 C8 FF 83 C4 18 C2 04 00", nullptr, 0 },
+    { "zoomMove", 0x0077BE50u, reinterpret_cast<void*>(&DecompWrap_zoomMove), "55 8B EC 83 EC 30 A1 ? ? ? ? 33 C5 89 45 FC DB 45 10 8B 45 08 56 57 DA 75 0C 51 8D B8 EC 0F 00 00 8D B0 CC 0F 00 00 8D 45 F0 D9 5D E0 D9 EE D9 55 D0 D9 5D D4 D9 05 ? ? ? ? D9 5D D8 D9", nullptr, 0 },
     { "SsMapInit::init", 0x0077C190u, reinterpret_cast<void*>(&DecompWrap_SsMapInit_init), "55 8B EC 8B 55 08 33 C0 83 7A 2C 02 0F 95 C0 48 83 E0 02 89 41 10 A1 ? ? ? ? F7 40 54 00 10 00 C0 74 07 83 88 D4 52 00 00 40 5D C2 04 00", nullptr, 0 },
+    { "SsMapMain::quit", 0x0077F210u, reinterpret_cast<void*>(&DecompWrap_SsMapMain_quit), "55 8B EC 56 8B F1 C7 05 ? ? ? ? 00 00 00 00 8B 4E 1C 85 C9 74 08 8B 01 8B 10 6A 01 FF D2 8B 4E 20 85 C9 74 08 8B 01 8B 10 6A 01 FF D2 8B 4E 24 85 C9 74 08 8B 01 8B 10 6A 01 FF D2 8B 4E 28", nullptr, 0 },
+    { "MapZoomIn::move", 0x0077F520u, reinterpret_cast<void*>(&DecompWrap_MapZoomIn_move), "55 8B EC A1 ? ? ? ? 53 8B D9 25 00 00 00 80 33 C9 0B C1 56 74 53 8B 45 08 8B 35 ? ? ? ? 57 8B B8 04 03 00 00 81 C6 18 01 00 00 81 C7 CC 0F 00 00 B9 08 00 00 00 F3 A5 8B 90 04 03 00 00", nullptr, 0 },
     { "MapModeSelect::quit", 0x0077C920u, reinterpret_cast<void*>(&DecompWrap_MapModeSelect_quit), "6A 10 6A 10 B9 ? ? ? ? E8 C9 CC C8 FF 80 88 8A 00 00 00 0F 6A 00 6A 00 6A 00 6A 00 6A 05 6A 00 E8 7B E4 C8 FF 83 C4 18 C2 04 00", nullptr, 0 },
+    { "zoomOutLimit", 0x0077B9A0u, reinterpret_cast<void*>(&DecompWrap_zoomOutLimit), "A1 ? ? ? ? 0F BE 88 0C 10 00 00 C1 E1 05 D9 81 ? ? ? ? C3", nullptr, 0 },
+    { "shopScrnOutFunc", 0x00790210u, reinterpret_cast<void*>(&DecompWrap_shopScrnOutFunc), "55 8B EC F6 05 ? ? ? ? 01 0F 85 81 00 00 00 53 56 57 8B 7D 08 8B 87 AC 02 00 00 50 E8 08 33 C7 FF 8B 8F 10 03 00 00 51 E8 C8 43 C7 FF 83 C4 08 33 DB 89 1D ? ? ? ? 89 1D ? ? ? ? 89", nullptr, 0 },
+    { "SsShopMain::move", 0x00795720u, reinterpret_cast<void*>(&DecompWrap_SsShopMain_move), "55 8B EC 53 56 57 6A 00 8B F1 E8 01 2E C7 FF D9 EE 83 C4 04 6A 00 51 D9 1C 24 68 00 10 00 00 6A 02 68 ? ? ? ? 68 ? ? ? ? 6A 0F E8 E4 E6 C6 FF D9 EE 83 C4 1C 6A 00 51 D9 1C 24 68 00 10", nullptr, 0 },
+    { "SsShopMain::quit", 0x00792490u, reinterpret_cast<void*>(&DecompWrap_SsShopMain_quit), "55 8B EC 8B 45 08 C6 05 ? ? ? ? 00 C7 40 48 ? ? ? ? 5D C2 04 00", nullptr, 0 },
+    { "SellItemNum::init", 0x00790730u, reinterpret_cast<void*>(&DecompWrap_SellItemNum_init), "55 8B EC 8B 45 08 8B 90 10 03 00 00 33 C0 C7 42 0C 01 00 00 00 89 41 10 5D C2 04 00", nullptr, 0 },
+    { "SellConfirm::move", 0x00796560u, reinterpret_cast<void*>(&DecompWrap_SellConfirm_move), "55 8B EC 83 EC 0C 8B 45 08 53 56 57 8B B8 10 03 00 00 6A 01 8B D9 8B 88 14 03 00 00 6A 05 50 89 4D F4 E8 29 BF FF FF 83 C4 0C 6A 1C 68 FC 00 00 00 B9 ? ? ? ? E8 5C 30 C7 FF 8B F0 D9 86 94", nullptr, 0 },
+    { "SellConfirm::quit", 0x00790760u, reinterpret_cast<void*>(&DecompWrap_SellConfirm_quit), "6A 1F 6A 00 B9 ? ? ? ? E8 89 8E C7 FF 80 20 F7 C2 04 00", nullptr, 0 },
+    { "BuyItemNum::init", 0x00790790u, reinterpret_cast<void*>(&DecompWrap_BuyItemNum_init), "55 8B EC 56 57 8B 7D 08 8B 87 10 03 00 00 8B F1 0F B7 48 10 51 8B 8F 14 03 00 00 E8 5B BB C7 FF 88 46 16 8B 97 10 03 00 00 0F B7 42 10 8B 8F 14 03 00 00 50 E8 A1 CA C7 FF 0F BE 4E 16 66 89 46", nullptr, 0 },
+    { "BuyConfirm::init", 0x00790980u, reinterpret_cast<void*>(&DecompWrap_BuyConfirm_init), "55 8B EC 56 8B F1 8B 4D 08 8B 81 10 03 00 00 83 78 40 00 8B 89 14 03 00 00 57 75 4E 8B 50 0C 0F B7 40 10 52 50 E8 C0 DC C7 FF 8B 0D ? ? ? ? 6A 00 6A 00 6A 00 6A 00 39 81 A8 4F 00 00 7C 15", nullptr, 0 },
+    { "BuyPuzzleEnd::init", 0x00790B40u, reinterpret_cast<void*>(&DecompWrap_BuyPuzzleEnd_init), "6A 1C 68 F9 00 00 00 B9 ? ? ? ? E8 A6 8A C7 FF 80 08 08 80 A0 8A 00 00 00 F0 C2 04 00", nullptr, 0 },
+    { "BuyPuzzleEnd::move", 0x00796C30u, reinterpret_cast<void*>(&DecompWrap_BuyPuzzleEnd_move), "55 8B EC 53 56 57 8B 7D 08 8B 87 AC 02 00 00 8B 50 14 8B 9F 10 03 00 00 8B F1 8B 08 52 E8 C7 75 C7 FF 84 C0 0F 84 AB 00 00 00 E8 E1 9B FF FF 8B 46 08 83 78 04 00 74 21 8B 16 8B 42 08 57 8B CE", nullptr, 0 },
+    { "LvUpConfirm::init", 0x00790D50u, reinterpret_cast<void*>(&DecompWrap_LvUpConfirm_init), "55 8B EC 8B 45 08 53 8B 98 14 03 00 00 56 8B F1 57 8B B8 10 03 00 00 8B 47 24 8A 48 06 80 E1 0F FE C1 88 4E 10 8B 57 24 8A 42 06 C0 E8 04 24 0F FE C0 88 46 11 8B 4F 24 8A 51 07 80 E2 0F FE C2", nullptr, 0 },
+    { "LvUpConfirm::quit", 0x00790FF0u, reinterpret_cast<void*>(&DecompWrap_LvUpConfirm_quit), "6A 1D 68 FA 00 00 00 B9 ? ? ? ? E8 F6 85 C7 FF 80 A0 8A 00 00 00 F0 C2 04 00", nullptr, 0 },
+    { "itemTexNo", 0x00791B60u, reinterpret_cast<void*>(&DecompWrap_itemTexNo), "55 8B EC 83 EC 54 A1 ? ? ? ? 33 C5 89 45 FC 8B 45 08 0F B7 C8 83 C0 AC C7 45 AC FF 57 58 59 C7 45 B0 5A 5B 5C 5D C7 45 B4 5E 5F 60 61 C7 45 B8 62 63 64 65 C7 45 BC 66 67 68 70 C7 45 C0 77", nullptr, 0 },
 };
 const unsigned int kDecompEntryCount = sizeof(kDecompEntries) / sizeof(kDecompEntries[0]);
 }

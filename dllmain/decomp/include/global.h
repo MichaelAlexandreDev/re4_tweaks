@@ -408,7 +408,8 @@ DECOMP_GLOBAL(GLOBAL_WK*, pG, 0x00C06F3C);
 // --- added by the em25 port ---
 // System save work (GameCube main.h SYSTEM_SAVE_WORK); eff_country 0 = Japan.
 struct SYSTEM_SAVE_WORK {
-    u8 pad_00[9];
+    u8 pad_00[8];
+    u8 language;       // 0x08  2 = PAL English (ss_shop; re4_tweaks Game.cpp language_8)
     u8 eff_country;    // 0x09  (cEm25 em25PlHeadLost)
 };
 DECOMP_GLOBAL(SYSTEM_SAVE_WORK*, pSys, 0x00C06F40);
