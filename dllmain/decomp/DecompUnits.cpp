@@ -272,7 +272,7 @@ static void __cdecl DecompWrap_InitModule(ReadModule* m) { decomp_count(194); In
 static void __cdecl DecompWrap_EmReadInit() { decomp_count(195); EmReadInit(); }
 static void* __cdecl DecompWrap_EmReadSearch(u8 id, void* data_addr, u32 malloc_size) { decomp_count(196); return EmReadSearch(id, data_addr, malloc_size); }
 static void __fastcall DecompWrap_SsFileInit_init(SsFileInit* self, int, FileSubScreen* wk) { decomp_count(197); self->SsFileInit::init(wk); }
-static void __fastcall DecompWrap_MessageDisplay_quit(MessageDisplay* self, int, FileSubScreen*) { decomp_count(198); self->MessageDisplay::quit(FileSubScreen); }
+static void __fastcall DecompWrap_MessageDisplay_quit(MessageDisplay* self, int, FileSubScreen* a0) { decomp_count(198); self->MessageDisplay::quit(a0); }
 static void __fastcall DecompWrap_SsFileMain_quit(SsFileMain* self, int, FileSubScreen* wk) { decomp_count(199); self->SsFileMain::quit(wk); }
 static void __fastcall DecompWrap_SsItemInit_init(SsItemInit* self, int, ItemSubScreen* wk) { decomp_count(200); self->SsItemInit::init(wk); }
 static void __fastcall DecompWrap_SsItemMain_quit(SsItemMain* self, int, ItemSubScreen* wk) { decomp_count(201); self->SsItemMain::quit(wk); }
