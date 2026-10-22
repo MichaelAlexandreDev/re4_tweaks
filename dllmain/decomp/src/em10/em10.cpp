@@ -2,6 +2,7 @@
 // The original unit uses x87 floating point: no /arch:SSE2.
 // CFLAGS: /O2 /Oy- /GS /MT /EHsc /GR
 #include "em10.h"
+#include "em25.h"
 #include "global.h"
 
 
@@ -663,24 +664,35 @@ static void em10KickHitMark(cEm10* em);
 void __fastcall em10InitRtnSet(cEm10* em);
 void em10_R0_Move(cEm10* em);
 void em10_R1_Hide(cEm10* em);
+void em10_R1_HideFall(cEm10* em);
+void em10_R1_HideJump(cEm10* em);
 void em10_R1_R10CParasite(cEm10* em);
 void em10_R1_R204Prayer(cEm10* em);
 void em10_R1_R21BTrolleyJump(cEm10* em);
+void em10_R1_R21BTrolleyJump2(cEm10* em);
 void em10_R1_R209DashSit(cEm10* em);
 void em10_R1_StickClaw(cEm10* em);
+void em10_R1_R11DAppear1(cEm10* em);
+void em10_R1_R11DAppear2(cEm10* em);
 void em10_R1_FindLost(cEm10* em);
 void em10_R1_R100WalkStay(cEm10* em);
 void em10_R1_R202Finger(cEm10* em);
+void em10_R1_StayWalk(cEm10* em);
+void em10_R1_AttackWait(cEm10* em);
 void em10_R1_R100TurnWalk(cEm10* em);
 void em10_R1_R101Suki(cEm10* em);
 void em10_R1_Work(cEm10* em);
 void em10_R1_R300TakeAshley(cEm10* em);
+void em10_R1_R30FBullJump(cEm10* em);
 void em10_R1_R320Gatling(cEm10* em);
 void em10_R1_R321DeadBody(cEm10* em);
 void em10_R1_R300Gatling(cEm10* em);
 void em10_R1_br_EvtDash(cEm10* em);
+void em10_R1_EvtDash(cEm10* em);
 void em10_R1_br_EvtWalk(cEm10* em);
+void em10_R1_EvtWalk(cEm10* em);
 void em10_R1_Find(cEm10* em);
+void em10_R1_C_SawStart(cEm10* em);
 void em10_R1_br_Walk(cEm10* em);
 void em10_R1_br_Dash(cEm10* em);
 void em10_R1_br_Back(cEm10* em);
@@ -691,7 +703,11 @@ void em10_R1_Threat(cEm10* em);
 void em10_R1_SideStep(cEm10* em);
 void em10_R1_HideSide(cEm10* em);
 void em10_R1_AppearSide(cEm10* em);
+void em10_R1_SitDown(cEm10* em);
 void em10_R1_RoofWait(cEm10* em);
+void em10_R1_Guard(cEm10* em);
+void em10_R1_DownWakeWait(cEm10* em);
+void em10_R1_DownWake(cEm10* em);
 void em10_R1_Crash(cEm10* em);
 void em10_R1_ClimbOver(cEm10* em);
 void em10_R1_DoorAtk(cEm10* em);
@@ -703,29 +719,41 @@ void em10_R1_ThrowBomb(cEm10* em);
 void em10_R1_RocketWait(cEm10* em);
 void em10_R1_br_CSawWalkAtk(cEm10* em);
 void em10_R1_ClawWalkAtk(cEm10* em);
+void em10_R1_br_ClawCriAtk(cEm10* em);
 void em10_R1_br_C_SawAtk(cEm10* em);
 void em10_R1_br_C_SawCriAtk(cEm10* em);
 void em10_R1_br_Catch(cEm10* em);
 void em10_R1_br_DashCatch(cEm10* em);
 void em10_R0_Damage(cEm10* em);
+void em10_R1_Dm_Flash(cEm10* em);
 void em10_R1_Dm_Claw(cEm10* em);
 void em10_R1_Dm_Gatling(cEm10* em);
+void em10_R1_Dm_DashUp(cEm10* em);
+void em10_R1_Dm_Down(cEm10* em);
 void em10_R1_Dm_TakeAway(cEm10* em);
 void em10_R0_Die(cEm10* em);
 extern "C" int em10GetWanderRouteEmi(cEm10* em);
 static u32 em10GetWanderRoute(cEm10* em);
 extern "C" void em10GetWanderRoutePos(cEm10* em, Vec* pos);
 extern "C" u32 em10WanderRouteUpdate(cEm10* em, int no);
+static int em10LostHeadCk(cEm10* em);
 extern "C" void em10CsawSignSe(cEm10* em);
 extern "C" void em10WeaponInit(cEm10* em);
+static void em10HandSet(cEm10* em, int type);
 static int em10ClimbOverCk(cEm10* em);
 static int em10WindowCk(cEm10* em);
+static int em10JumpDownCk(cEm10* em);
+static void em10ReturnStartPosCk(cEm10* em);
+int em10FindCk(cEm10* em, int a);
+static void em10WalkRtnSet(cEm10* em);
 static int em10GotoCk(cEm10* em);
 void em10SetWaitMotion(cEm10* em, int a);
 static void em10SetWalkMotion(cEm10* em, int a);
 static void em10SetDashMotion(cEm10* em);
 extern "C" void em10SetRtnFind(cEm10* em);
 static void em10MouthPartsReset(cEm10* em);
+static int em10RoofDmCk(cEm10* em);
+int em10HideToStepCk(cEm10* em, int a);
 static void em10SetDmWaterEff(cEm10* em, int a);
 extern "C" void em10SetTakeawayPosUpdate(cEm10* em);
 extern "C" int em10ReturnPosCk(cEm10* em);
@@ -751,44 +779,29 @@ DECOMP_FUNC(void, em10_R1_Wait, (cEm10* em), 0x00478340);
 DECOMP_FUNC(void, em10_R1_Keeper, (cEm10* em), 0x004785A0);
 DECOMP_FUNC(void, em10HideOn, (cEm10* em, Em10Work* w), 0x00000000);
 DECOMP_FUNC(void, em10HideOff, (cEm10* em, Em10Work* w), 0x00000000);
-DECOMP_FUNC(void, em10_R1_HideFall, (cEm10* em), 0x0043BD90);
-DECOMP_FUNC(void, em10_R1_HideJump, (cEm10* em), 0x0043BFE0);
 DECOMP_FUNC(void, em10_R1_R10CPCancel, (cEm10* em), 0x00462350);
 DECOMP_FUNC(void, em10_R1_R222DragonA, (cEm10* em), 0x0045C180);
 DECOMP_FUNC(void, em10_R1_R222DragonB, (cEm10* em), 0x0045CB60);
 DECOMP_FUNC(void, em10_R1_R222DragonC, (cEm10* em), 0x0045D5C0);
 DECOMP_FUNC(void, em10_R1_R227Barrel, (cEm10* em), 0x004624E0);
-DECOMP_FUNC(void, em10_R1_R21BTrolleyJump2, (cEm10* em), 0x0043C4A0);
 DECOMP_FUNC(void, em10_R1_R303FireDash, (cEm10* em), 0x0043C620);
 DECOMP_FUNC(void, em10_R1_R10FGJump, (cEm10* em), 0x0044C7A0);
 DECOMP_FUNC(void, em10_R1_R10FGondola, (cEm10* em), 0x0044CE80);
 DECOMP_FUNC(void, em10ClawAtkEnd, (cEm10* em, Em10Work* w), 0x00000000);
-DECOMP_FUNC(void, em10_R1_R11DAppear1, (cEm10* em), 0x0044D800);
-DECOMP_FUNC(void, em10_R1_R11DAppear2, (cEm10* em), 0x00462F40);
 DECOMP_FUNC(void, em10_R1_R212Drill, (cEm10* em), 0x0043C8A0);
 DECOMP_FUNC(void, em10_R1_R209Gatling, (cEm10* em), 0x0044DA70);
 DECOMP_FUNC(void, em10_R1_R201EventWait, (cEm10* em), 0x0043CB80);
-DECOMP_FUNC(void, em10_R1_StayWalk, (cEm10* em), 0x004632A0);
-DECOMP_FUNC(void, em10_R1_AttackWait, (cEm10* em), 0x004634C0);
 DECOMP_FUNC(void, em10_R1_R100Cliff, (cEm10* em), 0x0043D3F0);
 DECOMP_FUNC(void, em10_R1_R101Bucket, (cEm10* em), 0x00478D80);
 DECOMP_FUNC(void, em10_R1_UFOCatch, (cEm10* em), 0x0043D730);
-DECOMP_FUNC(void, em10_R1_R30FBullJump, (cEm10* em), 0x00463990);
 DECOMP_FUNC(void, em10_R1_R101Cart, (cEm10* em), 0x00479B40);
-DECOMP_FUNC(void, em10_R1_EvtDash, (cEm10* em), 0x0043D930);
-DECOMP_FUNC(void, em10_R1_EvtWalk, (cEm10* em), 0x0043DDE0);
 DECOMP_FUNC(void, em10_R1_Pickup, (cEm10* em), 0x00463FA0);
-DECOMP_FUNC(void, em10_R1_C_SawStart, (cEm10* em), 0x00464470);
 DECOMP_FUNC(void, em10_R1_BombIgnition, (cEm10* em), 0x0045DEF0);
 DECOMP_FUNC(void, em10_R1_Walk, (cEm10* em), 0x00479F80);
 DECOMP_FUNC(void, em10_R1_Dash, (cEm10* em), 0x0047A720);
 DECOMP_FUNC(void, em10_R1_Goto, (cEm10* em), 0x0047B030);
 DECOMP_FUNC(void, em10_R1_GuardWalk, (cEm10* em), 0x004649E0);
-DECOMP_FUNC(void, em10_R1_SitDown, (cEm10* em), 0x00466670);
 DECOMP_FUNC(void, em10_R1_Stay, (cEm10* em), 0x00466C20);
-DECOMP_FUNC(void, em10_R1_Guard, (cEm10* em), 0x00467A50);
-DECOMP_FUNC(void, em10_R1_DownWakeWait, (cEm10* em), 0x0043E0E0);
-DECOMP_FUNC(void, em10_R1_DownWake, (cEm10* em), 0x00467EB0);
 DECOMP_FUNC(void, em10_R1_WindowAtk, (cEm10* em), 0x00468960);
 DECOMP_FUNC(void, em10_R1_LadderClimb, (cEm10* em), 0x00468D10);
 DECOMP_FUNC(void, em10_R1_VLadderClimb, (cEm10* em), 0x00469600);
@@ -812,7 +825,6 @@ DECOMP_FUNC(void, em10_R1_SukiAtk, (cEm10* em), 0x0046F7D0);
 DECOMP_FUNC(void, em10_R1_ScytheAtk, (cEm10* em), 0x0046FE60);
 DECOMP_FUNC(void, em10_R1_ClawAtk, (cEm10* em), 0x00470440);
 DECOMP_FUNC(void, em10_R1_CSawWalkAtk, (cEm10* em), 0x0045E980);
-DECOMP_FUNC(void, em10_R1_br_ClawCriAtk, (cEm10* em), 0x0045EFD0);
 DECOMP_FUNC(void, em10_R1_ClawCriAtk, (cEm10* em), 0x00471350);
 DECOMP_FUNC(void, em10_R1_ClawCriHit, (cEm10* em), 0x0043EA20);
 DECOMP_FUNC(void, plem10_ClawCriHit, (cPlayer* pl), 0x00000000);
@@ -839,14 +851,12 @@ DECOMP_FUNC(void, subem10_TakeAway, (cSubChar* sub), 0x00000000);
 DECOMP_FUNC(void, em10CamMoveTakeaway, (cEm10* em), 0x0042B060);
 DECOMP_FUNC(void, em10_R1_Dm_Small, (cEm10* em), 0x00475800);
 DECOMP_FUNC(void, em10_R1_Dm_Head, (cEm10* em), 0x00476E20);
-DECOMP_FUNC(void, em10_R1_Dm_Flash, (cEm10* em), 0x004773D0);
 DECOMP_FUNC(void, em10_R1_Dm_Claw_Big, (cEm10* em), 0x00477A40);
 DECOMP_FUNC(void, em10_R1_Dm_FS, (cEm10* em), 0x0045F1A0);
 DECOMP_FUNC(void, em10_R1_Dm_KneeKick, (cEm10* em), 0x0045F750);
 DECOMP_FUNC(void, em10_R1_Dm_NeckBreak, (cEm10* em), 0x00440B50);
 DECOMP_FUNC(void, em10_R1_Dm_Showtay, (cEm10* em), 0x00440ED0);
 DECOMP_FUNC(void, em10_R1_Dm_Heel, (cEm10* em), 0x00460050);
-DECOMP_FUNC(void, em10_R1_Dm_DashUp, (cEm10* em), 0x00477ED0);
 DECOMP_FUNC(void, em10_R1_Dm_DashDown, (cEm10* em), 0x00441660);
 DECOMP_FUNC(void, em10_R1_Dm_Blow, (cEm10* em), 0x00441890);
 DECOMP_FUNC(void, em10_R1_Dm_Fence, (cEm10* em), 0x00442B00);
@@ -854,7 +864,6 @@ DECOMP_FUNC(void, em10_R1_Dm_Ladder, (cEm10* em), 0x00442DA0);
 DECOMP_FUNC(void, em10_R1_Dm_Roof, (cEm10* em), 0x004433D0);
 DECOMP_FUNC(void, em10_R1_Dm_KneeDown, (cEm10* em), 0x00443F60);
 DECOMP_FUNC(void, em10_R1_Dm_KnockOut, (cEm10* em), 0x00444290);
-DECOMP_FUNC(void, em10_R1_Dm_Down, (cEm10* em), 0x004445E0);
 DECOMP_FUNC(void, em10_R1_Dm_Frame, (cEm10* em), 0x00444750);
 DECOMP_FUNC(void, em10_R1_Die_Cramp, (cEm10* em), 0x004507E0);
 DECOMP_FUNC(void, em10_R1_Die_Lost, (cEm10* em), 0x00450C80);
@@ -866,13 +875,12 @@ DECOMP_FUNC(void, em10RouteCk, (cEm10* em), 0x00451630);
 DECOMP_FUNC(int, em10GetGoSub, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10RouteTargetSet, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10SetWanderRoute, (cEm10* em), 0x0042B4A0);
-DECOMP_FUNC(int, em10AtkRtnCk, (cEm10* em, int a), 0x00460AF0);
+DECOMP_FUNC(int, em10AtkRtnCk, (cEm10* em, int a), 0x00000000);
 DECOMP_FUNC(int, em10CatchPLRtnCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10CatchSubRtnCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10CatchCk, (cEm10* em), 0x0042B7F0);
 DECOMP_FUNC(int, em10CatchSubCk, (cEm10* em), 0x0042BC20);
 DECOMP_FUNC(int, em10CsawHitCk, (cEm10* em), 0x0042C0D0);
-DECOMP_FUNC(int, em10LostHeadCk, (cEm10* em), 0x0042C3E0);
 DECOMP_FUNC(int, em10LostHead, (cEm10* em, int a, int b), 0x00452BC0);
 DECOMP_FUNC(void, em10CallVoiceSe, (cEm10* em, u16 no), 0x0042C4A0);
 DECOMP_FUNC(void, em10CallVoiceSe2, (cEm10* em, u16 no, u16 a), 0x0042C640);
@@ -885,7 +893,6 @@ DECOMP_FUNC(void, em10WeaponSet, (cEm10* em), 0x0042D880);
 DECOMP_FUNC(void, em10WeaponSet2, (cEm10* em), 0x004460D0);
 DECOMP_FUNC(void, em10WepSeEffSet, (cEm10* em, cEmWep* wep, int type), 0x00000000);
 DECOMP_FUNC(void, em10ShieldSet, (cEm10* em), 0x0042DEE0);
-DECOMP_FUNC(void, em10HandSet, (cEm10* em, int type), 0x0042E0B0);
 DECOMP_FUNC(void, em10HeadSet, (cEm10* em, int no), 0x0042E480);
 DECOMP_FUNC(void, em10ClothPartsSet, (cEm10* em, int no), 0x00000000);
 DECOMP_FUNC(void, em10GoodsPartsSet, (cEm10* em, int on), 0x00000000);
@@ -902,10 +909,8 @@ DECOMP_FUNC(int, em10LadderClimbCk, (cEm10* em), 0x00447160);
 DECOMP_FUNC(int, em10VLadderClimbCk, (cEm10* em), 0x004475C0);
 DECOMP_FUNC(int, em10LadderResetCk, (cEm10* em), 0x0042EF30);
 DECOMP_FUNC(int, em10JumpDownCk2, (cEm10* em), 0x00447750);
-DECOMP_FUNC(int, em10JumpDownCk, (cEm10* em), 0x004540F0);
 DECOMP_FUNC(int, em10JumpCk, (cEm10* em), 0x00437E00);
 DECOMP_FUNC(int, em10BullJumpCk, (cEm10* em), 0x00000000);
-DECOMP_FUNC(void, em10ReturnStartPosCk, (cEm10* em), 0x0042EB40);
 DECOMP_FUNC(int, em10ParasiteAtkCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10ShotBowgunCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10ShotRocketCk, (cEm10* em), 0x00000000);
@@ -925,14 +930,12 @@ DECOMP_FUNC(int, em10HeadLockCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10NeckMove, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10WaistMove, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10ScaleCompress, (cEm10* em), 0x00000000);
-DECOMP_FUNC(int, em10FindCk, (cEm10* em, int a), 0x00000000);
 DECOMP_FUNC(int, em10FindCk2, (cEm10* em), 0x004305E0);
 DECOMP_FUNC(int, em10SomebodyFindNowCk, (cEm10* em), 0x004490F0);
 DECOMP_FUNC(int, em10FindFloorCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10SomebodyDamageNowCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10SomebodyNearCk, (cEm10* em), 0x00449380);
 DECOMP_FUNC(void, em10FindNotify, (cEm10* em), 0x00449490);
-DECOMP_FUNC(void, em10WalkRtnSet, (cEm10* em), 0x00478050);
 DECOMP_FUNC(int, em10BackCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10SlopeMove, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10CamMove, (cEm10* em, int no, f32 rate, int shake), 0x00000000);
@@ -973,14 +976,12 @@ DECOMP_FUNC(void, em10TradeAction, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, plem10KickCamMove, (cPlayer* pl, int a), 0x00000000);
 DECOMP_FUNC(void, em10SetCrash, (cEm10* em, f32 r), 0x00000000);
 DECOMP_FUNC(int, em10CrashCk, (cEm10* em), 0x00000000);
-DECOMP_FUNC(int, em10RoofDmCk, (cEm10* em), 0x0044BF80);
 DECOMP_FUNC(void, em10FootSe, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10DootAtkCk, (cEm10* em), 0x00000000);
 DECOMP_FUNC(int, em10ThrowNearCk, (cEm10* em), 0x0044AB60);
 DECOMP_FUNC(void, em10BlendMotSet, (cEm10* em, void* m0, void* m1, void* m2, int a, int b, int c, int d), 0x00000000);
 DECOMP_FUNC(int, em10HideRtnCk, (cEm10* em), 0x00436570);
 DECOMP_FUNC(int, em10HideRtnCk2, (cEm10* em), 0x00000000);
-DECOMP_FUNC(int, em10HideToStepCk, (cEm10* em, int a), 0x00436FC0);
 DECOMP_FUNC(void, em10BowgunMove, (cEm10* em), 0x00000000);
 DECOMP_FUNC(void, em10BehindSeCk, (cEm10* em), 0x004372D0);
 DECOMP_FUNC(int, em10SetDmVal, (cEm10* em), 0x00000000);
@@ -1027,44 +1028,29 @@ void em10_R1_Wait(cEm10* em);
 void em10_R1_Keeper(cEm10* em);
 inline void em10HideOn(cEm10* em, Em10Work* w);
 inline void em10HideOff(cEm10* em, Em10Work* w);
-void em10_R1_HideFall(cEm10* em);
-void em10_R1_HideJump(cEm10* em);
 void em10_R1_R10CPCancel(cEm10* em);
 void em10_R1_R222DragonA(cEm10* em);
 void em10_R1_R222DragonB(cEm10* em);
 void em10_R1_R222DragonC(cEm10* em);
 void em10_R1_R227Barrel(cEm10* em);
-void em10_R1_R21BTrolleyJump2(cEm10* em);
 void em10_R1_R303FireDash(cEm10* em);
 void em10_R1_R10FGJump(cEm10* em);
 void em10_R1_R10FGondola(cEm10* em);
 inline void em10ClawAtkEnd(cEm10* em, Em10Work* w);
-void em10_R1_R11DAppear1(cEm10* em);
-void em10_R1_R11DAppear2(cEm10* em);
 void em10_R1_R212Drill(cEm10* em);
 void em10_R1_R209Gatling(cEm10* em);
 void em10_R1_R201EventWait(cEm10* em);
-void em10_R1_StayWalk(cEm10* em);
-void em10_R1_AttackWait(cEm10* em);
 void em10_R1_R100Cliff(cEm10* em);
 void em10_R1_R101Bucket(cEm10* em);
 void em10_R1_UFOCatch(cEm10* em);
-void em10_R1_R30FBullJump(cEm10* em);
 void em10_R1_R101Cart(cEm10* em);
-void em10_R1_EvtDash(cEm10* em);
-void em10_R1_EvtWalk(cEm10* em);
 void em10_R1_Pickup(cEm10* em);
-void em10_R1_C_SawStart(cEm10* em);
 void em10_R1_BombIgnition(cEm10* em);
 void em10_R1_Walk(cEm10* em);
 void em10_R1_Dash(cEm10* em);
 void em10_R1_Goto(cEm10* em);
 void em10_R1_GuardWalk(cEm10* em);
-void em10_R1_SitDown(cEm10* em);
 void em10_R1_Stay(cEm10* em);
-void em10_R1_Guard(cEm10* em);
-void em10_R1_DownWakeWait(cEm10* em);
-void em10_R1_DownWake(cEm10* em);
 void em10_R1_WindowAtk(cEm10* em);
 void em10_R1_LadderClimb(cEm10* em);
 void em10_R1_VLadderClimb(cEm10* em);
@@ -1088,7 +1074,6 @@ void em10_R1_SukiAtk(cEm10* em);
 void em10_R1_ScytheAtk(cEm10* em);
 void em10_R1_ClawAtk(cEm10* em);
 void em10_R1_CSawWalkAtk(cEm10* em);
-void em10_R1_br_ClawCriAtk(cEm10* em);
 void em10_R1_ClawCriAtk(cEm10* em);
 void em10_R1_ClawCriHit(cEm10* em);
 void plem10_ClawCriHit(cPlayer* pl);
@@ -1115,14 +1100,12 @@ void subem10_TakeAway(cSubChar* sub);
 extern "C" void em10CamMoveTakeaway(cEm10* em);
 void em10_R1_Dm_Small(cEm10* em);
 void em10_R1_Dm_Head(cEm10* em);
-void em10_R1_Dm_Flash(cEm10* em);
 void em10_R1_Dm_Claw_Big(cEm10* em);
 void em10_R1_Dm_FS(cEm10* em);
 void em10_R1_Dm_KneeKick(cEm10* em);
 void em10_R1_Dm_NeckBreak(cEm10* em);
 void em10_R1_Dm_Showtay(cEm10* em);
 void em10_R1_Dm_Heel(cEm10* em);
-void em10_R1_Dm_DashUp(cEm10* em);
 void em10_R1_Dm_DashDown(cEm10* em);
 void em10_R1_Dm_Blow(cEm10* em);
 void em10_R1_Dm_Fence(cEm10* em);
@@ -1130,7 +1113,6 @@ void em10_R1_Dm_Ladder(cEm10* em);
 void em10_R1_Dm_Roof(cEm10* em);
 void em10_R1_Dm_KneeDown(cEm10* em);
 void em10_R1_Dm_KnockOut(cEm10* em);
-void em10_R1_Dm_Down(cEm10* em);
 void em10_R1_Dm_Frame(cEm10* em);
 void em10_R1_Die_Cramp(cEm10* em);
 void em10_R1_Die_Lost(cEm10* em);
@@ -1148,7 +1130,6 @@ extern "C" int em10CatchSubRtnCk(cEm10* em);
 int em10CatchCk(cEm10* em);
 int em10CatchSubCk(cEm10* em);
 int em10CsawHitCk(cEm10* em);
-int em10LostHeadCk(cEm10* em);
 int em10LostHead(cEm10* em, int a, int b);
 extern "C" void em10CallVoiceSe(cEm10* em, u16 no);
 void em10CallVoiceSe2(cEm10* em, u16 no, u16 a);
@@ -1161,7 +1142,6 @@ void em10WeaponSet(cEm10* em);
 extern "C" void em10WeaponSet2(cEm10* em);
 extern "C" void em10WepSeEffSet(cEm10* em, cEmWep* wep, int type);
 extern "C" void em10ShieldSet(cEm10* em);
-void em10HandSet(cEm10* em, int type);
 void em10HeadSet(cEm10* em, int no);
 extern "C" void em10ClothPartsSet(cEm10* em, int no);
 extern "C" void em10GoodsPartsSet(cEm10* em, int on);
@@ -1178,10 +1158,8 @@ int em10LadderClimbCk(cEm10* em);
 int em10VLadderClimbCk(cEm10* em);
 int em10LadderResetCk(cEm10* em);
 extern "C" int em10JumpDownCk2(cEm10* em);
-int em10JumpDownCk(cEm10* em);
 int em10JumpCk(cEm10* em);
 extern "C" int em10BullJumpCk(cEm10* em);
-void em10ReturnStartPosCk(cEm10* em);
 extern "C" int em10ParasiteAtkCk(cEm10* em);
 extern "C" int em10ShotBowgunCk(cEm10* em);
 extern "C" int em10ShotRocketCk(cEm10* em);
@@ -1201,14 +1179,12 @@ extern "C" int em10HeadLockCk(cEm10* em);
 void em10NeckMove(cEm10* em);
 void em10WaistMove(cEm10* em);
 void em10ScaleCompress(cEm10* em);
-int em10FindCk(cEm10* em, int a);
 int em10FindCk2(cEm10* em);
 extern "C" int em10SomebodyFindNowCk(cEm10* em);
 int em10FindFloorCk(cEm10* em);
 extern "C" int em10SomebodyDamageNowCk(cEm10* em);
 int em10SomebodyNearCk(cEm10* em);
 void em10FindNotify(cEm10* em);
-void em10WalkRtnSet(cEm10* em);
 extern "C" int em10BackCk(cEm10* em);
 void em10SlopeMove(cEm10* em);
 extern "C" void em10CamMove(cEm10* em, int no, f32 rate, int shake);
@@ -1249,14 +1225,12 @@ void em10TradeAction(cEm10* em);
 extern "C" void plem10KickCamMove(cPlayer* pl, int a);
 void em10SetCrash(cEm10* em, f32 r);
 int em10CrashCk(cEm10* em);
-int em10RoofDmCk(cEm10* em);
 void em10FootSe(cEm10* em);
 extern "C" int em10DootAtkCk(cEm10* em);
 extern "C" int em10ThrowNearCk(cEm10* em);
 extern "C" void em10BlendMotSet(cEm10* em, void* m0, void* m1, void* m2, int a, int b, int c, int d);
 extern "C" int em10HideRtnCk(cEm10* em);
 int em10HideRtnCk2(cEm10* em);
-int em10HideToStepCk(cEm10* em, int a);
 void em10BowgunMove(cEm10* em);
 extern "C" void em10BehindSeCk(cEm10* em);
 int em10SetDmVal(cEm10* em);
@@ -2041,7 +2015,7 @@ void em10_R0_Move(cEm10* em)
 // R1 == 0x61: room 21B trolley Ganado. On the release flag jumps down at once (JumpDown 0x43 with
 // flags 0x10080000: airborne, no scenario adjust).
 // FUNCTION: BIO4 0x0043C3E0
-// STATUS: stub
+// STATUS: matching
 void em10_R1_R21BTrolleyJump(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -2092,7 +2066,7 @@ void em10_R1_Work(cEm10* em)
 
 // R1 == 0x66: room 300 Ganado carrying Ashley off: plays motion 0x2A0/0x2A6 once.
 // FUNCTION: BIO4 0x0043D8A0
-// STATUS: stub
+// STATUS: matching
 void em10_R1_R300TakeAshley(cEm10* em)
 {
     switch (em->r_no_2) {
@@ -2279,7 +2253,6 @@ extern "C" u32 em10WanderRouteUpdate(cEm10* em, int no)
 // while the eye glow (parasite) effect is enabled for the room, every other type always.
 // FUNCTION: BIO4 0x0042C3E0
 // STATUS: stub
-#if 0 // PARKED: C2227, pSys
 static int em10LostHeadCk(cEm10* em)
 {
     if (pSys->eff_country != 0) {
@@ -2320,12 +2293,11 @@ static int em10LostHeadCk(cEm10* em)
         return 1;
     }
 }
-#endif // PARKED
 
 // Chainsaw Ganado: puts the sack over the head (pSack, hides the head part, effect 0x55).
 // FUNCTION: BIO4 0x0042E690
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, ModInfoMgr, addModel, swapModelInfo
+#if 0 // PARKED: C2227
 extern "C" void em10SackSet(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -2383,7 +2355,6 @@ static int em10ClimbOverCk(cEm10* em)
 // Wrapper of em10ReturnPosCk (the walk / dash branch checks).
 // FUNCTION: BIO4 0x0042EB40
 // STATUS: stub
-#if 0 // PARKED: EmDeadCk
 static void em10ReturnStartPosCk(cEm10* em)
 {
     em10ReturnPosCk(em);
@@ -2510,7 +2481,6 @@ int em10FindCk(cEm10* em, int a)
         return 0;
     }
 }
-#endif // PARKED
 
 // 1 when the Ganado is alive and has found the player (work flag 0x100).
 // FUNCTION: BIO4 0x00433B30
@@ -2667,7 +2637,7 @@ void cEm10::setGatling(cObjGatling* g, void* m0, void* m1, void* m2, void* m3)
 // Finds the alive truck enemy (id 0x3B) for the driver (pTruck); returns non-NULL when found.
 // FUNCTION: BIO4 0x0044B1F0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, EM3B_WK, EmMgr
+#if 0 // PARKED: C2227, EM3B_WK, fastAt, getArrayNum
 extern "C" cModel* em10SearchTruck(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -2814,7 +2784,7 @@ int em10FindLostCk(cEm10* em)
 // The room 10F gondola object (id 0x35) the player rides (ckRide), or NULL.
 // FUNCTION: BIO4 0x0044B620
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, ObjMgr, cObj, cObjGondola
+#if 0 // PARKED: C2227, C2228, ObjMgr, cObjGondola
 static cObjGondola* em10GetGondola(cEm10* em)
 {
     cObj* o;
@@ -2961,7 +2931,7 @@ void cEm10::setNoSuspend(int on)
 // Ganado's arrow on a hit to its quiver part, and makes the Ganado find the player.
 // FUNCTION: BIO4 0x00457D30
 // STATUS: stub
-#if 0 // PARKED: C2051, C2227, C2228, DMG_TYPE_ENV_FIRE, DMG_TYPE_FIRE, DMG_TYPE_FLAME, DMG_TYPE_LAMP, DmgMgr, EmDeadCk, LVADD_CRITICALHIT, LifeDownSet, LifeDownSet2, YARARE_INFO, pLog, part
+#if 0 // PARKED: C2227, LVADD_CRITICALHIT, initializing
 static void em10DmCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -3192,7 +3162,7 @@ static void em10DmCk(cEm10* em)
 // work flag, Wesker's Dm_Heel, or Dm_Showtay for weapon 0x25; a killing blow at the head loses it.
 // FUNCTION: BIO4 0x00458800
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, YARARE_INFO, part, set
+#if 0 // PARKED: initializing, set
 void em10DmSetWep00(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -3266,7 +3236,7 @@ void em10DmSetWep00(cEm10* em)
 // robed type 6 dies at once, type 2 / 0xA / 0xD / 0x16 use the gatling / claw reactions.
 // FUNCTION: BIO4 0x00458B90
 // STATUS: stub
-#if 0 // PARKED: C2227, EmReserveDropItem, EmSetDie, LVADD_CRITICALHIT, YARARE_INFO, part
+#if 0 // PARKED: EmReserveDropItem, EmSetDie, LVADD_CRITICALHIT, initializing
 void em10DmSetWep02(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -3566,7 +3536,7 @@ void em10DmSetWep02(cEm10* em)
 // loses it, chainsaw Ganados only flinch, shield carriers take Dm_Small.
 // FUNCTION: BIO4 0x00459860
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, LVADD_CRITICALHIT, YARARE_INFO, part
+#if 0 // PARKED: LVADD_CRITICALHIT, initializing
 void em10DmSetWep03(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -3784,7 +3754,7 @@ void em10DmSetWep03(cEm10* em)
 // otherwise the Ganado is blown away (Dm_Blow) or reacts like a bullet hit on the gatling / claw types.
 // FUNCTION: BIO4 0x0045A110
 // STATUS: stub
-#if 0 // PARKED: C2227, G_ROOM_ID, LVADD_CRITICALHIT, YARARE_INFO, part, set
+#if 0 // PARKED: G_ROOM_ID, LVADD_CRITICALHIT, initializing, set
 void em10DmSetWep09(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -4081,7 +4051,7 @@ void em10DmSetWep23(cEm10* em)
 // Damage blood / hit effect by weapon (near: the shot came from close range).
 // FUNCTION: BIO4 0x00435780
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, C2228, Camera, Ctrl12Ck, EmDmBloodSet2, EmGetDmPos, YARARE_INFO, cEsp, cam, esp, part
+#if 0 // PARKED: C1003, C2227, C2228, Camera, cEsp, cam, esp
 static void em10BloodSet(cEm10* em, int near)
 {
     Em10Work* w = EM10_WK(em);
@@ -4336,7 +4306,7 @@ static void em10BloodSet(cEm10* em, int near)
 // the lit dynamite countdown (Fire_timer -> Die_Bomb), and the hit boxes of the core and shield.
 // FUNCTION: BIO4 0x0045AE20
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, Camera, EffectEfmDelete, EffectEspDelete, EffectEspgenDelete, Em18ClothMove, EmAtCheck, EmMgr, EstSet, G_ROOM_ID, MotionSetCore, PartsWorldPosCalc, PlWepHitCheck2, SatMgr, VEC_DISTXZ, cObj12, cam, f32, getPartsPtr, hit, isAlive, move, pParts, partsFixAdjust, partsWorldCalc, setLost
+#if 0 // PARKED: C2227, C2228, Camera, Em18ClothMove, EstSet, G_ROOM_ID, MotionSetCore, PartsWorldPosCalc, PlWepHitCheck2, VEC_DISTXZ, cObj12, cam, f32, getPartsPtr, hit, isAlive, move, pParts, partsFixAdjust, partsWorldCalc, setLost
 void cEm10::move()
 {
     Em10Work* w = EM10_WK(this);
@@ -4684,7 +4654,7 @@ void cEm10::move()
 // (em10InitRtnSet), then runs the first R0_Move frame.
 // FUNCTION: BIO4 0x00461580
 // STATUS: stub
-#if 0 // PARKED: C1003, C2228, Em18ClothSet, EspDataLoad, GetCtrlCtrl11, GetCtrlCtrl12, YAT_FLAG_ON, YAT_FLAG_Z_AXIS, YarareInit, em10_xflip_tbl, fRand1_1, flip, init
+#if 0 // PARKED: C1003, C2228, Em18ClothSet, GetCtrlCtrl11, GetCtrlCtrl12, YAT_FLAG_X_AXIS, YAT_FLAG_Z_AXIS, em10_xflip_tbl, fRand1_1, flip, hit, init
 void em10_R0_Init(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -5091,7 +5061,6 @@ void em10_R1_Hide(cEm10* em)
 // with Keep_pos at the floor height).
 // FUNCTION: BIO4 0x0043BD90
 // STATUS: stub
-#if 0 // PARKED: C2228, SatMgr
 void em10_R1_HideFall(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -5120,13 +5089,11 @@ void em10_R1_HideFall(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x04 HideJump: hidden until released, then dashes towards the player until the floor 200
 // units ahead drops away by 350, and jumps down there (JumpDown 0x43).
 // FUNCTION: BIO4 0x0043BFE0
 // STATUS: stub
-#if 0 // PARKED: C2228, RouteCkToPos, SatMgr
 void em10_R1_HideJump(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -5179,7 +5146,6 @@ void em10_R1_HideJump(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x4A: room 10C scripted head burst. Waits for the release flag, plays the event motion and
 // at frame 201 the parasite bursts out of the head (em10LostHead mode 2), then walks (motion 7).
@@ -5220,7 +5186,7 @@ void em10_R1_R10CParasite(cEm10* em)
 // swap, hides the hood / accessories), marks the Ganado found and goes to the walk routine.
 // FUNCTION: BIO4 0x00462350
 // STATUS: stub
-#if 0 // PARKED: C2227, Ctrl12CntAdd, EffectEfmDelete, EffectEspDelete, EffectEspgenDelete
+#if 0 // PARKED: C2227, Ctrl12CntAdd
 void em10_R1_R10CPCancel(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -5759,7 +5725,7 @@ void em10_R1_R222DragonC(cEm10* em)
 // when the player gets within 2000 units of height.
 // FUNCTION: BIO4 0x004624E0
 // STATUS: stub
-#if 0 // PARKED: C2059
+#if 0 // PARKED: setClose
 void em10_R1_R227Barrel(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -5800,7 +5766,6 @@ void em10_R1_R227Barrel(cEm10* em)
 // dashes until em10JumpDownCk finds an edge to jump off.
 // FUNCTION: BIO4 0x0043C4A0
 // STATUS: stub
-#if 0 // PARKED: EstSet
 void em10_R1_R21BTrolleyJump2(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -5838,13 +5803,12 @@ void em10_R1_R21BTrolleyJump2(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x63: room 303 burning Ganado. Starts dead-red (colour 0x80/0x30/0x30, burning cap) with no
 // collision; on release it comes alive with full hp and dash-catches the player (DashCatch 0x39).
 // FUNCTION: BIO4 0x0043C620
 // STATUS: stub
-#if 0 // PARKED: C2227, cModelInfo, cObj12
+#if 0 // PARKED: C2227, cObj12, color, pList
 void em10_R1_R303FireDash(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -6024,7 +5988,7 @@ void em10_R1_R10FGJump(cEm10* em)
 // position, then re-arms with Wep_type2 (em10MakeWeapon) and throws again.
 // FUNCTION: BIO4 0x0044CE80
 // STATUS: stub
-#if 0 // PARKED: Em10AtkTbl, VECNormalize, fRand1_1, mat, setThrow, setThrowScythe, throughOn
+#if 0 // PARKED: Em10AtkTbl, VECNormalize, fRand1_1, setThrow, setThrowScythe, throughOn
 void em10_R1_R10FGondola(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -6281,7 +6245,6 @@ void em10_R1_StickClaw(cEm10* em)
 // (jumping down / climbing over obstacles on the way).
 // FUNCTION: BIO4 0x0044D800
 // STATUS: stub
-#if 0 // PARKED: EstSet
 void em10_R1_R11DAppear1(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -6325,13 +6288,11 @@ void em10_R1_R11DAppear1(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x5B: room 11D chainsaw Ganado appearance 2: waits for the release flag, revs the chainsaw
 // (SE 0x50) through the event motion (setR11DMotion evtMot[0]), screams at frame 40, then walks.
 // FUNCTION: BIO4 0x00462F40
 // STATUS: stub
-#if 0 // PARKED: EstSet
 void em10_R1_R11DAppear2(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -6371,14 +6332,13 @@ void em10_R1_R11DAppear2(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x5C: room 212 Ganado riding the drill (pDrill; EM10_DRILL_FOLLOW keeps it on the root
 // part). Idle, then the drive motion (evtMot[0]); when killed plays the die motion evtMot[1] and
 // scores the kill (em10SetPoint).
 // FUNCTION: BIO4 0x0043C8A0
 // STATUS: stub
-#if 0 // PARKED: AtariOff, C2227, C2228, EmReserveDropItem, EmSetDie
+#if 0 // PARKED: C2227, C2228, EmReserveDropItem, EmSetDie
 void em10_R1_R212Drill(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -6430,7 +6390,7 @@ void em10_R1_R212Drill(cEm10* em)
 // Room 209: Ganado on the mounted gatling (evtMot[0..3] = fire / reload / hit / die, setGatling).
 // FUNCTION: BIO4 0x0044DA70
 // STATUS: stub
-#if 0 // PARKED: AtariOff, C2227, C2228, Ctrl12CntAdd, EmSetDie, cObjGatling, initializing
+#if 0 // PARKED: C2227, C2228, Ctrl12CntAdd, EmSetDie, cObjGatling, initializing
 void em10_R1_R209Gatling(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -6728,7 +6688,6 @@ void em10_R1_R202Finger(cEm10* em)
 // until a goto arrives, then marks the player found and walks (em10WalkRtnSet).
 // FUNCTION: BIO4 0x004632A0
 // STATUS: stub
-#if 0 // PARKED: EstSet
 void em10_R1_StayWalk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -6771,12 +6730,10 @@ void em10_R1_StayWalk(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // Waits for the player to come in front of the Ganado, then picks the weapon's attack routine.
 // FUNCTION: BIO4 0x004634C0
 // STATUS: stub
-#if 0 // PARKED: EstSet
 void em10_R1_AttackWait(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -6875,7 +6832,6 @@ void em10_R1_AttackWait(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x05: room 100 villager: idles 90 frames, plays the turn motion (shield / claw variants),
 // then walks off with motion 7; damage is only held (dmg.m_Timer 0x80).
@@ -6938,7 +6894,7 @@ void em10_R1_R100TurnWalk(cEm10* em)
 // own or in sync with the other set 2/3/4 Ganados, then fades out (invisible_factor) and goes inactive.
 // FUNCTION: BIO4 0x0043D3F0
 // STATUS: stub
-#if 0 // PARKED: C2228, EmMgr, EmSetDie
+#if 0 // PARKED: EmSetDie, fastAt, getArrayNum
 void em10_R1_R100Cliff(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -7030,7 +6986,7 @@ void em10_R1_R100Cliff(cEm10* em)
 // Room 101: the Ganado carrying a bucket between the two positions of its route (x38D picks it).
 // FUNCTION: BIO4 0x00478D80
 // STATUS: stub
-#if 0 // PARKED: C1003, C2228, EffectEspDelete, Motion, MotionSetCore, RouteCkToPos, ang, em10_r101_bucket_pos2
+#if 0 // PARKED: em10_r101_bucket_pos, em10_r101_bucket_pos2
 void em10_R1_R101Bucket(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -7240,7 +7196,6 @@ void em10_R1_UFOCatch(cEm10* em)
 // 0x31 / 0x17, then walks with a 15-frame attack delay.
 // FUNCTION: BIO4 0x00463990
 // STATUS: stub
-#if 0 // PARKED: C2228, SatMgr
 void em10_R1_R30FBullJump(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -7293,7 +7248,6 @@ void em10_R1_R30FBullJump(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x68: room 320 gatling-room Ganado: idles already alerted (flag 0x100) and turns to the
 // player until it sees him (em10FindCk) or the room's goto arrives, then walks / attacks.
@@ -7374,7 +7328,7 @@ void em10_R1_R300Gatling(cEm10* em)
 // points, with the cart creak SE / effect 0x16 every 15..45 frames; drops it for the player.
 // FUNCTION: BIO4 0x00479B40
 // STATUS: stub
-#if 0 // PARKED: C2227, EstSet, MotionSetCore, RouteCkToPos, cObj12, em10_r101_cart_route
+#if 0 // PARKED: C2227, EstSet, MotionSetCore, cObj12, em10_r101_cart_route
 void em10_R1_R101Cart(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -7438,7 +7392,6 @@ void em10_R1_R101Cart(cEm10* em)
 // chainsaw appear motion 0xE7.
 // FUNCTION: BIO4 0x0043D930
 // STATUS: stub
-#if 0 // PARKED: EstSet
 void em10_R1_EvtDash(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -7502,13 +7455,11 @@ void em10_R1_EvtDash(cEm10* em)
     em10BreathSe(em);
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x0B EvtWalk: scripted walk (motion 7, chainsaw started) for 120 frames, then the normal
 // Walk (0x10) with a random Route_type.
 // FUNCTION: BIO4 0x0043DDE0
 // STATUS: stub
-#if 0 // PARKED: EstSet
 void em10_R1_EvtWalk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -7547,7 +7498,6 @@ void em10_R1_EvtWalk(cEm10* em)
     em10BreathSe(em);
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x0C Pickup: picks the weapon up from the ground / takes the second weapon (Wep_type2 ->
 // pWep via em10MakeWeapon or pWeapon2, em10WeaponSet), then starts the chainsaw (C_SawStart 0x0E),
@@ -7664,7 +7614,6 @@ void em10_R1_Find(cEm10* em)
 // work flag 0x80000000 = saw running), notifies the others and dashes / walks / turns (Turn180).
 // FUNCTION: BIO4 0x00464470
 // STATUS: stub
-#if 0 // PARKED: EstSet
 void em10_R1_C_SawStart(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -7709,7 +7658,6 @@ void em10_R1_C_SawStart(cEm10* em)
     em10BreathSe(em);
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x0F BombIgnition: the dynamite Ganado lights the fuse (motion 0x7E, fuse effects 0x2D /
 // 0x2F, SE 0x94) and goes to the throw check (em10ThrowBombCk) or the dash.
@@ -7949,7 +7897,7 @@ void em10_R1_br_Dash(cEm10* em)
 // target is behind, the chainsaw walk attack (0x6D), and the SEs.
 // FUNCTION: BIO4 0x0047A720
 // STATUS: stub
-#if 0 // PARKED: C2228, DMG_TYPE_PUSH, DmgMgr
+#if 0 // PARKED: set
 void em10_R1_Dash(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -8156,7 +8104,7 @@ void em10_R1_br_Goto(cEm10* em)
 // SitDown, the point motion); EM10_GOTO_ARRIVE_RTN picks the room-specific routine by cEm::set.
 // FUNCTION: BIO4 0x0047B030
 // STATUS: stub
-#if 0 // PARKED: C2059, C2227
+#if 0 // PARKED: C2227, setClose, setOpen
 void em10_R1_Goto(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -8729,7 +8677,6 @@ void em10_R1_AppearSide(cEm10* em)
 // frames turning to the player, stands up (0x9B) and walks / attacks; a killed one goes to Dm_KnockOut.
 // FUNCTION: BIO4 0x00466670
 // STATUS: stub
-#if 0 // PARKED: EstSet
 void em10_R1_SitDown(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -8807,7 +8754,6 @@ void em10_R1_SitDown(cEm10* em)
         EmRoutineSet(em, 2, 9, 0, 0);
     }
 }
-#endif // PARKED
 
 // R1 == 0x1B Stay: stands facing the player (slow turn) when it must not approach (ctrl12 NOT_NEAR /
 // ATK locks, other Ganados attacking): every 35 frames re-checks return (em10ReturnCk), attack, stay
@@ -8990,7 +8936,6 @@ void em10_R1_RoofWait(cEm10* em)
 // the free side, em10HeadLockCk keeps it up), then the threat shout (0x71) and back to the walk.
 // FUNCTION: BIO4 0x00467A50
 // STATUS: stub
-#if 0 // PARKED: C2228, SatMgr
 void em10_R1_Guard(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -9082,13 +9027,11 @@ void em10_R1_Guard(cEm10* em)
         EmRoutineSet(em, 2, 9, 0, 0);
     }
 }
-#endif // PARKED
 
 // R1 == 0x1E DownWakeWait: lies on the floor (work flags 0x10 | 0x1000000, IK off) for WakeTimer
 // 60..120 frames, a parasite core may attack from there, then DownWake (0x1F).
 // FUNCTION: BIO4 0x0043E0E0
 // STATUS: stub
-#if 0 // PARKED: ckAtkEnable, setAtk
 void em10_R1_DownWakeWait(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -9114,13 +9057,11 @@ void em10_R1_DownWakeWait(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x1F DownWake: gets up (motion 0x6D / 0xAA / 0x6F by weapon, voice Se_tbl[11]); the down
 // flags stay set for the first frames, then the walk routine.
 // FUNCTION: BIO4 0x00467EB0
 // STATUS: stub
-#if 0 // PARKED: ckAtkEnable, setAtk
 void em10_R1_DownWake(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -9163,7 +9104,6 @@ void em10_R1_DownWake(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R1 == 0x3B Crash: knocked over by another Ganado falling into it (em10CrashCk: the kind 3 damage
 // volume em10SetCrash registers): the stumble motion 0x1B / 0x1D (random start frame), then walks on;
@@ -9209,7 +9149,7 @@ void em10_R1_Crash(cEm10* em)
 // R1 == 0x3C ClimbOver: climbs over the low obstacle found by em10ClimbOverCk (motion 0x1F), sliding
 // the remaining Target_pos offset in over the motion (flag 0x20000 = on the fence), then walks.
 // FUNCTION: BIO4 0x004681C0
-// STATUS: stub
+// STATUS: matching
 void em10_R1_ClimbOver(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -9237,7 +9177,9 @@ void em10_R1_ClimbOver(cEm10* em)
         }
         if (em10MotionMove(em)) {
             em10WalkRtnSet(em);
+            // PC: both entry flags cleared (one 16-bit store).
             w->R11c_in_ck = 0;
+            w->R11c_in_ck2 = 0;
         }
         break;
     }
@@ -9476,7 +9418,7 @@ void em10_R1_WindowAtk(cEm10* em)
 // bit18 with his hip part near) throws the Ganado off into Dm_Ladder.
 // FUNCTION: BIO4 0x00468D10
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, MotionAddSpeed, MotionGetSpeed, SatMgr
+#if 0 // PARKED: C1003, C2227, C2228
 void em10_R1_LadderClimb(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -9822,7 +9764,7 @@ void em10_R1_LadderReset(cEm10* em)
 // the way (em10FallWaterCk), lands with the snap / SE 5 / motion 0x25 and a dust effect, then walks.
 // FUNCTION: BIO4 0x0046A130
 // STATUS: stub
-#if 0 // PARKED: C2228, EstSetEm10WaterFall, SatMgr
+#if 0 // PARKED: EstSetEm10WaterFall
 void em10_R1_JumpDown(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -9922,7 +9864,7 @@ void em10_R1_JumpDown(cEm10* em)
 // falls / lands like JumpDown (flags 0x00181000 during the leap, then 0x10080000).
 // FUNCTION: BIO4 0x0046A880
 // STATUS: stub
-#if 0 // PARKED: C2228, EstSetEm10WaterFall, MotionAddSpeed, MotionGetSpeed, SatMgr
+#if 0 // PARKED: EstSetEm10WaterFall, MotionAddSpeed, MotionGetSpeed
 void em10_R1_Jump(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -10317,7 +10259,7 @@ void em10_R1_RockPush(cEm10* em)
 // motion 0x28E and drops its weapon / shield; ends when the parasite reports the hit, Atk_wait by rank.
 // FUNCTION: BIO4 0x0046B4C0
 // STATUS: stub
-#if 0 // PARKED: C2227, ckAtkHit, setAtk, setCritical, v68, v70, v78, vC8
+#if 0 // PARKED: C2227, ckAtkHit, v68, v70, v78, vC8
 void em10_R1_ParasiteAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -10395,7 +10337,7 @@ void em10_R1_ParasiteAtk(cEm10* em)
 // re-arm (0x131, effect 0x1F), or side-step when the player closes in; flag 0x200 = aiming.
 // FUNCTION: BIO4 0x0046B800
 // STATUS: stub
-#if 0 // PARKED: C1003, Ctrl12Ck, Em10AtkTbl, EmDeadCk, SetWeapon, be_flag, fRand0_1, fRand1_1, mat, setEffDamage, setEffHit, setSeDamage, setSeHit, setSeHitWall, setSeThrow, setShot
+#if 0 // PARKED: Ctrl12Ck, Em10AtkTbl, SetWeapon, fRand0_1, fRand1_1, setEffDamage, setEffHit, setEffWater, setSeDamage, setSeHit, setSeHitWall, setSeThrow, setShot
 void em10_R1_ShotBowgun(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -10624,7 +10566,7 @@ void em10_R1_ShotBowgun(cEm10* em)
 // with Em10AtkTbl[7], SE 0xB1), recovers (0x18A) and drops the empty launcher (setWeaponFall).
 // FUNCTION: BIO4 0x0046C5D0
 // STATUS: stub
-#if 0 // PARKED: Ctrl12Ck, Em10AtkTbl, EmDeadCk, SetWeapon, be_flag, getPartsPtr, mat, setEffDamage, setEffHit, setEffWater, setRocket, setSeDamage, setSeHit, setSeHitWall, setSeThrow
+#if 0 // PARKED: Ctrl12Ck, Em10AtkTbl, SetWeapon, setEffDamage, setEffHit, setEffWater, setRocket, setSeDamage, setSeHit, setSeHitWall, setSeThrow
 void em10_R1_ShotRocket(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -10795,7 +10737,7 @@ void em10_R1_ShotRocket(cEm10* em)
 // em10GatlingHitCk for the player hit every 5..8 frames), stops (0x139, SE 0xB4) and walks / hides.
 // FUNCTION: BIO4 0x0046D0B0
 // STATUS: stub
-#if 0 // PARKED: C2228, EatMgr, EmDeadCk, f32, partsFixMemory, partsWorldCalc
+#if 0 // PARKED: f32, partsFixMemory, partsWorldCalc
 void em10_R1_ShotGatling(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -10992,7 +10934,7 @@ void em10_R1_ShotGatling(cEm10* em)
 // player's chest with a random miss chance by rank; the eye glow effect marks a sure hit.
 // FUNCTION: BIO4 0x0046DCF0
 // STATUS: stub
-#if 0 // PARKED: Em10AtkTbl, EstSet, VECNormalize, fRand1_1, mat, setThrow, setThrowScythe, sinf
+#if 0 // PARKED: Em10AtkTbl, VECNormalize, fRand1_1, setThrow, setThrowScythe, sinf
 void em10_R1_ThrowAxe(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -11161,7 +11103,7 @@ void em10_R1_ThrowBomb(cEm10* em)
 // up (0x9B) when the player is seen again.
 // FUNCTION: BIO4 0x0044E290
 // STATUS: stub
-#if 0 // PARKED: EmDeadCk, setEffAlways2, setTransMode
+#if 0 // PARKED: setEffAlways2, setTransMode
 void em10_R1_FixBomber(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -11534,7 +11476,7 @@ void em10_R1_RocketWait(cEm10* em)
 // weapon / hand parts (EM10_AXE_SWEEP_CK segments); Atk_wait 15/45/90 by rank afterwards.
 // FUNCTION: BIO4 0x0046E610
 // STATUS: stub
-#if 0 // PARKED: LVADD_ESCAPEATTACK, getPartsPtr, mat
+#if 0 // PARKED: LVADD_ESCAPEATTACK
 void em10_R1_AxeAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -11835,7 +11777,7 @@ void em10_R1_TorchFrame(cEm10* em)
 // EM10_SUKI_SWEEP_CK), sparks 0x44 when the tool hits a wall; Atk_wait by rank afterwards.
 // FUNCTION: BIO4 0x0046F7D0
 // STATUS: stub
-#if 0 // PARKED: EstSet, LVADD_ESCAPEATTACK, mat
+#if 0 // PARKED: LVADD_ESCAPEATTACK
 void em10_R1_SukiAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -11940,7 +11882,7 @@ void em10_R1_SukiAtk(cEm10* em)
 // (EM10_SCYTHE_SWEEP_CK), then Atk_wait by rank.
 // FUNCTION: BIO4 0x0046FE60
 // STATUS: stub
-#if 0 // PARKED: LVADD_ESCAPEATTACK, mat
+#if 0 // PARKED: LVADD_ESCAPEATTACK
 void em10_R1_ScytheAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12374,7 +12316,6 @@ void em10_R1_ClawWalkAtk(cEm10* em)
 // the player is kept at 1 hp and the ClawCriHit (0x2E) cut scene plays instead.
 // FUNCTION: BIO4 0x0045EFD0
 // STATUS: stub
-#if 0 // PARKED: C2227, pSys
 void em10_R1_br_ClawCriAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12424,14 +12365,13 @@ void em10_R1_br_ClawCriAtk(cEm10* em)
         }
     }
 }
-#endif // PARKED
 
 // R1 == 0x2D ClawCriAtk: the claw Ganado's critical combo: wind-up (0x118, CriAtk_wait 450), the
 // lunge (0x10B) turning towards Pl_pos while the way is clear, the overhead swipe (0x11E) with the
 // wall hit sparks 0x7C, the claws stuck in the ground (0x11A, effect 0x7E, SEs 0x73/0x74), then walk.
 // FUNCTION: BIO4 0x00471350
 // STATUS: stub
-#if 0 // PARKED: C2228, EatMgr, LVADD_ESCAPEATTACK
+#if 0 // PARKED: LVADD_ESCAPEATTACK
 void em10_R1_ClawCriAtk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12621,7 +12561,7 @@ void em10_R1_ClawCriAtk(cEm10* em)
 // kills the player at frame 124; plem10_ClawCriHit runs the player half.
 // FUNCTION: BIO4 0x0043EA20
 // STATUS: stub
-#if 0 // PARKED: DiedemoExec, EmCatchMotionMove, EmCatchPLSet
+#if 0 // PARKED: DiedemoExec
 void em10_R1_ClawCriHit(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12709,7 +12649,7 @@ void em10_R1_C_SawAtk(cEm10* em)
 // plem10_C_SawHit shows the decapitation) or breaks free (0xFE / 0xFD) with Atk_wait by rank.
 // FUNCTION: BIO4 0x004721A0
 // STATUS: stub
-#if 0 // PARKED: C2059, C2227, Ctrl12Set, EmCatchPLSet, LVADD_PL_DAMAGE, PlGachaInit, PlSetDamageSe, pSys, set
+#if 0 // PARKED: C1003, C2227, Ctrl12Set, LVADD_PL_DAMAGE, set
 void em10_R1_C_SawHit(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -12881,7 +12821,7 @@ void em10_R1_C_SawCriAtk(cEm10* em)
 // no escape) with the blood effect 0x4F and the critical camera, then Stay.
 // FUNCTION: BIO4 0x0044F8A0
 // STATUS: stub
-#if 0 // PARKED: C2059, C2227, Ctrl12Set, EmCatchPLSet, LVADD_PL_DAMAGE, pSys
+#if 0 // PARKED: C2227, Ctrl12Set, LVADD_PL_DAMAGE
 void em10_R1_C_SawCriHit(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13069,7 +13009,7 @@ void em10_R1_Catch(cEm10* em)
 // Ganado, a mash above 30 lands a critical) into DownWakeWait, with the cut-in camera em10CamMove.
 // FUNCTION: BIO4 0x00473050
 // STATUS: stub
-#if 0 // PARKED: Ctrl12Set, EmCatchMotionMove, EmCatchPLSet, LVADD_CRITICALHIT, LVADD_PL_DAMAGE, LifeDownSet2, PlGachaGet, PlGachaInit, PlGachaMove, PlSetDamageSe, QuakeExec, set, shooting_mode
+#if 0 // PARKED: Ctrl12Set, LVADD_CRITICALHIT, LVADD_PL_DAMAGE, set, shooting_mode
 void em10_R1_NeckHang(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13252,7 +13192,7 @@ void em10_R1_NeckHang(cEm10* em)
 // the partner (EmCatchSubSet), then the throw-off 0x292 and DownWakeWait; no button mash.
 // FUNCTION: BIO4 0x0043FDC0
 // STATUS: stub
-#if 0 // PARKED: Ctrl12Set, EmCatchMotionMove, EmCatchSubSet, set
+#if 0 // PARKED: Ctrl12Set, EmCatchSubSet, set
 void em10_R1_NeckHang_Luis(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13321,7 +13261,7 @@ void em10_R1_NeckHang_Luis(cEm10* em)
 // then DownWakeWait.
 // FUNCTION: BIO4 0x00440300
 // STATUS: stub
-#if 0 // PARKED: Ctrl12Set, EmCatchMotionMove, EmCatchPLSet, LVADD_PL_DAMAGE, LifeDownSet2, PlGachaGet, PlGachaInit, PlGachaMove, PlSetFace, set
+#if 0 // PARKED: Ctrl12Set, LVADD_PL_DAMAGE, set
 void em10_R1_NeckHang_Ashley(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13443,7 +13383,7 @@ void em10_R1_NeckHang_Ashley(cEm10* em)
 // 0x295 (damage on the Ganado, critical over 40), the hold ends by itself into the release 0x57.
 // FUNCTION: BIO4 0x00473CE0
 // STATUS: stub
-#if 0 // PARKED: Ctrl12Set, EmCatchMotionMove, EmCatchPLSet, LVADD_CRITICALHIT, LifeDownSet2, PlGachaGet, PlGachaInit, PlGachaMove, PlSetDamageSe, set, shooting_mode
+#if 0 // PARKED: Ctrl12Set, LVADD_CRITICALHIT, set, shooting_mode
 void em10_R1_Backhold(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13579,7 +13519,7 @@ void em10_R1_Backhold(cEm10* em)
 // after the blast (flag 0x400000).
 // FUNCTION: BIO4 0x0044FDD0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, Camera, EmCatchMotionMove, EmCatchPLSet, EmReserveDropItem, EmSetDie, PlGachaGet, PlGachaInit, PlGachaMove, PlSetDamageSe, cam, set, setLost, setReset
+#if 0 // PARKED: C2227, C2228, Camera, EmReserveDropItem, EmSetDie, cam, set, setLost, setReset
 void em10_R1_Bombhold(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -13790,7 +13730,7 @@ void em10_R1_DashCatch(cEm10* em)
 // take-away camera (em10CamMoveTakeaway) and sets the "Ashley taken" bit Status_flg[1] bit6.
 // FUNCTION: BIO4 0x00474850
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, EmCatchMotionMove, EmCatchSubSet, EstSetEm10WaterFall, set
+#if 0 // PARKED: C2227, C2228, DPF_SCR, DpfFlagOn, EFF_PL01, EffectDeleteAll, EmCatchSubSet, EstSetEm10WaterFall, GXColor, ObjMgr, SceEventStart, bio4_GXSetCopyClear, fastAt, getArrayNum, isAlive, set, throughOn
 void em10_R1_TakeAway(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -14042,7 +13982,7 @@ void em10_R1_TakeAway(cEm10* em)
 // Ganado carrying Ashley off (em10_R1_TakeAway steps 0x10/0x11).
 // FUNCTION: BIO4 0x0042B060
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, CamCtrl, CameraSetOrientationUp, GlobalWork, g
+#if 0 // PARKED: C1003, C2227, C2228, GlobalWork, g
 extern "C" void em10CamMoveTakeaway(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -14082,7 +14022,7 @@ extern "C" void em10CamMoveTakeaway(cEm10* em)
 // returns to the walk or to DownWakeWait; may hide again (em10HideRtnCk) after 10 frames.
 // FUNCTION: BIO4 0x00475800
 // STATUS: stub
-#if 0 // PARKED: C2227, YARARE_INFO, ckAtkEnable, hit, setDamage, vB8, vC0
+#if 0 // PARKED: initializing
 void em10_R1_Dm_Small(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -14476,8 +14416,8 @@ void em10_R1_Dm_Small(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         if (w->pShield) {
             w->Timer = 0;
@@ -14586,7 +14526,7 @@ void em10_R1_Dm_Small(cEm10* em)
 // back to the walk when the motion ends.
 // FUNCTION: BIO4 0x00476E20
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, ObjMgr, cObj12, ckAtkEnable, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, C2228, ObjMgr, cObj12
 void em10_R1_Dm_Head(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -14669,8 +14609,8 @@ void em10_R1_Dm_Head(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         em->r_no_2++;
     case 1:
@@ -14699,7 +14639,6 @@ void em10_R1_Dm_Head(cEm10* em)
 // the recover motions 0x2B0 / 0x2B2, the kick prompt available throughout; then the walk.
 // FUNCTION: BIO4 0x004773D0
 // STATUS: stub
-#if 0 // PARKED: ckAtkEnable, setDamage, vB8, vC0
 void em10_R1_Dm_Flash(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -14725,8 +14664,8 @@ void em10_R1_Dm_Flash(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         em->r_no_2++;
     case 1:
@@ -14774,7 +14713,6 @@ void em10_R1_Dm_Flash(cEm10* em)
     em10HandSet(em, 0);
     em10ActEvtSetKick(em);
 }
-#endif // PARKED
 
 // R0 2 / R1 == 0x0E Dm_Claw: the claw Ganado's (type 0xA/0xD) flinch (0x10F front / 0x111 back),
 // then the walk; sets the 150..300 damage Claw_hp and the 450 frame Find_timer.
@@ -14822,7 +14760,7 @@ void em10_R1_Dm_Claw(cEm10* em)
 // core damage effect 0x77), turning towards Go_pos, then the walk.
 // FUNCTION: BIO4 0x00477A40
 // STATUS: stub
-#if 0 // PARKED: EstSet, ckAtkEnable, setDamage
+#if 0 // PARKED: EstSet
 void em10_R1_Dm_Claw_Big(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -14914,7 +14852,7 @@ void em10_R1_Dm_Gatling(cEm10* em)
 // DownWakeWait.
 // FUNCTION: BIO4 0x0045F1A0
 // STATUS: stub
-#if 0 // PARKED: C2227, EstSetEm10WaterFall, LifeDownSet, ckAtkEnable, set, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, EstSetEm10WaterFall, set
 void em10_R1_Dm_FS(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -14965,8 +14903,8 @@ void em10_R1_Dm_FS(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         em->r_no_2++;
     case 1:
@@ -15028,7 +14966,7 @@ void em10_R1_Dm_FS(cEm10* em)
 // Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x0045F750
 // STATUS: stub
-#if 0 // PARKED: C1003
+#if 0 // PARKED: C2227, set
 void em10_R1_Dm_KneeKick(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15076,8 +15014,8 @@ void em10_R1_Dm_KneeKick(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         em->r_no_2++;
     case 1:
@@ -15117,7 +15055,7 @@ void em10_R1_Dm_KneeKick(cEm10* em)
 // with effect 0x90, always fatal (hp 0); the body drops to the floor into Die_Cramp and scores.
 // FUNCTION: BIO4 0x00440B50
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, EmCatchMotionMove, EmCatchPLSet, SatMgr, set
+#if 0 // PARKED: C2227, set
 void em10_R1_Dm_NeckBreak(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15187,7 +15125,7 @@ void em10_R1_Dm_NeckBreak(cEm10* em)
 // 0x2B6 takes extra damage, then Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x00440ED0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, DMG_TYPE_PUSH, DmgMgr, EstSetEm10WaterFall, LifeDownSet2, SatMgr, ckAtkEnable, set, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, EstSetEm10WaterFall, set
 void em10_R1_Dm_Showtay(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15220,8 +15158,8 @@ void em10_R1_Dm_Showtay(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         w->Timer = 12;
         w->TmpU32 = 0;
@@ -15315,7 +15253,7 @@ void em10_R1_Dm_Showtay(cEm10* em)
 // and drops the weapon / shield, scores a critical; then Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x00460050
 // STATUS: stub
-#if 0 // PARKED: C2227, LVADD_CRITICALHIT, ckAtkEnable, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, LVADD_CRITICALHIT
 void em10_R1_Dm_Heel(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15346,8 +15284,8 @@ void em10_R1_Dm_Heel(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         em10SetDmWaterEff(em, 0);
         SndStop(w->Seid_csaw, 0);
@@ -15377,7 +15315,6 @@ void em10_R1_Dm_Heel(cEm10* em)
 // random) and straight back to the walk.
 // FUNCTION: BIO4 0x00477ED0
 // STATUS: stub
-#if 0 // PARKED: ckAtkEnable, setDamage, vB8, vC0
 void em10_R1_Dm_DashUp(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15401,8 +15338,8 @@ void em10_R1_Dm_DashUp(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         em->r_no_2++;
     case 1:
@@ -15413,13 +15350,12 @@ void em10_R1_Dm_DashUp(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R0 2 / R1 == 0x03 Dm_DashDown: shot in the legs while dashing: trips and falls (motion 0x59, dust /
 // splash on landing), then Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x00441660
 // STATUS: stub
-#if 0 // PARKED: C2227, ckAtkEnable, setDamage, vB8, vC0
+#if 0 // PARKED: C2227
 void em10_R1_Dm_DashDown(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15450,8 +15386,8 @@ void em10_R1_Dm_DashDown(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         em->r_no_2++;
     case 1:
@@ -15486,7 +15422,7 @@ void em10_R1_Dm_DashDown(cEm10* em)
 // damage), then Die_Cramp or DownWakeWait; Landing_ck marks the landing.
 // FUNCTION: BIO4 0x00441890
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, EstSetEm10WaterFall, LifeDownSet2, MotionAddSpeed, MotionGetSpeed, SatMgr, ckAtkEnable, set, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, EstSetEm10WaterFall, MotionAddSpeed, MotionGetSpeed, set
 void em10_R1_Dm_Blow(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15581,8 +15517,8 @@ void em10_R1_Dm_Blow(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         em10SetDmWaterEff(em, 1);
         SndStop(w->Seid_csaw, 0);
@@ -15790,7 +15726,7 @@ void em10_R1_Dm_Blow(cEm10* em)
 // off (motion 0x5B/0x5C), then Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x00442B00
 // STATUS: stub
-#if 0 // PARKED: C2227, ckAtkEnable, set, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, set
 void em10_R1_Dm_Fence(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15819,8 +15755,8 @@ void em10_R1_Dm_Fence(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         em10SetDmWaterEff(em, 1);
         SndStop(w->Seid_csaw, 0);
@@ -15858,7 +15794,7 @@ void em10_R1_Dm_Fence(cEm10* em)
 // scores a critical; then Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x00442DA0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, LVADD_CRITICALHIT, LifeDownSet2, SatMgr, ckAtkEnable, set, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, LVADD_CRITICALHIT, set
 void em10_R1_Dm_Ladder(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -15914,8 +15850,8 @@ void em10_R1_Dm_Ladder(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         w->Timer = 0;
         em10SetDmWaterEff(em, 1);
@@ -15996,7 +15932,7 @@ void em10_R1_Dm_Ladder(cEm10* em)
 // 10F fall sets Status_flg[1] bit17.
 // FUNCTION: BIO4 0x004433D0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, EstSetEm10WaterFall, LifeDownSet2, SatMgr, ckAtkEnable, set, setDamage, vB8, vC0
+#if 0 // PARKED: C2227, EstSetEm10WaterFall, set
 void em10_R1_Dm_Roof(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -16037,8 +15973,8 @@ void em10_R1_Dm_Roof(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         em->flag &= ~0x400;
         w->Timer2 = 15;
@@ -16220,7 +16156,7 @@ void em10_R1_Dm_Roof(cEm10* em)
 // motion 0x3D (front) / 0x49 (back), scores a critical, then Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x00443F60
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, ckAtkEnable, setDamage, vB8
+#if 0 // PARKED: C2227, LVADD_CRITICALHIT
 void em10_R1_Dm_KneeDown(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -16260,8 +16196,8 @@ void em10_R1_Dm_KneeDown(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         em10SetDmWaterEff(em, 0);
         SndStop(w->Seid_csaw, 0);
@@ -16291,7 +16227,7 @@ void em10_R1_Dm_KneeDown(cEm10* em)
 // an arm-shot knock-out), dust / splash on the ground, then Die_Cramp (dead) or DownWakeWait.
 // FUNCTION: BIO4 0x00444290
 // STATUS: stub
-#if 0 // PARKED: C2227, ckAtkEnable, setDamage, vB8, vC0
+#if 0 // PARKED: C2227
 void em10_R1_Dm_KnockOut(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -16326,8 +16262,8 @@ void em10_R1_Dm_KnockOut(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         w->Timer4 = 10;
         em->r_no_2++;
@@ -16361,7 +16297,6 @@ void em10_R1_Dm_KnockOut(cEm10* em)
 // then DownWake (0x1F).
 // FUNCTION: BIO4 0x004445E0
 // STATUS: stub
-#if 0 // PARKED: ckAtkEnable, setDamage, vB8, vC0
 void em10_R1_Dm_Down(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -16386,8 +16321,8 @@ void em10_R1_Dm_Down(cEm10* em)
         if (w->pCore && w->pCore->ckAtkEnable()) {
             w->pCore->setDamage();
         }
-        if (w->pParasite && w->pParasite->vB8()) {
-            w->pParasite->vC0();
+        if (w->pParasite && w->pParasite->ckAtkEnable()) {
+            w->pParasite->setDamage();
         }
         em->r_no_2++;
     case 1:
@@ -16401,14 +16336,13 @@ void em10_R1_Dm_Down(cEm10* em)
     }
     em10HandSet(em, 0);
 }
-#endif // PARKED
 
 // R0 2 / R1 == 0x0B Dm_Frame: on fire (torch / incendiary, Frame_timer): burning motion 0x65 with
 // the flame effect 0x24, 500 damage then 10 per frame; a burnt corpse burns its cap / core /
 // tentacles too; then Die_Cramp or DownWakeWait.
 // FUNCTION: BIO4 0x00444750
 // STATUS: stub
-#if 0 // PARKED: C2227, EffectEfmDelete, EffectEspDelete, EffectEspgenDelete, LifeDownSet, LifeDownSet2, cModelInfo, cObj12, setBurn
+#if 0 // PARKED: C2227, cObj12, color, pList, setBurn
 void em10_R1_Dm_Frame(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -16533,7 +16467,7 @@ void em10_R1_Dm_TakeAway(cEm10* em)
 // lit dynamite, explodes (Die_Bomb 5).
 // FUNCTION: BIO4 0x004507E0
 // STATUS: stub
-#if 0 // PARKED: C2227, Ctrl12Ck, Ctrl12CntAdd, Ctrl12Set, EffectEfmDelete, EffectEspDelete, EffectEspgenDelete, EmReserveDropItem, EmSetDie, EmSetDieCnt, EmSetDropItem, setLostWait
+#if 0 // PARKED: C2227, Ctrl12Ck, Ctrl12CntAdd, Ctrl12Set, EmReserveDropItem, EmSetDie, setLostWait
 void em10_R1_Die_Cramp(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -16833,7 +16767,7 @@ void em10_R1_Die_Down(cEm10* em)
 // (or waits 60 frames as a fixed corpse for the special sets).
 // FUNCTION: BIO4 0x00444EF0
 // STATUS: stub
-#if 0 // PARKED: C2227, EffectEfmDelete, EffectEspDelete, EffectEspgenDelete, EmReserveDropItem, EmSetDropItem, fRand1_1, setLostWait
+#if 0 // PARKED: C2227, EmReserveDropItem, fRand1_1, setLostWait
 void em10_R1_Die_Normal(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -16955,7 +16889,7 @@ void em10_R1_Die_RunDown(cEm10* em)
 // 6000-unit blast on the player (PlWepHitCheck2 0x13); the body is hidden at once.
 // FUNCTION: BIO4 0x00451120
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, Camera, EmReserveDropItem, EmSetDie, EmSetDieCnt, EmSetDropItem, ObjMgr, PlWepHitCheck2, cam, isAlive, setLost, setReset
+#if 0 // PARKED: C1003, C2227, C2228, Camera, EmReserveDropItem, EmSetDie, cam, setLost, setReset
 void em10_R1_Die_Bomb(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -17074,7 +17008,7 @@ void em10_R1_Die_Bomb(cEm10* em)
 // Route bookkeeping run every frame: distances / angles to the player, partner and goto point.
 // FUNCTION: BIO4 0x00451630
 // STATUS: stub
-#if 0 // PARKED: C1003, C2228, Draw_line3d, EatMgr, SatMgr, VECNormalize
+#if 0 // PARKED: Draw_line3d, RouteCkEscEm, RouteCkPosToPosDis, RouteCkToEm, RouteCkToPos, VECNormalize
 static void em10RouteCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -17397,7 +17331,7 @@ static void em10RouteCk(cEm10* em)
 // L_go towards it through the route check; 0 when there is no wander point.
 // FUNCTION: BIO4 0x0042B4A0
 // STATUS: stub
-#if 0 // PARKED: Draw_line3d, RouteCkToPos
+#if 0 // PARKED: Ctrl12Ck, Draw_line3d
 extern "C" int em10SetWanderRoute(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -17423,16 +17357,13 @@ extern "C" int em10SetWanderRoute(cEm10* em)
     }
     return 1;
 }
-#endif // PARKED
 
 // Attack decision from the walk / dash / stay / turn routines (a = 1 from Back: allows the back-step
 // check first). A dead Ganado goes to Dm_Small; otherwise, unless the ctrl12 EM10_ATK lock or the
 // player's action scene forbids it, tries in order: the parasite, shield, axe, hoe, scythe, claw,
 // claw critical, bowgun, rocket, gatling, throw axe, throw dynamite, chainsaw, and the catch of the
 // player / partner. Returns 1 when a routine was set.
-// FUNCTION: BIO4 0x00460AF0
-// STATUS: stub
-#if 0 // PARKED: Ctrl12Ck
+// PC address unknown: 0x00460AF0, the call-alignment guess, is em10WalkRtnSet.
 static int em10AtkRtnCk(cEm10* em, int a)
 {
     Em10Work* w = EM10_WK(em);
@@ -17530,7 +17461,7 @@ static int em10AtkRtnCk(cEm10* em, int a)
 // other Ganados' attacks for 30 / 120 frames (ctrl12 EM10_ATK / EM10_THROW). 1 = caught.
 // FUNCTION: BIO4 0x0042B7F0
 // STATUS: stub
-#if 0 // PARKED: C2059, C2228, EatMgr, EmDeadCk, set
+#if 0 // PARKED: C2227, Ctrl12Set, set
 static int em10CatchCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -17623,7 +17554,7 @@ static int em10CatchCk(cEm10* em)
 // NeckHang_Luis (or TakeAway). 1 = caught.
 // FUNCTION: BIO4 0x0042BC20
 // STATUS: stub
-#if 0 // PARKED: C2228, EatMgr, EmDeadCk, SatMgr, set
+#if 0 // PARKED: set
 static int em10CatchSubCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -17732,7 +17663,7 @@ static int em10CatchSubCk(cEm10* em)
 // her outright.
 // FUNCTION: BIO4 0x0042C0D0
 // STATUS: stub
-#if 0 // PARKED: EmAtkInfo, info
+#if 0 // PARKED: C2227, Em10AtkTbl, set
 static int em10CsawHitCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -17819,7 +17750,7 @@ static int em10CsawHitCk(cEm10* em)
 // when the head cannot be lost. Returns 1 when the head is gone.
 // FUNCTION: BIO4 0x00452BC0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, Ctrl12Ck, Ctrl12CntAdd, Ctrl12CntCk, Ctrl12Set, EffectEfmDelete, EffectEspDelete, EffectEspgenDelete, EmReserveDropItem, EmSetDie, ObjMgr, cObj12
+#if 0 // PARKED: C2227, C2228, Ctrl12Ck, Ctrl12CntAdd, Ctrl12CntCk, Ctrl12Set, EmReserveDropItem, EmSetDie, ObjMgr, cObj12
 int em10LostHead(cEm10* em, int a, int b)
 {
     Em10Work* w = EM10_WK(em);
@@ -18164,7 +18095,7 @@ extern "C" void em10CsawSignSe(cEm10* em)
 // head, hands, accessories, weapon, shield and the chainsaw Ganado's sack. 0 when modelInit fails.
 // FUNCTION: BIO4 0x00460920
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, Em10_fs_tbl, ModInfoMgr, addModel, modelInit, pLog
+#if 0 // PARKED: C2664, Em10_fs_tbl, modelInit
 static int em10ModelInit(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -18297,7 +18228,7 @@ extern "C" void em10WeaponInit(cEm10* em)
 // Sets up the accessory objects / parts selected by the flags_3C8 bits (per enemy type).
 // FUNCTION: BIO4 0x0042CAF0
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, C2228, ModInfoMgr, addModel, cObj12
+#if 0 // PARKED: C2227, cObj12
 extern "C" void em10SetAccesory(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -18469,7 +18400,7 @@ extern "C" void em10SetAccesory(cEm10* em)
 // (em10WepSeEffSet); heavy weapons get be_flag 0x4000. NULL for type 0.
 // FUNCTION: BIO4 0x00445C90
 // STATUS: stub
-#if 0 // PARKED: SetWeapon, be_flag, setCloth, setSeAlways
+#if 0 // PARKED: C1003, SetWeapon, setCloth
 cEmWep* em10MakeWeapon(cEm10* em, int type)
 {
     Em10Work* w = EM10_WK(em);
@@ -18589,7 +18520,7 @@ cEmWep* em10MakeWeapon(cEm10* em, int type)
 // Ganado, cEm::flag bit24) and the parent hand part (0x10 left / 0xA right).
 // FUNCTION: BIO4 0x0042D880
 // STATUS: stub
-#if 0 // PARKED: ang, pos, setParent
+#if 0 // PARKED: setParent
 static void em10WeaponSet(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -18728,7 +18659,7 @@ static void em10WeaponSet(cEm10* em)
 // bowgun / dynamite as pWeapon2 on the back part 0x11, hidden until Pickup takes it.
 // FUNCTION: BIO4 0x004460D0
 // STATUS: stub
-#if 0 // PARKED: ang, pos, setParent, setTransMode
+#if 0 // PARKED: setParent, setTransMode
 extern "C" void em10WeaponSet2(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -18851,7 +18782,6 @@ extern "C" void em10ShieldSet(cEm10* em)
 // chainsaw / scythe grips differ, left-handed Ganados mirror). Skipped for the claw / gatling types.
 // FUNCTION: BIO4 0x0042E0B0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, ModInfoMgr, addModel, swapModelInfo
 static void em10HandSet(cEm10* em, int type)
 {
     Em10Work* w = EM10_WK(em);
@@ -18932,7 +18862,6 @@ static void em10HandSet(cEm10* em, int type)
     }
     w->Hand_type = type;
 }
-#endif // PARKED
 
 // Swaps one hand model (`no` 0 left, 1 right) to pose `type` (0 relaxed, 1 open, 2 pointing, 3 the
 // weapon grip; mot[10] for the scythe); used by the event / cut-scene code outside em10.
@@ -19021,7 +18950,7 @@ void cEm10::setHand(int no, int type)
 // (mot[4], part 0x24 tilted). Skipped for the claw / gatling types.
 // FUNCTION: BIO4 0x0042E480
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, ModInfoMgr, addModel, swapModelInfo
+#if 0 // PARKED: C2227
 void em10HeadSet(cEm10* em, int no)
 {
     Em10Work* w = EM10_WK(em);
@@ -19065,7 +18994,7 @@ void em10HeadSet(cEm10* em, int no)
 // point behind it), 2 the floor behind is far below (jump down instead). Not for Character 5.
 // FUNCTION: BIO4 0x004535C0
 // STATUS: stub
-#if 0 // PARKED: C2228, SatMgr, f32
+#if 0 // PARKED: f32
 extern "C" int em10ClimbOverCk2(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -19160,7 +19089,7 @@ extern "C" int em10ClimbOverCk2(cEm10* em)
 // object (pWindow) to smash, 4 a door to bash (em10DootAtkCk).
 // FUNCTION: BIO4 0x0044AA30
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, ChkWindow, EmRackCk, SatMgr, f32
+#if 0 // PARKED: C2227, ChkWindow, EmRackCk, f32
 extern "C" int em10WindowCk2(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -19265,7 +19194,7 @@ static int em10WindowCk(cEm10* em)
 // only stuck). 1 when a routine was set.
 // FUNCTION: BIO4 0x00453D60
 // STATUS: stub
-#if 0 // PARKED: C2059, C2228, EmMgr, f32
+#if 0 // PARKED: C2227, EMDOOR_WK, EmDoorWork, ckOpen, dw, f32, fastAt, getArrayNum, setOpen
 static int em10DoorOpenCk(cEm10* em, int kick)
 {
     Em10Work* w = EM10_WK(em);
@@ -19356,7 +19285,7 @@ static int em10DoorOpenCk(cEm10* em, int kick)
 // Is a bashable door (alive, closed, within 45 deg in front) still there: 1 = yes (DoorAtk's second swing).
 // FUNCTION: BIO4 0x004465B0
 // STATUS: stub
-#if 0 // PARKED: C2059, C2228, EmMgr
+#if 0 // PARKED: C2227, EMDOOR_WK, EmDoorWork, ckOpen, dw, fastAt, getArrayNum
 extern "C" int em10AtkDoorCk(cEm10* em)
 {
     u32 i;
@@ -19426,7 +19355,7 @@ extern "C" int em10AtkDoorCk(cEm10* em)
 // can, else goes to RackAtk (0x3E) / DoorAtk (0x3D) by rack type. 1 when a routine was set.
 // FUNCTION: BIO4 0x00446EB0
 // STATUS: stub
-#if 0 // PARKED: C2059, C2228, EmMgr, f32
+#if 0 // PARKED: f32, fastAt, getArrayNum, setDown
 static int em10RackBreakCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -19506,7 +19435,7 @@ static int em10RackBreakCk(cEm10* em)
 // Is a bashable rack still in front: 1 = yes.
 // FUNCTION: BIO4 0x00446C50
 // STATUS: stub
-#if 0 // PARKED: C2228, EmMgr
+#if 0 // PARKED: fastAt, getArrayNum
 extern "C" int em10AtkRackCk(cEm10* em)
 {
     u32 i;
@@ -19559,7 +19488,7 @@ extern "C" int em10AtkRackCk(cEm10* em)
 // (setClimb) and goes to LadderClimb (0x40). Not for Character 5.
 // FUNCTION: BIO4 0x00447160
 // STATUS: stub
-#if 0 // PARKED: C2059, cObjLadder, f32, o
+#if 0 // PARKED: C2228, ObjMgr, ckClimb, f32, setClimb
 static int em10LadderClimbCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -19630,7 +19559,7 @@ static int em10LadderClimbCk(cEm10* em)
 // and goes to VLadderClimb (0x41, r_no_3 = level) or JumpUp (0x45) for a one-level ledge.
 // FUNCTION: BIO4 0x004475C0
 // STATUS: stub
-#if 0 // PARKED: C2228, EmMgr, SceAtSearchLadder, f32
+#if 0 // PARKED: SceAtSearchLadder, f32, fastAt, getArrayNum
 static int em10VLadderClimbCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -19731,7 +19660,7 @@ static int em10VLadderClimbCk(cEm10* em)
 // mode 9) or, when there, reserves it and goes to LadderReset (0x42).
 // FUNCTION: BIO4 0x0042EF30
 // STATUS: stub
-#if 0 // PARKED: C2059, cObjLadder, o
+#if 0 // PARKED: C2228, ObjMgr, ckReset, setResetReserve
 static int em10LadderResetCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -19775,7 +19704,7 @@ static int em10LadderResetCk(cEm10* em)
 // Ganado should jump down.
 // FUNCTION: BIO4 0x00447750
 // STATUS: stub
-#if 0 // PARKED: C2228, SatMgr, f32
+#if 0 // PARKED: f32
 extern "C" int em10JumpDownCk2(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -19856,7 +19785,6 @@ found:
 // JumpDown (0x43); 1 when a routine was set.
 // FUNCTION: BIO4 0x004540F0
 // STATUS: stub
-#if 0 // PARKED: C2228, SatMgr
 static int em10JumpDownCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -19895,13 +19823,12 @@ static int em10JumpDownCk(cEm10* em)
     }
     return 0;
 }
-#endif // PARKED
 
 // Gap-jump decision: the bulldozer ride (em10BullJumpCk) or a scenario jump wall (flag 0x80000) with
 // a floor behind -> Jump (0x44). 1 when a routine was set.
 // FUNCTION: BIO4 0x00437E00
 // STATUS: stub
-#if 0 // PARKED: C2228, SatMgr, f32
+#if 0 // PARKED: f32
 static int em10JumpCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -19957,7 +19884,7 @@ static int em10JumpCk(cEm10* em)
 // (0x2C). 1 when set.
 // FUNCTION: BIO4 0x0042F790
 // STATUS: stub
-#if 0 // PARKED: C2228, Ctrl12Ck, Ctrl12Set, SatMgr
+#if 0 // PARKED: Ctrl12Ck, Ctrl12Set
 extern "C" int em10ClawCriAtkCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -20077,7 +20004,7 @@ static int em10FindCk2(cEm10* em)
 // 1 when another active Ganado stands within 3000 units (the grab from behind is allowed then).
 // FUNCTION: BIO4 0x00449380
 // STATUS: stub
-#if 0 // PARKED: C2228, EmMgr
+#if 0 // PARKED: fastAt, getArrayNum
 int em10SomebodyNearCk(cEm10* em)
 {
     u32 i;
@@ -20120,9 +20047,9 @@ int em10SomebodyNearCk(cEm10* em)
 // when a spare weapon should be taken, ignition / claw stick, Stay when the player is dead or too many
 // are already attacking, Turn180 when he is behind, the ranged weapons' keep-distance rule, then
 // Back / Stay / chainsaw walk attack / Dash checks, and finally Walk with a random Route_type.
-// FUNCTION: BIO4 0x00478050
+// FUNCTION: BIO4 0x00460AF0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, getPartsPtr
+// Enemy in EAX on PC (0x00460AF0: `mov esi, eax`); 82 callers.
 static void em10WalkRtnSet(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -20231,7 +20158,6 @@ static void em10WalkRtnSet(cEm10* em)
     w->Route_type = Rnd() % 11;
     EmRoutineSet(em, 1, 0x10, 0, 0);
 }
-#endif // PARKED
 
 // When a goto order is pending (Goto_mode != 0) switches to Goto (0x13) and returns 1.
 // FUNCTION: BIO4 0x004389C0
@@ -20250,7 +20176,7 @@ static int em10GotoCk(cEm10* em)
 // Critical-hit (head burst / kick) cut-in camera: fixed offsets from the player matrix, optional shake.
 // FUNCTION: BIO4 0x00431910
 // STATUS: stub
-#if 0 // PARKED: C1003, C2227, C2228, Camera, VECNormalize, c, fRand1_1, pSys
+#if 0 // PARKED: C1003, C2227, C2228, Camera, c, fRand1_1
 extern "C" void em10CamMoveCri(cEm10* em, u32 no, int shake)
 {
     Em10Work* w = EM10_WK(em);
@@ -20705,7 +20631,7 @@ static void em10SetDashMotion(cEm10* em)
 // than N others already dashing. Sets Dash (0x11) and returns 1.
 // FUNCTION: BIO4 0x00449590
 // STATUS: stub
-#if 0 // PARKED: C2228, EmMgr
+#if 0 // PARKED: fastAt, getArrayNum
 extern "C" int em10DashCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -20827,7 +20753,7 @@ extern "C" int em10DashCk(cEm10* em)
 // 400) send it to one of four waiting points instead. Headless / lit-dynamite Ganados dash. 1 when set.
 // FUNCTION: BIO4 0x004556E0
 // STATUS: stub
-#if 0 // PARKED: C2228, EmMgr
+#if 0 // PARKED: fastAt, getArrayNum
 extern "C" int em10StayCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -20939,7 +20865,7 @@ extern "C" int em10StayCk(cEm10* em)
 // (plemDmFrame damage routine, ctrl12 NOT_NEAR 30). 1 = hit.
 // FUNCTION: BIO4 0x00456F30
 // STATUS: stub
-#if 0 // PARKED: Ctrl12Set, EmDeadCk, SetPlDamage, set
+#if 0 // PARKED: Ctrl12Set, SetPlDamage, set
 extern "C" int em10TorchFrameAtkCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -20972,7 +20898,7 @@ extern "C" int em10TorchFrameAtkCk(cEm10* em)
 // Torch swing hit on the partner: registers a burn damage (kind 0x18) on her cDmgInfo. 1 = hit.
 // FUNCTION: BIO4 0x004331A0
 // STATUS: stub
-#if 0 // PARKED: C2227, Ctrl12Set, Em10AtkTbl, EmAtkHitSubCk2, EmDeadCk, YARARE_INFO, hit, set
+#if 0 // PARKED: Ctrl12Set, Em10AtkTbl, EmAtkHitSubCk2, set
 extern "C" int em10TorchFrameAtkCkSub(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -21079,7 +21005,7 @@ extern "C" void em10SetRtnFind(cEm10* em)
 // hp is below 300, the chainsaw only from a dead Ganado (its effects and running flag are cleared).
 // FUNCTION: BIO4 0x00433940
 // STATUS: stub
-#if 0 // PARKED: EffectEfmDelete, EffectEspDelete, EffectEspgenDelete, setFall
+#if 0 // PARKED: setFall
 void cEm10::setWeaponFall()
 {
     Em10Work* w = EM10_WK(this);
@@ -21143,7 +21069,6 @@ void cEm10::setWeaponFall()
 // routine interprets) and marks it heading somewhere (work flags 0x04000004); some kinds forget the player.
 // FUNCTION: BIO4 0x00433C90
 // STATUS: stub
-#if 0 // PARKED: C2228, SatMgr
 void cEm10::setGoto(Vec* pos, int range)
 {
     Em10Work* w = EM10_WK(this);
@@ -21165,12 +21090,10 @@ void cEm10::setGoto(Vec* pos, int range)
     }
     w->Be_flg &= ~0x800000;
 }
-#endif // PARKED
 
 // Sends the Ganado to the switch `sw` to operate it: Goto_mode 3 (open, `near`) or 4 (close) at `pos`.
 // FUNCTION: BIO4 0x00433DA0
-// STATUS: stub
-#if 0 // PARKED: C2228, SatMgr
+// STATUS: matching
 void cEm10::setGotoSwitch(cModel* sw, int near, Vec* pos)
 {
     Em10Work* w = EM10_WK(this);
@@ -21197,14 +21120,13 @@ void cEm10::setGotoSwitch(cModel* sw, int near, Vec* pos)
     }
     w->Be_flg &= ~0x800000;
 }
-#endif // PARKED
 
 // Offers the melee action button (kick / suplex ...) on a staggered Ganado: alive, the player facing
 // it within 60 deg at melee range with a clear line; the button kind and reach depend on the player
 // character (Leon / Ada / HUNK / Krauser / Wesker) and on a parasite being out.
 // FUNCTION: BIO4 0x00461170
 // STATUS: stub
-#if 0 // PARKED: ACTCTR_WEP_SET_IGNORE, ACT_BACKKICK, ACT_FUNC_NORMAL, ACT_KICK, ACT_NERICHAGI, ACT_PALM_SHOCK, ACT_SENPUU, ActBtn, C1003, C2228, DISP_A_NORMAL, EatMgr, SatMgr
+#if 0 // PARKED: ACTCTR_WEP_SET_IGNORE, ACT_BACKKICK, ACT_EXECUTE, ACT_FUNC_NORMAL, ACT_KICK, ACT_NERICHAGI, ACT_PALM_SHOCK, ACT_SENPUU, ActBtn, C2228, DISP_A_NORMAL
 extern "C" void em10ActEvtSetKick(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -21293,7 +21215,7 @@ extern "C" void em10ActEvtSetKick(cEm10* em)
 // within 10000 units.
 // FUNCTION: BIO4 0x0044A6B0
 // STATUS: stub
-#if 0 // PARKED: ACTCTR_NONE, ACT_FUNC_NORMAL, ACT_TALK, ActBtn, C2228, DISP_A_NORMAL, EmMgr
+#if 0 // PARKED: ACTCTR_NONE, ACT_FUNC_NORMAL, ACT_TALK, ActBtn, C2228, DISP_A_NORMAL, fastAt, getArrayNum
 void em10ActEvtSetTrade(cEm10* em)
 {
     Mtx inv;
@@ -21390,7 +21312,6 @@ void em10ActEvtSetTrade(cEm10* em)
 // Knocked against a roof / wall: pick the wall direction (x5DC) and start damage routine 2-7.
 // FUNCTION: BIO4 0x0044BF80
 // STATUS: stub
-#if 0 // PARKED: C2228, SatMgr
 static int em10RoofDmCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -21495,13 +21416,12 @@ static int em10RoofDmCk(cEm10* em)
     }
     return 0;
 }
-#endif // PARKED
 
 // 1 when another active Ganado stands in the throwing lane (500 wide, 3000 high) between this one and
 // the player: the thrower / shooter side-steps instead.
 // FUNCTION: BIO4 0x0044AB60
 // STATUS: stub
-#if 0 // PARKED: C2228, EmMgr
+#if 0 // PARKED: fastAt, getArrayNum
 extern "C" int em10ThrowNearCk(cEm10* em)
 {
     Mtx m;
@@ -21561,7 +21481,7 @@ extern "C" int em10ThrowNearCk(cEm10* em)
 // the start routine (em10InitRtnSet) and one R0_Move frame.
 // FUNCTION: BIO4 0x004577A0
 // STATUS: stub
-#if 0 // PARKED: C2227, C2228, cModelInfo, fRand1_1, partsWorldCalc
+#if 0 // PARKED: C1003, C2227, fRand1_1
 void cEm10::setReset()
 {
     Em10Work* w = EM10_WK(this);
@@ -21839,7 +21759,6 @@ extern "C" int em10HideRtnCk(cEm10* em)
 // of the cover point and the way is clear. 1 when set.
 // FUNCTION: BIO4 0x00436FC0
 // STATUS: stub
-#if 0 // PARKED: C2228, EatMgr
 int em10HideToStepCk(cEm10* em, int a)
 {
     Vec v;
@@ -21879,7 +21798,6 @@ int em10HideToStepCk(cEm10* em, int a)
     EmRoutineSet(em, 1, 0x17, hit, a);
     return 1;
 }
-#endif // PARKED
 
 // "Behind you" tell: a Ganado within 3000 units in front of itself but behind the player's back,
 // who sees him, plays Se_tbl[16] and locks the tell for 300 frames (ctrl12 BACKSIGN) for all.
@@ -22069,7 +21987,7 @@ extern "C" int em10ReturnPosCk(cEm10* em)
 // goto mode 0xC (forgetting the player unless flag bit6). 1 when set.
 // FUNCTION: BIO4 0x0044B330
 // STATUS: stub
-#if 0 // PARKED: C2228, EmMgr
+#if 0 // PARKED: fastAt, getArrayNum
 int em10GotoPosCk(cEm10* em)
 {
     Em10Work* w = EM10_WK(em);
@@ -22190,7 +22108,7 @@ int em10GotoPosCk(cEm10* em)
 // scenario walls (attribute mask 0x404000): 1 = clear.
 // FUNCTION: BIO4 0x00438620
 // STATUS: stub
-#if 0 // PARKED: C2228, EatMgr, VECNormalize
+#if 0 // PARKED: VECNormalize
 extern "C" int em10ThrowScaCk(cEm10* em)
 {
     Vec a;
@@ -22298,7 +22216,7 @@ static void em10BombThrow(cEm10* em)
 // plays the water entry effect / SE there.
 // FUNCTION: BIO4 0x00439F00
 // STATUS: stub
-#if 0 // PARKED: AtEffInfo, C2227, C2228, EatGetEffectType, EatMgr, EstSetEm10WaterFall, info
+#if 0 // PARKED: AtEffInfo, C2227, EatGetEffectType, EstSetEm10WaterFall, getEffInfo, info
 extern "C" void em10FallWaterCk(cEm10* em)
 {
     Vec hit;
@@ -22321,6 +22239,90 @@ extern "C" void em10FallWaterCk(cEm10* em)
             EstSetEm10WaterFall((Vec*) em);
             SndCall(6, 0x16, &em->pos, 0, 0, em);
         }
+    }
+}
+#endif // PARKED
+
+// 0 while any other active Ganado is playing its Find reaction (R1 0x0D), else 1: staggers the shouts.
+// FUNCTION: BIO4 0x004490F0
+// STATUS: stub
+#if 0 // PARKED: fastAt, getArrayNum
+extern "C" int em10SomebodyFindNowCk(cEm10* em)
+{
+    u32 i;
+
+    for (i = 0; i < EmMgr.getArrayNum(); i++) {
+        cEm* e = EmMgr.fastAt(i);
+        if ((e->be_flag & 0x201) != 1) {
+            continue;
+        }
+        if (e->id <= 0xF) {
+            continue;
+        }
+        if (e->id > 0x20) {
+            continue;
+        }
+        if (e->hp <= 0) {
+            continue;
+        }
+        if (e == em) {
+            continue;
+        }
+        if (!e->checkStatus(EM_STATUS_ACTIVE)) {
+            continue;
+        }
+        if (e->r_no_0 == 1 && e->r_no_1 == 0xD) {
+            return 0;
+        }
+    }
+    return 1;
+}
+#endif // PARKED
+
+// The Ganado that found the player alerts every other active Ganado within 25000 units (10000 for a
+// cEm::flag bit4 set) with setFindPL.
+// FUNCTION: BIO4 0x00449490
+// STATUS: stub
+#if 0 // PARKED: fastAt, getArrayNum
+static void em10FindNotify(cEm10* em)
+{
+    u32 i;
+
+    for (i = 0; i < EmMgr.getArrayNum(); i++) {
+        cEm* e = EmMgr.fastAt(i);
+        if ((e->be_flag & 0x201) != 1) {
+            continue;
+        }
+        if (e->id <= 0xF) {
+            continue;
+        }
+        if (e->id > 0x20) {
+            continue;
+        }
+        if (e->hp <= 0) {
+            continue;
+        }
+        if (e == em) {
+            continue;
+        }
+        if (!e->checkStatus(EM_STATUS_ACTIVE)) {
+            continue;
+        }
+        {
+            f32 dx = em->pos.x - e->pos.x;
+            f32 dz = em->pos.z - e->pos.z;
+            f32 d = dx * dx + dz * dz;
+            if (em->flag & 0x10) {
+                if (d > 100000000.0f) {
+                    continue;
+                }
+            } else {
+                if (d > 625000000.0f) {
+                    continue;
+                }
+            }
+        }
+        em->setFindPL();
     }
 }
 #endif // PARKED

@@ -14,7 +14,8 @@
 // re4_tweaks/dllmain/SDK/em10.h and with em10InitRtnSet (0x0043AA90); names
 // are the GameCube ones, with the SDK name noted where it differs.
 
-class cEmWep {
+// Weapon an enemy holds, drops or throws (game/emwep.cpp); an enemy itself.
+class cEmWep : public cEm {
 public:
     DECOMP_METHOD(void, cEmWep, setEffAlways, (int kind, int no), (kind, no), 0x0040A114);
     DECOMP_METHOD(void, cEmWep, setEffFall, (int kind, int no), (kind, no), 0x0040D909);
@@ -27,6 +28,11 @@ public:
                   (void* m0, void* m1, void* m2, void* m3, void* m4, void* m5, void* m6, void* m7, void* m8, void* m9,
                    void* m10),
                   (m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10), 0x0040385F);
+    // r_no 0x201 / 0x301 / 0x401 (game/obj16.cpp); Atk_enable at +0x3A6.
+    DECOMP_METHOD(void, cObj16, setAtk, (u8 mode), (mode), 0x00721B90);
+    DECOMP_METHOD0(void, cObj16, setCritical, 0x00721BC0);
+    DECOMP_METHOD0(void, cObj16, setDamage, 0x00721BE0);
+    DECOMP_METHOD0(int, cObj16, ckAtkEnable, 0x00721BF0);
 };
 class cObjGondola;
 class PlCloth;
@@ -35,6 +41,7 @@ class cObj;
 class cModelInfo;
 class cSubChar;
 class cEm10;
+class cEm25;
 typedef void (*Em10Func)(cEm10*);
 
 // CLOTH_INFO (0x60 bytes): chain / cloth simulation setup (re4_tweaks SDK cloth.h).
@@ -107,8 +114,8 @@ struct Em10Work {
     cObj12* pCap;             // 0x214 (0x61C)
     cObj12* pGlasses;         // 0x218 (0x620)
     cObj12* pCart;            // 0x21C (0x624)
-    void* pRHand;             // 0x220 (0x628)
-    void* pLHand;             // 0x224 (0x62C)
+    cModelInfo* pRHand;       // 0x220 (0x628)
+    cModelInfo* pLHand;       // 0x224 (0x62C)
     void* pHead;              // 0x228 (0x630)
     void* pRobe;              // 0x22C (0x634)
     void* pCloth;             // 0x230 (0x638)
@@ -140,7 +147,7 @@ struct Em10Work {
     cCtrl* pDragon;           // 0x2B0 (0x6B8)
     cObj16* pCore;            // 0x2B4 (0x6BC)
     cEm* pTen[5];             // 0x2B8 (0x6C0)
-    cEm* pParasite;           // 0x2CC (0x6D4)
+    cEm25* pParasite;         // 0x2CC (0x6D4)  the Plaga (GameCube cEmPartner slots)
     cObjChain* pGunBelt;      // 0x2D0 (0x6D8)
     cObjChain* pChain;        // 0x2D4 (0x6DC)
     void* pCtrlGroup;         // 0x2D8 (0x6E0)

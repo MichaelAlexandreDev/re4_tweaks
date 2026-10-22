@@ -5,6 +5,7 @@
 #define DECOMP_HARNESS
 namespace bio4 {
 #include "src/em10/em10.cpp"
+#include "src/em25/em25.cpp"
 #include "src/game/EtcModel.cpp"
 #include "src/game/read.cpp"
 #include "src/sscrn/ss_map.cpp"
@@ -29,119 +30,157 @@ static void __fastcall DecompWrap_cEm10_setUFOCatch(cEm10* self, int, void* m0, 
 static int __fastcall DecompWrap_cEm10_ckWeapon(cEm10* self, int) { decomp_count(15); return self->cEm10::ckWeapon(); }
 static int __fastcall DecompWrap_cEm10_ckTakeAway(cEm10* self, int) { decomp_count(16); return self->cEm10::ckTakeAway(); }
 static int __fastcall DecompWrap_cEm10_ckR305BomberEnable(cEm10* self, int) { decomp_count(17); return self->cEm10::ckR305BomberEnable(); }
-static void __fastcall DecompWrap_cEm10_setEvtMotion(cEm10* self, int, void* m0, void* m1, void* m2, void* m3) { decomp_count(18); self->cEm10::setEvtMotion(m0, m1, m2, m3); }
-static void __fastcall DecompWrap_cEm10_setGondolaMotion(cEm10* self, int, void* m0, void* m1, void* m2, void* m3) { decomp_count(19); self->cEm10::setGondolaMotion(m0, m1, m2, m3); }
-static void __fastcall DecompWrap_cEm10_setDrill(cEm10* self, int, void* m0, void* m1, void* m2, void* m3) { decomp_count(20); self->cEm10::setDrill(m0, m1, m2, m3); }
-static void __fastcall DecompWrap_cEtcTbl_Init(cEtcTbl* self, int) { decomp_count(21); self->cEtcTbl::Init(); }
-static int __fastcall DecompWrap_cEtcTbl_IsUse(cEtcTbl* self, int) { decomp_count(22); return self->cEtcTbl::IsUse(); }
-static int __fastcall DecompWrap_cEtcTbl_RegistData(cEtcTbl* self, int, EtcSetData* d, cModel* model) { decomp_count(23); return self->cEtcTbl::RegistData(d, model); }
-static int __cdecl DecompWrap_getRoomEtc(int no, ETCMODEL_ID id, cEm** pRet, int bDispErr) { decomp_count(24); return getRoomEtc(no, id, pRet, bDispErr); }
-static int __cdecl DecompWrap_getRoomEtc2(int no, cEm** pRet, int bDispErr) { decomp_count(25); return getRoomEtc2(no, pRet, bDispErr); }
-static void* __cdecl DecompWrap_GetEtcAddr(void* arc, const char* name) { decomp_count(26); return GetEtcAddr(arc, name); }
-static int __cdecl DecompWrap_EtcModelListSet(EtcList* list) { decomp_count(27); return EtcModelListSet(list); }
-static int __cdecl DecompWrap_Et01_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(28); return Et01_init(arc, d, out); }
-static int __cdecl DecompWrap_Et02_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(29); return Et02_init(arc, d, out); }
-static int __cdecl DecompWrap_Et03_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(30); return Et03_init(arc, d, out); }
-static int __cdecl DecompWrap_Et04_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(31); return Et04_init(arc, d, out); }
-static int __cdecl DecompWrap_Et05_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(32); return Et05_init(arc, d, out); }
-static int __cdecl DecompWrap_Et15_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(33); return Et15_init(arc, d, out); }
-static int __cdecl DecompWrap_Et06_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(34); return Et06_init(arc, d, out); }
-static int __cdecl DecompWrap_Et08_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(35); return Et08_init(arc, d, out); }
-static int __cdecl DecompWrap_Et09_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(36); return Et09_init(arc, d, out); }
-static int __cdecl DecompWrap_Et0a_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(37); return Et0a_init(arc, d, out); }
-static int __cdecl DecompWrap_Et0b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(38); return Et0b_init(arc, d, out); }
-static int __cdecl DecompWrap_Et0c_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(39); return Et0c_init(arc, d, out); }
-static int __cdecl DecompWrap_Et0d_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(40); return Et0d_init(arc, d, out); }
-static int __cdecl DecompWrap_Et10_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(41); return Et10_init(arc, d, out); }
-static int __cdecl DecompWrap_Et0e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(42); return Et0e_init(arc, d, out); }
-static int __cdecl DecompWrap_Et0f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(43); return Et0f_init(arc, d, out); }
-static int __cdecl DecompWrap_Et11_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(44); return Et11_init(arc, d, out); }
-static int __cdecl DecompWrap_Et12_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(45); return Et12_init(arc, d, out); }
-static int __cdecl DecompWrap_Et13_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(46); return Et13_init(arc, d, out); }
-static int __cdecl DecompWrap_Et14_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(47); return Et14_init(arc, d, out); }
-static int __cdecl DecompWrap_Et16_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(48); return Et16_init(arc, d, out); }
-static int __cdecl DecompWrap_Et17_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(49); return Et17_init(arc, d, out); }
-static int __cdecl DecompWrap_Et18_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(50); return Et18_init(arc, d, out); }
-static int __cdecl DecompWrap_Et19_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(51); return Et19_init(arc, d, out); }
-static int __cdecl DecompWrap_Et1a_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(52); return Et1a_init(arc, d, out); }
-static int __cdecl DecompWrap_Et1b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(53); return Et1b_init(arc, d, out); }
-static int __cdecl DecompWrap_Et1c_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(54); return Et1c_init(arc, d, out); }
-static int __cdecl DecompWrap_Et1e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(55); return Et1e_init(arc, d, out); }
-static int __cdecl DecompWrap_Et1f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(56); return Et1f_init(arc, d, out); }
-static int __cdecl DecompWrap_Et20_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(57); return Et20_init(arc, d, out); }
-static int __cdecl DecompWrap_Et21_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(58); return Et21_init(arc, d, out); }
-static int __cdecl DecompWrap_Et22_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(59); return Et22_init(arc, d, out); }
-static int __cdecl DecompWrap_Et23_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(60); return Et23_init(arc, d, out); }
-static int __cdecl DecompWrap_Et24_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(61); return Et24_init(arc, d, out); }
-static int __cdecl DecompWrap_Et26_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(62); return Et26_init(arc, d, out); }
-static int __cdecl DecompWrap_Et27_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(63); return Et27_init(arc, d, out); }
-static int __cdecl DecompWrap_Et28_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(64); return Et28_init(arc, d, out); }
-static int __cdecl DecompWrap_Et2a_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(65); return Et2a_init(arc, d, out); }
-static int __cdecl DecompWrap_Et2b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(66); return Et2b_init(arc, d, out); }
-static int __cdecl DecompWrap_Et2d_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(67); return Et2d_init(arc, d, out); }
-static int __cdecl DecompWrap_Et30_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(68); return Et30_init(arc, d, out); }
-static int __cdecl DecompWrap_Et2e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(69); return Et2e_init(arc, d, out); }
-static int __cdecl DecompWrap_Et2f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(70); return Et2f_init(arc, d, out); }
-static int __cdecl DecompWrap_Et31_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(71); return Et31_init(arc, d, out); }
-static int __cdecl DecompWrap_Et32_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(72); return Et32_init(arc, d, out); }
-static int __cdecl DecompWrap_Et33_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(73); return Et33_init(arc, d, out); }
-static int __cdecl DecompWrap_Et34_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(74); return Et34_init(arc, d, out); }
-static int __cdecl DecompWrap_Et37_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(75); return Et37_init(arc, d, out); }
-static int __cdecl DecompWrap_Et38_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(76); return Et38_init(arc, d, out); }
-static int __cdecl DecompWrap_Et39_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(77); return Et39_init(arc, d, out); }
-static int __cdecl DecompWrap_Et3a_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(78); return Et3a_init(arc, d, out); }
-static int __cdecl DecompWrap_Et3b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(79); return Et3b_init(arc, d, out); }
-static int __cdecl DecompWrap_Et3c_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(80); return Et3c_init(arc, d, out); }
-static int __cdecl DecompWrap_Et3d_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(81); return Et3d_init(arc, d, out); }
-static int __cdecl DecompWrap_Et3e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(82); return Et3e_init(arc, d, out); }
-static int __cdecl DecompWrap_Et3f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(83); return Et3f_init(arc, d, out); }
-static int __cdecl DecompWrap_Et40_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(84); return Et40_init(arc, d, out); }
-static int __cdecl DecompWrap_Et41_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(85); return Et41_init(arc, d, out); }
-static int __cdecl DecompWrap_Et42_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(86); return Et42_init(arc, d, out); }
-static int __cdecl DecompWrap_Et43_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(87); return Et43_init(arc, d, out); }
-static int __cdecl DecompWrap_Et45_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(88); return Et45_init(arc, d, out); }
-static int __cdecl DecompWrap_Et46_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(89); return Et46_init(arc, d, out); }
-static int __cdecl DecompWrap_Et47_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(90); return Et47_init(arc, d, out); }
-static int __cdecl DecompWrap_Et49_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(91); return Et49_init(arc, d, out); }
-static int __cdecl DecompWrap_Et4b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(92); return Et4b_init(arc, d, out); }
-static int __cdecl DecompWrap_Et4c_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(93); return Et4c_init(arc, d, out); }
-static int __cdecl DecompWrap_Et4d_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(94); return Et4d_init(arc, d, out); }
-static int __cdecl DecompWrap_Et4e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(95); return Et4e_init(arc, d, out); }
-static int __cdecl DecompWrap_Et4f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(96); return Et4f_init(arc, d, out); }
-static int __cdecl DecompWrap_Et59_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(97); return Et59_init(arc, d, out); }
-static int __cdecl DecompWrap_Et61_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(98); return Et61_init(arc, d, out); }
-static int __cdecl DecompWrap_Et62_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(99); return Et62_init(arc, d, out); }
-static int __cdecl DecompWrap_Et63_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(100); return Et63_init(arc, d, out); }
-static int __cdecl DecompWrap_Et66_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(101); return Et66_init(arc, d, out); }
-static int __cdecl DecompWrap_Et67_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(102); return Et67_init(arc, d, out); }
-static int __cdecl DecompWrap_Et68_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(103); return Et68_init(arc, d, out); }
-static int __cdecl DecompWrap_Et69_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(104); return Et69_init(arc, d, out); }
-static int __cdecl DecompWrap_EtcGetDasAddr(int id, void** pRet_addr) { decomp_count(105); return EtcGetDasAddr(id, pRet_addr); }
-static u16* __cdecl DecompWrap_GetEtcFlgPtr(u32 etc_no, u16 room_no) { decomp_count(106); return GetEtcFlgPtr(etc_no, room_no); }
-static int __cdecl DecompWrap_getRoomEtcBreak(int no, cEm** ppEm, int bErrDisp) { decomp_count(107); return getRoomEtcBreak(no, ppEm, bErrDisp); }
-static int __cdecl DecompWrap_setRoomEtcDisp(int no, int bDisp, int bErrDisp) { decomp_count(108); return setRoomEtcDisp(no, bDisp, bErrDisp); }
-static int __cdecl DecompWrap_setRoomEtcBreakDisp(int no, int bDisp, int bErrDisp) { decomp_count(109); return setRoomEtcBreakDisp(no, bDisp, bErrDisp); }
-static int __cdecl DecompWrap_getRoomEtcOnLight(u32 no, cModel** ppEm, int bErrDisp) { decomp_count(110); return getRoomEtcOnLight(no, ppEm, bErrDisp); }
-static int __cdecl DecompWrap_getRoomEtcWindow(int no, cEmWindow** ppEm, int bErrDisp) { decomp_count(111); return getRoomEtcWindow(no, ppEm, bErrDisp); }
-static int __cdecl DecompWrap_getRoomEtcBox(int no, cEm** ppEm, int bErrDisp) { decomp_count(112); return getRoomEtcBox(no, ppEm, bErrDisp); }
-static int __cdecl DecompWrap_getRoomEtcDoor(int no, cEmDoor** ppEm, int bErrDisp) { decomp_count(113); return getRoomEtcDoor(no, ppEm, bErrDisp); }
-static int __cdecl DecompWrap_getRoomEtcRack(int no, cEm** ppEm, int bErrDisp) { decomp_count(114); return getRoomEtcRack(no, ppEm, bErrDisp); }
-static int __cdecl DecompWrap_getRoomEtcLadder(int no, cObjLadder** ppEm, int bErrDisp) { decomp_count(115); return getRoomEtcLadder(no, ppEm, bErrDisp); }
-static int __cdecl DecompWrap_getRoomEtcTorch(int no, cEm** ppEm, int bErrDisp) { decomp_count(116); return getRoomEtcTorch(no, ppEm, bErrDisp); }
-static int __cdecl DecompWrap_getRoomEtcSwitch(int no, cEm** ppEm, int bErrDisp) { decomp_count(117); return getRoomEtcSwitch(no, ppEm, bErrDisp); }
-static int __cdecl DecompWrap_getRoomEtcBarred(int no, cEm** ppEm, int bErrDisp) { decomp_count(118); return getRoomEtcBarred(no, ppEm, bErrDisp); }
-static int __cdecl DecompWrap_getRoomEtcDram(int no, cEm** ppEm, int bErrDisp) { decomp_count(119); return getRoomEtcDram(no, ppEm, bErrDisp); }
-static int __cdecl DecompWrap_getRoomEtcItem(int no, EtcItem** ppEm, int bErrDisp) { decomp_count(120); return getRoomEtcItem(no, ppEm, bErrDisp); }
-static ETC_AMB_TYPE __cdecl DecompWrap_GetEtcAmbType() { decomp_count(121); return GetEtcAmbType(); }
-static int __cdecl DecompWrap_GetEm10EyeEffectEnable() { decomp_count(122); return GetEm10EyeEffectEnable(); }
-static void __cdecl DecompWrap_EtcSetAddAmb(cModel* pMod, int kind) { decomp_count(123); EtcSetAddAmb(pMod, kind); }
-static ReadModule* __cdecl DecompWrap_SearchEmModule(u8 id) { decomp_count(124); return SearchEmModule(id); }
+static void __cdecl DecompWrap_em10_R1_R21BTrolleyJump(cEm10* em) { decomp_count(18); em10_R1_R21BTrolleyJump(em); }
+static void __cdecl DecompWrap_em10_R1_R300TakeAshley(cEm10* em) { decomp_count(19); em10_R1_R300TakeAshley(em); }
+static void __fastcall DecompWrap_cEm10_setEvtMotion(cEm10* self, int, void* m0, void* m1, void* m2, void* m3) { decomp_count(20); self->cEm10::setEvtMotion(m0, m1, m2, m3); }
+static void __fastcall DecompWrap_cEm10_setGondolaMotion(cEm10* self, int, void* m0, void* m1, void* m2, void* m3) { decomp_count(21); self->cEm10::setGondolaMotion(m0, m1, m2, m3); }
+static void __fastcall DecompWrap_cEm10_setDrill(cEm10* self, int, void* m0, void* m1, void* m2, void* m3) { decomp_count(22); self->cEm10::setDrill(m0, m1, m2, m3); }
+static void __cdecl DecompWrap_em10_R1_ClimbOver(cEm10* em) { decomp_count(23); em10_R1_ClimbOver(em); }
+static void __fastcall DecompWrap_cEm10_setGotoSwitch(cEm10* self, int, cModel* sw, int near, Vec* pos) { decomp_count(24); self->cEm10::setGotoSwitch(sw, near, pos); }
+static void __cdecl DecompWrap_Em25Init(cEm* em) { decomp_count(25); Em25Init(em); }
+static void __fastcall DecompWrap_cEm25_move(cEm25* self, int) { decomp_count(26); self->cEm25::move(); }
+static void __cdecl DecompWrap_em25_R1_Hide(cEm25* em) { decomp_count(27); em25_R1_Hide(em); }
+static void __cdecl DecompWrap_em25_R1_Birth(cEm25* em) { decomp_count(28); em25_R1_Birth(em); }
+static void __cdecl DecompWrap_em25_R1_Wait(cEm25* em) { decomp_count(29); em25_R1_Wait(em); }
+static void __cdecl DecompWrap_em25_R1_Walk(cEm25* em) { decomp_count(30); em25_R1_Walk(em); }
+static void __cdecl DecompWrap_em25_R1_Run(cEm25* em) { decomp_count(31); em25_R1_Run(em); }
+static void __cdecl DecompWrap_em25_R1_Turn90(cEm25* em) { decomp_count(32); em25_R1_Turn90(em); }
+static void __cdecl DecompWrap_em25_R1_br_JumpAtk(cEm25* em) { decomp_count(33); em25_R1_br_JumpAtk(em); }
+static void __cdecl DecompWrap_em25_R1_JumpAtk(cEm25* em) { decomp_count(34); em25_R1_JumpAtk(em); }
+static void __cdecl DecompWrap_em25_R1_Bite(cEm25* em) { decomp_count(35); em25_R1_Bite(em); }
+static void __cdecl DecompWrap_em25_R1_P_Appear(cEm25* em) { decomp_count(36); em25_R1_P_Appear(em); }
+static void __cdecl DecompWrap_em25_R1_P_Poison(cEm25* em) { decomp_count(37); em25_R1_P_Poison(em); }
+static void __cdecl DecompWrap_em25_R1_Dm_Small(cEm25* em) { decomp_count(38); em25_R1_Dm_Small(em); }
+static void __cdecl DecompWrap_em25_R1_Dm_Big(cEm25* em) { decomp_count(39); em25_R1_Dm_Big(em); }
+static void __cdecl DecompWrap_em25_R1_Dm_Frame(cEm25* em) { decomp_count(40); em25_R1_Dm_Frame(em); }
+static void __cdecl DecompWrap_em25_R1_Die_P_Normal(cEm25* em) { decomp_count(41); em25_R1_Die_P_Normal(em); }
+static void __cdecl DecompWrap_em25_R1_Die_Normal(cEm25* em) { decomp_count(42); em25_R1_Die_Normal(em); }
+static void __cdecl DecompWrap_em25_R1_Die_Big(cEm25* em) { decomp_count(43); em25_R1_Die_Big(em); }
+static int __fastcall DecompWrap_cEm25_ckParent(cEm25* self, int) { decomp_count(44); return self->cEm25::ckParent(); }
+static void __fastcall DecompWrap_cEm25_setParent(cEm25* self, int, cEm* parent, int parts, Vec* ppos, Vec* prot) { decomp_count(45); self->cEm25::setParent(parent, parts, ppos, prot); }
+static void __fastcall DecompWrap_cEm25_setGoOut(cEm25* self, int, int flag) { decomp_count(46); self->cEm25::setGoOut(flag); }
+static void __fastcall DecompWrap_cEm25_setWait(cEm25* self, int) { decomp_count(47); self->cEm25::setWait(); }
+static void __fastcall DecompWrap_cEm25_setAtk(cEm25* self, int) { decomp_count(48); self->cEm25::setAtk(); }
+static int __fastcall DecompWrap_cEm25_ckAtkHit(cEm25* self, int) { decomp_count(49); return self->cEm25::ckAtkHit(); }
+static void __fastcall DecompWrap_cEm25_setPoison(cEm25* self, int) { decomp_count(50); self->cEm25::setPoison(); }
+static int __fastcall DecompWrap_cEm25_ckAtkEnd(cEm25* self, int) { decomp_count(51); return self->cEm25::ckAtkEnd(); }
+static int __fastcall DecompWrap_cEm25_ckDie(cEm25* self, int) { decomp_count(52); return self->cEm25::ckDie(); }
+static void __fastcall DecompWrap_cEm25_setHide(cEm25* self, int) { decomp_count(53); self->cEm25::setHide(); }
+static void __fastcall DecompWrap_cEm25_setBirth(cEm25* self, int, Vec* ppos, f32 ang) { decomp_count(54); self->cEm25::setBirth(ppos, ang); }
+static void __cdecl DecompWrap_em25ClearParasite(cEm25* em) { decomp_count(55); em25ClearParasite(em); }
+static int __fastcall DecompWrap_cEm25_ckAtkEnable(cEm25* self, int) { decomp_count(56); return self->cEm25::ckAtkEnable(); }
+static void __fastcall DecompWrap_cEm25_setDamage(cEm25* self, int) { decomp_count(57); self->cEm25::setDamage(); }
+static int __fastcall DecompWrap_cEm25_ckLock(cEm25* self, int) { decomp_count(58); return self->cEm25::ckLock(); }
+static void __fastcall DecompWrap_cEtcTbl_Init(cEtcTbl* self, int) { decomp_count(59); self->cEtcTbl::Init(); }
+static int __fastcall DecompWrap_cEtcTbl_IsUse(cEtcTbl* self, int) { decomp_count(60); return self->cEtcTbl::IsUse(); }
+static int __fastcall DecompWrap_cEtcTbl_RegistData(cEtcTbl* self, int, EtcSetData* d, cModel* model) { decomp_count(61); return self->cEtcTbl::RegistData(d, model); }
+static int __cdecl DecompWrap_getRoomEtc(int no, ETCMODEL_ID id, cEm** pRet, int bDispErr) { decomp_count(62); return getRoomEtc(no, id, pRet, bDispErr); }
+static int __cdecl DecompWrap_getRoomEtc2(int no, cEm** pRet, int bDispErr) { decomp_count(63); return getRoomEtc2(no, pRet, bDispErr); }
+static void* __cdecl DecompWrap_GetEtcAddr(void* arc, const char* name) { decomp_count(64); return GetEtcAddr(arc, name); }
+static int __cdecl DecompWrap_EtcModelListSet(EtcList* list) { decomp_count(65); return EtcModelListSet(list); }
+static int __cdecl DecompWrap_Et01_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(66); return Et01_init(arc, d, out); }
+static int __cdecl DecompWrap_Et02_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(67); return Et02_init(arc, d, out); }
+static int __cdecl DecompWrap_Et03_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(68); return Et03_init(arc, d, out); }
+static int __cdecl DecompWrap_Et04_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(69); return Et04_init(arc, d, out); }
+static int __cdecl DecompWrap_Et05_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(70); return Et05_init(arc, d, out); }
+static int __cdecl DecompWrap_Et15_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(71); return Et15_init(arc, d, out); }
+static int __cdecl DecompWrap_Et06_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(72); return Et06_init(arc, d, out); }
+static int __cdecl DecompWrap_Et08_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(73); return Et08_init(arc, d, out); }
+static int __cdecl DecompWrap_Et09_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(74); return Et09_init(arc, d, out); }
+static int __cdecl DecompWrap_Et0a_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(75); return Et0a_init(arc, d, out); }
+static int __cdecl DecompWrap_Et0b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(76); return Et0b_init(arc, d, out); }
+static int __cdecl DecompWrap_Et0c_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(77); return Et0c_init(arc, d, out); }
+static int __cdecl DecompWrap_Et0d_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(78); return Et0d_init(arc, d, out); }
+static int __cdecl DecompWrap_Et10_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(79); return Et10_init(arc, d, out); }
+static int __cdecl DecompWrap_Et0e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(80); return Et0e_init(arc, d, out); }
+static int __cdecl DecompWrap_Et0f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(81); return Et0f_init(arc, d, out); }
+static int __cdecl DecompWrap_Et11_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(82); return Et11_init(arc, d, out); }
+static int __cdecl DecompWrap_Et12_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(83); return Et12_init(arc, d, out); }
+static int __cdecl DecompWrap_Et13_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(84); return Et13_init(arc, d, out); }
+static int __cdecl DecompWrap_Et14_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(85); return Et14_init(arc, d, out); }
+static int __cdecl DecompWrap_Et16_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(86); return Et16_init(arc, d, out); }
+static int __cdecl DecompWrap_Et17_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(87); return Et17_init(arc, d, out); }
+static int __cdecl DecompWrap_Et18_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(88); return Et18_init(arc, d, out); }
+static int __cdecl DecompWrap_Et19_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(89); return Et19_init(arc, d, out); }
+static int __cdecl DecompWrap_Et1a_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(90); return Et1a_init(arc, d, out); }
+static int __cdecl DecompWrap_Et1b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(91); return Et1b_init(arc, d, out); }
+static int __cdecl DecompWrap_Et1c_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(92); return Et1c_init(arc, d, out); }
+static int __cdecl DecompWrap_Et1e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(93); return Et1e_init(arc, d, out); }
+static int __cdecl DecompWrap_Et1f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(94); return Et1f_init(arc, d, out); }
+static int __cdecl DecompWrap_Et20_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(95); return Et20_init(arc, d, out); }
+static int __cdecl DecompWrap_Et21_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(96); return Et21_init(arc, d, out); }
+static int __cdecl DecompWrap_Et22_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(97); return Et22_init(arc, d, out); }
+static int __cdecl DecompWrap_Et23_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(98); return Et23_init(arc, d, out); }
+static int __cdecl DecompWrap_Et24_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(99); return Et24_init(arc, d, out); }
+static int __cdecl DecompWrap_Et26_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(100); return Et26_init(arc, d, out); }
+static int __cdecl DecompWrap_Et27_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(101); return Et27_init(arc, d, out); }
+static int __cdecl DecompWrap_Et28_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(102); return Et28_init(arc, d, out); }
+static int __cdecl DecompWrap_Et2a_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(103); return Et2a_init(arc, d, out); }
+static int __cdecl DecompWrap_Et2b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(104); return Et2b_init(arc, d, out); }
+static int __cdecl DecompWrap_Et2d_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(105); return Et2d_init(arc, d, out); }
+static int __cdecl DecompWrap_Et30_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(106); return Et30_init(arc, d, out); }
+static int __cdecl DecompWrap_Et2e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(107); return Et2e_init(arc, d, out); }
+static int __cdecl DecompWrap_Et2f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(108); return Et2f_init(arc, d, out); }
+static int __cdecl DecompWrap_Et31_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(109); return Et31_init(arc, d, out); }
+static int __cdecl DecompWrap_Et32_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(110); return Et32_init(arc, d, out); }
+static int __cdecl DecompWrap_Et33_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(111); return Et33_init(arc, d, out); }
+static int __cdecl DecompWrap_Et34_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(112); return Et34_init(arc, d, out); }
+static int __cdecl DecompWrap_Et37_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(113); return Et37_init(arc, d, out); }
+static int __cdecl DecompWrap_Et38_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(114); return Et38_init(arc, d, out); }
+static int __cdecl DecompWrap_Et39_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(115); return Et39_init(arc, d, out); }
+static int __cdecl DecompWrap_Et3a_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(116); return Et3a_init(arc, d, out); }
+static int __cdecl DecompWrap_Et3b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(117); return Et3b_init(arc, d, out); }
+static int __cdecl DecompWrap_Et3c_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(118); return Et3c_init(arc, d, out); }
+static int __cdecl DecompWrap_Et3d_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(119); return Et3d_init(arc, d, out); }
+static int __cdecl DecompWrap_Et3e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(120); return Et3e_init(arc, d, out); }
+static int __cdecl DecompWrap_Et3f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(121); return Et3f_init(arc, d, out); }
+static int __cdecl DecompWrap_Et40_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(122); return Et40_init(arc, d, out); }
+static int __cdecl DecompWrap_Et41_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(123); return Et41_init(arc, d, out); }
+static int __cdecl DecompWrap_Et42_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(124); return Et42_init(arc, d, out); }
+static int __cdecl DecompWrap_Et43_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(125); return Et43_init(arc, d, out); }
+static int __cdecl DecompWrap_Et45_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(126); return Et45_init(arc, d, out); }
+static int __cdecl DecompWrap_Et46_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(127); return Et46_init(arc, d, out); }
+static int __cdecl DecompWrap_Et47_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(128); return Et47_init(arc, d, out); }
+static int __cdecl DecompWrap_Et49_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(129); return Et49_init(arc, d, out); }
+static int __cdecl DecompWrap_Et4b_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(130); return Et4b_init(arc, d, out); }
+static int __cdecl DecompWrap_Et4c_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(131); return Et4c_init(arc, d, out); }
+static int __cdecl DecompWrap_Et4d_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(132); return Et4d_init(arc, d, out); }
+static int __cdecl DecompWrap_Et4e_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(133); return Et4e_init(arc, d, out); }
+static int __cdecl DecompWrap_Et4f_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(134); return Et4f_init(arc, d, out); }
+static int __cdecl DecompWrap_Et59_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(135); return Et59_init(arc, d, out); }
+static int __cdecl DecompWrap_Et61_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(136); return Et61_init(arc, d, out); }
+static int __cdecl DecompWrap_Et62_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(137); return Et62_init(arc, d, out); }
+static int __cdecl DecompWrap_Et63_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(138); return Et63_init(arc, d, out); }
+static int __cdecl DecompWrap_Et66_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(139); return Et66_init(arc, d, out); }
+static int __cdecl DecompWrap_Et67_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(140); return Et67_init(arc, d, out); }
+static int __cdecl DecompWrap_Et68_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(141); return Et68_init(arc, d, out); }
+static int __cdecl DecompWrap_Et69_init(void* arc, EtcSetData* d, cModel** out) { decomp_count(142); return Et69_init(arc, d, out); }
+static int __cdecl DecompWrap_EtcGetDasAddr(int id, void** pRet_addr) { decomp_count(143); return EtcGetDasAddr(id, pRet_addr); }
+static u16* __cdecl DecompWrap_GetEtcFlgPtr(u32 etc_no, u16 room_no) { decomp_count(144); return GetEtcFlgPtr(etc_no, room_no); }
+static int __cdecl DecompWrap_getRoomEtcBreak(int no, cEm** ppEm, int bErrDisp) { decomp_count(145); return getRoomEtcBreak(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_setRoomEtcDisp(int no, int bDisp, int bErrDisp) { decomp_count(146); return setRoomEtcDisp(no, bDisp, bErrDisp); }
+static int __cdecl DecompWrap_setRoomEtcBreakDisp(int no, int bDisp, int bErrDisp) { decomp_count(147); return setRoomEtcBreakDisp(no, bDisp, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcOnLight(u32 no, cModel** ppEm, int bErrDisp) { decomp_count(148); return getRoomEtcOnLight(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcWindow(int no, cEmWindow** ppEm, int bErrDisp) { decomp_count(149); return getRoomEtcWindow(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcBox(int no, cEm** ppEm, int bErrDisp) { decomp_count(150); return getRoomEtcBox(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcDoor(int no, cEmDoor** ppEm, int bErrDisp) { decomp_count(151); return getRoomEtcDoor(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcRack(int no, cEm** ppEm, int bErrDisp) { decomp_count(152); return getRoomEtcRack(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcLadder(int no, cObjLadder** ppEm, int bErrDisp) { decomp_count(153); return getRoomEtcLadder(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcTorch(int no, cEm** ppEm, int bErrDisp) { decomp_count(154); return getRoomEtcTorch(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcSwitch(int no, cEm** ppEm, int bErrDisp) { decomp_count(155); return getRoomEtcSwitch(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcBarred(int no, cEm** ppEm, int bErrDisp) { decomp_count(156); return getRoomEtcBarred(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcDram(int no, cEm** ppEm, int bErrDisp) { decomp_count(157); return getRoomEtcDram(no, ppEm, bErrDisp); }
+static int __cdecl DecompWrap_getRoomEtcItem(int no, EtcItem** ppEm, int bErrDisp) { decomp_count(158); return getRoomEtcItem(no, ppEm, bErrDisp); }
+static ETC_AMB_TYPE __cdecl DecompWrap_GetEtcAmbType() { decomp_count(159); return GetEtcAmbType(); }
+static int __cdecl DecompWrap_GetEm10EyeEffectEnable() { decomp_count(160); return GetEm10EyeEffectEnable(); }
+static void __cdecl DecompWrap_EtcSetAddAmb(cModel* pMod, int kind) { decomp_count(161); EtcSetAddAmb(pMod, kind); }
+static ReadModule* __cdecl DecompWrap_SearchEmModule(u8 id) { decomp_count(162); return SearchEmModule(id); }
 
 static ReadModule* __cdecl DecompShadowWrap_SearchEmModule(u8 id)
 {
     using Original = ReadModule* (__cdecl*)(u8 id);
-    auto original = reinterpret_cast<Original>(decomp_shadow_original(124));
-    if (!decomp_shadow_enter(124))
+    auto original = reinterpret_cast<Original>(decomp_shadow_original(162));
+    if (!decomp_shadow_enter(162))
         return original(id);
     DecompShadowScope scope;
     shadow::Snapshot state;
@@ -162,22 +201,22 @@ static ReadModule* __cdecl DecompShadowWrap_SearchEmModule(u8 id)
     }
 
     if (!ready) {
-        decomp_shadow_skip(124, "unavailable descriptor region");
+        decomp_shadow_skip(162, "unavailable descriptor region");
         return original(id);
     }
     const auto result = shadow::compare(state, decomp_shadow_keep_original(),
         [&]() { return original(id); }, [&]() { return SearchEmModule(id); });
-    decomp_shadow_finish(124, result.difference);
+    decomp_shadow_finish(162, result.difference);
     return result.value;
 }
 
-static ReadModule* __cdecl DecompWrap_pullEmModule() { decomp_count(125); return pullEmModule(); }
+static ReadModule* __cdecl DecompWrap_pullEmModule() { decomp_count(163); return pullEmModule(); }
 
 static ReadModule* __cdecl DecompShadowWrap_pullEmModule()
 {
     using Original = ReadModule* (__cdecl*)();
-    auto original = reinterpret_cast<Original>(decomp_shadow_original(125));
-    if (!decomp_shadow_enter(125))
+    auto original = reinterpret_cast<Original>(decomp_shadow_original(163));
+    if (!decomp_shadow_enter(163))
         return original();
     DecompShadowScope scope;
     shadow::Snapshot state;
@@ -186,22 +225,22 @@ static ReadModule* __cdecl DecompShadowWrap_pullEmModule()
     bool ready = state.add("EmReadModule", reinterpret_cast<void*>(decomp_va(0x00C670A0)), 0x260);
 
     if (!ready) {
-        decomp_shadow_skip(125, "unavailable descriptor region");
+        decomp_shadow_skip(163, "unavailable descriptor region");
         return original();
     }
     const auto result = shadow::compare(state, decomp_shadow_keep_original(),
         [&]() { return original(); }, [&]() { return pullEmModule(); });
-    decomp_shadow_finish(125, result.difference);
+    decomp_shadow_finish(163, result.difference);
     return result.value;
 }
 
-static void __cdecl DecompWrap_InitModule(ReadModule* m) { decomp_count(126); InitModule(m); }
-static void __cdecl DecompWrap_EmReadInit() { decomp_count(127); EmReadInit(); }
-static void* __cdecl DecompWrap_EmReadSearch(u8 id, void* data_addr, u32 malloc_size) { decomp_count(128); return EmReadSearch(id, data_addr, malloc_size); }
-static void __fastcall DecompWrap_MapZoomIn_init(MapZoomIn* self, int, SUB_SCREEN* wk) { decomp_count(129); self->MapZoomIn::init(wk); }
-static void __fastcall DecompWrap_MapZoomOut_init(MapZoomOut* self, int, SUB_SCREEN* wk) { decomp_count(130); self->MapZoomOut::init(wk); }
-static void __fastcall DecompWrap_SsMapInit_init(SsMapInit* self, int, SUB_SCREEN* wk) { decomp_count(131); self->SsMapInit::init(wk); }
-static void __fastcall DecompWrap_MapModeSelect_quit(MapModeSelect* self, int, SUB_SCREEN* wk) { decomp_count(132); self->MapModeSelect::quit(wk); }
+static void __cdecl DecompWrap_InitModule(ReadModule* m) { decomp_count(164); InitModule(m); }
+static void __cdecl DecompWrap_EmReadInit() { decomp_count(165); EmReadInit(); }
+static void* __cdecl DecompWrap_EmReadSearch(u8 id, void* data_addr, u32 malloc_size) { decomp_count(166); return EmReadSearch(id, data_addr, malloc_size); }
+static void __fastcall DecompWrap_MapZoomIn_init(MapZoomIn* self, int, SUB_SCREEN* wk) { decomp_count(167); self->MapZoomIn::init(wk); }
+static void __fastcall DecompWrap_MapZoomOut_init(MapZoomOut* self, int, SUB_SCREEN* wk) { decomp_count(168); self->MapZoomOut::init(wk); }
+static void __fastcall DecompWrap_SsMapInit_init(SsMapInit* self, int, SUB_SCREEN* wk) { decomp_count(169); self->SsMapInit::init(wk); }
+static void __fastcall DecompWrap_MapModeSelect_quit(MapModeSelect* self, int, SUB_SCREEN* wk) { decomp_count(170); self->MapModeSelect::quit(wk); }
 
 const DecompEntry kDecompEntries[] = {
     { "em10InitRtnSet", 0x0043AA90u, reinterpret_cast<void*>(&DecompWrap_em10InitRtnSet), "55 8B EC 83 EC 20 A1 ? ? ? ? 33 C5 89 45 FC 56 8B F1 8A 86 01 01 00 00 3C 06 74 07 C6 86 C9 03 00 00 01 0F B6 C0 83 C0 FE 83 F8 0B 77 17 0F B6 80 ? ? ? ? FF 24 85 ? ? ? ? C6 86 CF", nullptr, 0 },
@@ -222,9 +261,47 @@ const DecompEntry kDecompEntries[] = {
     { "cEm10::ckWeapon", 0x00439EB0u, reinterpret_cast<void*>(&DecompWrap_cEm10_ckWeapon), "33 C0 39 81 10 06 00 00 0F 95 C0 C3", nullptr, 0 },
     { "cEm10::ckTakeAway", 0x00439EC0u, reinterpret_cast<void*>(&DecompWrap_cEm10_ckTakeAway), "8B 81 B0 04 00 00 C1 E8 0E 83 E0 01 C3", nullptr, 0 },
     { "cEm10::ckR305BomberEnable", 0x00439ED0u, reinterpret_cast<void*>(&DecompWrap_cEm10_ckR305BomberEnable), "B0 01 38 81 FC 00 00 00 74 03 33 C0 C3 80 B9 FD 00 00 00 6A 75 F4 33 D2 38 81 FE 00 00 00 0F 94 C2 8B C2 C3", nullptr, 0 },
+    { "em10_R1_R21BTrolleyJump", 0x0043C3E0u, reinterpret_cast<void*>(&DecompWrap_em10_R1_R21BTrolleyJump), "55 8B EC 56 8B 75 08 0F B6 86 FE 00 00 00 83 E8 00 74 10 48 74 1E 6A 00 E8 B3 1C FF FF 83 C4 04 5E 5D C3 6A 00 56 E8 45 5E FF FF 83 C4 08 FE 86 FE 00 00 00 E8 B7 CB FE FF F6 86 D0 03 00 00 01", nullptr, 0 },
+    { "em10_R1_R300TakeAshley", 0x0043D8A0u, reinterpret_cast<void*>(&DecompWrap_em10_R1_R300TakeAshley), "55 8B EC 56 8B 75 08 0F B6 86 FE 00 00 00 83 E8 00 74 10 48 74 47 6A 00 E8 F3 07 FF FF 83 C4 04 5E 5D C3 8B 86 80 03 00 00 D9 EE 8B 90 80 0A 00 00 6A 00 51 8B 88 98 0A 00 00 D9 1C 24 6A 05 6A", nullptr, 0 },
     { "cEm10::setEvtMotion", 0x00436230u, reinterpret_cast<void*>(&DecompWrap_cEm10_setEvtMotion), "55 8B EC 8B 45 08 8B 55 0C 89 81 14 07 00 00 8B 45 10 89 91 24 07 00 00 8B 55 14 89 81 18 07 00 00 89 91 28 07 00 00 5D C2 10 00", nullptr, 0 },
     { "cEm10::setGondolaMotion", 0x00436270u, reinterpret_cast<void*>(&DecompWrap_cEm10_setGondolaMotion), "55 8B EC 8B 45 08 8B 55 0C 89 81 14 07 00 00 8B 45 10 89 91 18 07 00 00 8B 55 14 89 81 1C 07 00 00 89 91 20 07 00 00 5D C2 10 00", nullptr, 0 },
     { "cEm10::setDrill", 0x004362D0u, reinterpret_cast<void*>(&DecompWrap_cEm10_setDrill), "55 8B EC 8B 45 08 8B 55 0C 89 81 14 07 00 00 8B 45 10 89 91 18 07 00 00 8B 55 14 89 81 B0 06 00 00 89 91 D0 04 00 00 5D C2 10 00", nullptr, 0 },
+    { "em10_R1_ClimbOver", 0x004681C0u, reinterpret_cast<void*>(&DecompWrap_em10_R1_ClimbOver), "55 8B EC 83 EC 40 A1 ? ? ? ? 33 C5 89 45 FC 56 8B 75 08 0F B6 86 FE 00 00 00 83 E8 00 57 74 0C 48 0F 84 86 00 00 00 E9 16 01 00 00 8B 86 80 03 00 00 D9 EE 8B 50 7C 6A 00 51 8B 88 80 00 00", nullptr, 0 },
+    { "cEm10::setGotoSwitch", 0x00433DA0u, reinterpret_cast<void*>(&DecompWrap_cEm10_setGotoSwitch), "55 8B EC 56 8B F1 F7 86 B0 04 00 00 00 40 00 00 0F 85 E7 00 00 00 8B 45 0C F7 D8 1B C0 83 C0 04 53 8B 5D 08 89 86 10 07 00 00 8B 45 10 57 8D BE 8C 04 00 00 85 C0 74 0F 8B 08 89 0F 8B 50 04 89", nullptr, 0 },
+    { "Em25Init", 0x0049EC20u, reinterpret_cast<void*>(&DecompWrap_Em25Init), "55 8B EC 56 8B 75 08 85 F6 74 0D 8B CE E8 28 3D F6 FF C7 06 ? ? ? ? 5E 5D C3", nullptr, 0 },
+    { "cEm25::move", 0x0049C960u, reinterpret_cast<void*>(&DecompWrap_cEm25_move), "53 56 8B F1 33 DB 38 9E FC 00 00 00 74 27 8B 86 64 06 00 00 3B C3 74 1D 8B 40 04 25 01 02 00 00 83 F8 01 74 10 89 9E 64 06 00 00 C7 86 FC 00 00 00 01 00 00 00 81 66 04 FF BF FF FF 81 A6 1C 02", nullptr, 0 },
+    { "em25_R1_Hide", 0x00499F30u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Hide), "55 8B EC 56 8B 75 08 0F B6 86 FE 00 00 00 83 E8 00 74 11 48 0F 85 D0 00 00 00 81 4E 04 00 40 00 00 5E 5D C3 D9 EE 8B 86 80 03 00 00 6A 00 51 8B 48 20 D9 1C 24 6A 05 6A 00 6A 00 03 C8 51 8D 96", nullptr, 0 },
+    { "em25_R1_Birth", 0x0049D090u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Birth), "55 8B EC 56 8B 75 08 0F B6 86 FE 00 00 00 83 E8 00 74 0A 48 0F 84 34 01 00 00 5E 5D C3 D9 E8 66 8B 86 26 03 00 00 83 4E 04 02 D9 96 AC 00 00 00 53 D9 96 B0 00 00 00 57 D9 96 B4 00 00 00 8D 8E", nullptr, 0 },
+    { "em25_R1_Wait", 0x0049A060u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Wait), "55 8B EC 53 56 8B 75 08 0F B6 86 FE 00 00 00 33 DB 2B C3 74 0C 48 0F 84 88 00 00 00 E9 28 01 00 00 D9 EE 8B 86 80 03 00 00 53 51 8B 48 64 D9 1C 24 6A 05 6A 05 53 03 C8 51 8D 96 D8 01 00 00 52", nullptr, 0 },
+    { "em25_R1_Walk", 0x0049A240u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Walk), "55 8B EC 53 56 8B 75 08 0F B6 86 FE 00 00 00 33 DB 2B C3 74 08 48 74 7A E9 42 01 00 00 8B 86 80 03 00 00 D9 EE 8B 50 68 53 51 8B 48 6C D9 1C 24 6A 05 6A 05 03 C8 51 03 D0 52 8D 86 D8 01 00 00", nullptr, 0 },
+    { "em25_R1_Run", 0x0049A430u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Run), "55 8B EC 53 56 8B 75 08 0F B6 86 FE 00 00 00 33 DB 2B C3 74 08 48 74 7B E9 43 01 00 00 8B 86 80 03 00 00 D9 EE 8B 50 70 53 51 8B 48 74 D9 1C 24 6A 05 6A 05 03 C8 51 03 D0 52 8D 86 D8 01 00 00", nullptr, 0 },
+    { "em25_R1_Turn90", 0x0049A620u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Turn90), "55 8B EC 53 56 8B 75 08 0F B6 86 FE 00 00 00 33 DB 2B C3 74 0C 48 0F 84 8C 00 00 00 E9 43 01 00 00 D9 05 ? ? ? ? A1 ? ? ? ? 83 EC 08 D9 5C 24 04 05 94 00 00 00 D9 86 A4 00 00 00 8D 8E", nullptr, 0 },
+    { "em25_R1_br_JumpAtk", 0x0049D260u, reinterpret_cast<void*>(&DecompWrap_em25_R1_br_JumpAtk), "55 8B EC 57 8B 7D 08 F6 87 8B 02 00 00 01 74 13 E8 DB E2 FF FF 85 C0 74 0A C7 87 FC 00 00 00 01 07 00 00 5F 5D C3", nullptr, 0 },
+    { "em25_R1_JumpAtk", 0x0049A820u, reinterpret_cast<void*>(&DecompWrap_em25_R1_JumpAtk), "55 8B EC 56 8B 75 08 0F B6 86 FE 00 00 00 83 E8 00 74 06 48 74 69 5E 5D C3 8B 86 80 03 00 00 D9 EE 8B 90 98 00 00 00 6A 00 51 8B 88 B8 00 00 00 D9 1C 24 6A 01 6A 05 03 C8 51 03 D0 52 8D 86 D8", nullptr, 0 },
+    { "em25_R1_Bite", 0x0049D290u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Bite), "55 8B EC 56 8B 75 08 C6 86 B4 07 00 00 02 0F B6 86 FE 00 00 00 83 F8 03 0F 87 E1 03 00 00 53 57 33 DB FF 24 85 ? ? ? ? D9 EE 8B 86 80 03 00 00 33 DB 53 51 8B 88 9C 00 00 00 D9 1C 24 6A 01", nullptr, 0 },
+    { "em25_R1_P_Appear", 0x0049D7E0u, reinterpret_cast<void*>(&DecompWrap_em25_R1_P_Appear), "55 8B EC D9 E8 56 8B 75 08 0F B6 86 FE 00 00 00 83 E8 00 74 0C 48 0F 84 99 00 00 00 DD D8 5E 5D C3 8B 86 80 03 00 00 DD D8 D9 EE 6A 00 51 D9 96 AC 00 00 00 D9 96 B0 00 00 00 D9 96 B4 00 00 00", nullptr, 0 },
+    { "em25_R1_P_Poison", 0x0049DEC0u, reinterpret_cast<void*>(&DecompWrap_em25_R1_P_Poison), "55 8B EC 56 8B 75 08 0F B6 86 FE 00 00 00 83 E8 00 74 06 48 74 3E 5E 5D C3 8B 86 80 03 00 00 D9 EE 8B 50 54 6A 00 51 8B 48 58 D9 1C 24 6A 01 6A 05 03 C8 51 03 D0 52 8D 86 D8 01 00 00 50 56 E8", nullptr, 0 },
+    { "em25_R1_Dm_Small", 0x0049AC70u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Dm_Small), "55 8B EC 56 8B 75 08 0F B6 86 FE 00 00 00 83 E8 00 74 06 48 74 68 5E 5D C3 D9 EE 8B 86 80 03 00 00 57 6A 00 51 8B 88 84 00 00 00 D9 1C 24 6A 01 6A 05 6A 00 03 C8 51 8D 96 D8 01 00 00 52 56 E8", nullptr, 0 },
+    { "em25_R1_Dm_Big", 0x0049AD30u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Dm_Big), "55 8B EC 56 8B 75 08 0F B6 86 FE 00 00 00 83 F8 03 0F 87 DE 00 00 00 FF 24 85 ? ? ? ? 8B 86 80 03 00 00 D9 EE 8B 90 A4 00 00 00 6A 00 51 8B 88 A8 00 00 00 D9 1C 24 6A 01 6A 05 03 C8 51 03", nullptr, 0 },
+    { "em25_R1_Dm_Frame", 0x0049AE80u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Dm_Frame), "55 8B EC 56 8B 75 08 0F B6 86 FE 00 00 00 83 F8 03 0F 87 4B 01 00 00 53 BB 01 00 00 00 FF 24 85 ? ? ? ? D9 EE 8B 86 80 03 00 00 6A 00 51 8B 88 A4 00 00 00 D9 1C 24 53 6A 05 6A 00 03 C8 51", nullptr, 0 },
+    { "em25_R1_Die_P_Normal", 0x0049E3B0u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Die_P_Normal), "55 8B EC 56 8B 75 08 0F B6 86 FE 00 00 00 83 E8 00 74 0A 48 0F 84 A5 00 00 00 5E 5D C3 D9 EE 8B 86 80 03 00 00 6A 00 51 8B 48 40 D9 1C 24 6A 01 6A 05 6A 00 03 C8 51 8D 96 D8 01 00 00 52 56 E8", nullptr, 0 },
+    { "em25_R1_Die_Normal", 0x0049E570u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Die_Normal), "55 8B EC 56 8B 75 08 0F B6 86 FE 00 00 00 83 E8 00 74 70 48 0F 84 1E 01 00 00 48 0F 85 65 01 00 00 D9 86 98 00 00 00 50 DC 25 ? ? ? ? 56 D9 9E 98 00 00 00 E8 4F 86 F6 FF D9 86 94 07 00 00", nullptr, 0 },
+    { "em25_R1_Die_Big", 0x0049E760u, reinterpret_cast<void*>(&DecompWrap_em25_R1_Die_Big), "55 8B EC 56 8B 75 08 0F B6 86 FE 00 00 00 83 E8 00 74 70 48 0F 84 25 01 00 00 48 0F 85 51 01 00 00 D9 86 98 00 00 00 50 DC 25 ? ? ? ? 56 D9 9E 98 00 00 00 E8 5F 84 F6 FF D9 86 94 07 00 00", nullptr, 0 },
+    { "cEm25::ckParent", 0x0049B300u, reinterpret_cast<void*>(&DecompWrap_cEm25_ckParent), "33 C0 39 81 64 06 00 00 0F 94 C0 C3", nullptr, 0 },
+    { "cEm25::setParent", 0x0049B310u, reinterpret_cast<void*>(&DecompWrap_cEm25_setParent), "55 8B EC 8B 45 08 D9 EE 8B 55 0C 89 81 64 06 00 00 8B 45 10 89 91 68 06 00 00 33 D2 56 3B C2 74 1C 8B 30 89 B1 94 00 00 00 8B 70 04 89 B1 98 00 00 00 8B 40 08 89 81 9C 00 00 00 EB 12 D9 91 94", nullptr, 0 },
+    { "cEm25::setGoOut", 0x0049B3F0u, reinterpret_cast<void*>(&DecompWrap_cEm25_setGoOut), "55 8B EC 33 C0 39 45 08 74 0E C7 81 FC 00 00 00 02 01 00 01 5D C2 04 00 C7 81 FC 00 00 00 02 01 00 00 5D C2 04 00", nullptr, 0 },
+    { "cEm25::setWait", 0x0049B420u, reinterpret_cast<void*>(&DecompWrap_cEm25_setWait), "C7 81 FC 00 00 00 01 09 00 00 C3", nullptr, 0 },
+    { "cEm25::setAtk", 0x0049B430u, reinterpret_cast<void*>(&DecompWrap_cEm25_setAtk), "32 C0 88 81 B6 07 00 00 C7 81 FC 00 00 00 01 0A 00 00 C3", nullptr, 0 },
+    { "cEm25::ckAtkHit", 0x0049B450u, reinterpret_cast<void*>(&DecompWrap_cEm25_ckAtkHit), "33 C0 38 81 B6 07 00 00 0F 95 C0 C3", nullptr, 0 },
+    { "cEm25::setPoison", 0x0049B460u, reinterpret_cast<void*>(&DecompWrap_cEm25_setPoison), "C7 81 FC 00 00 00 01 0B 00 00 C3", nullptr, 0 },
+    { "cEm25::ckAtkEnd", 0x0049B470u, reinterpret_cast<void*>(&DecompWrap_cEm25_ckAtkEnd), "0F B7 81 1A 02 00 00 C3", nullptr, 0 },
+    { "cEm25::ckDie", 0x0049B490u, reinterpret_cast<void*>(&DecompWrap_cEm25_ckDie), "33 C0 38 81 B5 07 00 00 0F 95 C0 C3", nullptr, 0 },
+    { "cEm25::setHide", 0x0049B4A0u, reinterpret_cast<void*>(&DecompWrap_cEm25_setHide), "83 61 04 FD 33 C0 66 89 81 24 03 00 00 89 81 64 06 00 00 88 81 B5 07 00 00 C7 81 FC 00 00 00 01 00 00 00 C3", nullptr, 0 },
+    { "cEm25::setBirth", 0x0049B4F0u, reinterpret_cast<void*>(&DecompWrap_cEm25_setBirth), "55 8B EC 56 57 8B 7D 08 57 8B F1 E8 49 67 F6 FF D9 45 0C 8B 07 89 86 10 01 00 00 8B 4F 04 89 8E 14 01 00 00 8B 57 08 D9 9E A4 00 00 00 5F 89 96 18 01 00 00 C7 86 FC 00 00 00 01 01 00 00 5E 5D", nullptr, 0 },
+    { "em25ClearParasite", 0x0049BE80u, reinterpret_cast<void*>(&DecompWrap_em25ClearParasite), "55 8B EC 53 8B 5D 08 F6 83 08 04 00 00 10 74 30 56 57 8D B3 80 07 00 00 BF 03 00 00 00 8D 49 00 8B 0E 85 C9 74 0B E8 0C DB F6 FF C7 06 00 00 00 00 83 C6 04 4F 75 E9 83 A3 08 04 00 00 EF 5F 5E", nullptr, 0 },
+    { "cEm25::ckAtkEnable", 0x0049C5C0u, reinterpret_cast<void*>(&DecompWrap_cEm25_ckAtkEnable), "33 C0 38 81 B7 07 00 00 0F 95 C0 C3", nullptr, 0 },
+    { "cEm25::setDamage", 0x0049C5D0u, reinterpret_cast<void*>(&DecompWrap_cEm25_setDamage), "C7 81 FC 00 00 00 02 00 00 00 C3", nullptr, 0 },
+    { "cEm25::ckLock", 0x0049C5E0u, reinterpret_cast<void*>(&DecompWrap_cEm25_ckLock), "55 8B EC 83 EC 0C 56 8B B1 64 06 00 00 85 F6 0F 84 C2 00 00 00 83 3D ? ? ? ? 00 0F 84 B5 00 00 00 A1 ? ? ? ? D9 86 98 00 00 00 D8 A0 98 00 00 00 51 D9 86 94 00 00 00 D8 A0 94 00 00 00", nullptr, 0 },
     { "cEtcTbl::Init", 0x00617840u, reinterpret_cast<void*>(&DecompWrap_cEtcTbl_Init), "33 C0 89 01 89 41 04 89 41 08 C3", nullptr, 0 },
     { "cEtcTbl::IsUse", 0x00617850u, reinterpret_cast<void*>(&DecompWrap_cEtcTbl_IsUse), "33 C0 83 39 01 0F 94 C0 C3", nullptr, 0 },
     { "cEtcTbl::RegistData", 0x00617880u, reinterpret_cast<void*>(&DecompWrap_cEtcTbl_RegistData), "55 8B EC 83 39 01 8B 45 08 75 20 0F B7 08 0F B7 50 02 51 52 68 ? ? ? ? 6A 00 6A 00 E8 BD 55 DF FF 83 C4 14 33 C0 5D C2 08 00 8B 55 0C 89 41 04 C7 01 01 00 00 00 89 51 08 B8 01 00 00 00 5D", nullptr, 0 },

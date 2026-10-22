@@ -42,4 +42,10 @@ extern "C" double __cdecl atan2(double y, double x);
 static inline f32 fabsf(f32 x) { return (f32) fabs(x); }
 static inline f32 atan2f(f32 y, f32 x) { return (f32) atan2(y, x); }
 
+// --- added by the em25 port ---
+#define VEC_DIST(a, b) SQRTF(((a)->x - (b)->x) * ((a)->x - (b)->x) + ((a)->y - (b)->y) * ((a)->y - (b)->y) + ((a)->z - (b)->z) * ((a)->z - (b)->z))
+extern "C" double __cdecl asin(double x);
+#pragma intrinsic(asin)
+static inline f32 asinf(f32 x) { return (f32) asin(x); }
+
 #endif

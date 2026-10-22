@@ -90,7 +90,22 @@ struct cAtariInfo {
     u8 pad_1C[0x4C - 0x1C];
 };
 
-class cModelInfo;
+class cModelData;
+
+// Model info of a model or part (game/model.cpp). Partial Steam layout;
+// model_addr confirmed by em10HandSet (0x0042E0B0).
+class cModelInfo {
+public:
+    u8 pad_00[0x0C];
+    cModelData* model_addr;  // 0x0C
+};
+
+// Model info pool (game/model.cpp `ModInfoMgr`).
+class cModInfoMgr {
+public:
+    DECOMP_METHOD(cModelInfo*, cModInfoMgr, create, (void* bin, void* tpl), (bin, tpl), 0x0065E780);
+};
+DECOMP_GLOBAL(cModInfoMgr, ModInfoMgr, 0x00C07150);
 
 class cModel {
 public:
@@ -170,6 +185,9 @@ public:
     u8 field_320[4];      // 0x320
 
     DECOMP_METHOD(cModel*, cModel, getPartsPtr, (int no), (no), 0x00402BE9);
+    // Replaces the info using `addr` by `info` (1 when found).
+    DECOMP_METHOD(int, cModel, swapModelInfo, (cModelData* addr, cModelInfo* info), (addr, info), 0x0065CA80);
+    DECOMP_METHOD(void, cModel, addModel, (cModelInfo* info), (info), 0x0065C5B0);
 };
 
 #define MOTION(m) (&(m)->Motion)
@@ -306,5 +324,139 @@ enum {
 
 DECOMP_FUNC(void, GameAddPoint, (int type), 0x0063AFA0);
 #define EFF_EM10 0x10
+
+// --- added by the em25 port ---
+// Enemy helpers of game/em_sub.cpp, em_set.cpp, at_mod.cpp, pl_sub.cpp and
+// the managers (GameCube prototypes; PC addresses read in the em25 calls).
+struct YARARE_INFO;
+struct EmAtkInfo;
+class cObj;
+class cObj16;
+struct VibDataTbl;
+
+static inline int EmDeadCk(cEm* em) { return em->dmg.m_Flag || em->dmg.m_Timer; }
+
+DECOMP_FUNC(int, LifeDownSet, (cEm* pEm, int dm_val, int rnd), 0x005BC3E0);
+DECOMP_FUNC(int, LifeDownSet2, (cEm* pEm, int dm_val, int rnd, int flag), 0x005B5AF0);
+DECOMP_FUNC(void, EmSetDieCnt, (cEm* pEm), 0x005B20B0);
+DECOMP_FUNC(void, EmSetDropItem, (cEm* pEm), 0x005BDFA0);
+DECOMP_FUNC(void, EmCatchPLSet, (cEm* em, f32 pl_dir, u32 mode, f32 x, f32 y, f32 z, void (*ft)(cPlayer*)),
+            0x005B6370);
+DECOMP_FUNC(int, EmCatchMotionMove, (cEm* pEm, f32 rot_rate, f32 pos_rate), 0x005B6C30);
+DECOMP_FUNC(void, EmDmBloodSet2, (cEm* pEm, u32 est_id, u32 type, u32 mode, u16 esp_core_flg, u32 core_kind),
+            0x005B3A20);
+DECOMP_FUNC(int, EmGetDmPos, (cEm* pEm, Vec* pPos, Vec* pAng), 0x005B2C70);
+DECOMP_FUNC(void, EmPlBloodSet2, (cModel* pEm, Vec* pos, u32 a, u8 eff_id, u8 type), 0x005B3E10);
+DECOMP_FUNC(void, EmSubBloodSet, (cEm* pEm, Vec* pPos, u32 type, u8 eff_id, u8 est_id), 0x005B3F30);
+DECOMP_FUNC(int, EmAtkHitCk, (EmAtkInfo* info, Vec* pPos, Vec* pPosOld, int noSub), 0x005BDE20);
+DECOMP_FUNC(void, EmAtCheck, (cModel* pMod), 0x0058DCA0);
+DECOMP_FUNC(int, ObjHitCheck, (Vec* ret_cross, Vec* ret_norm, Vec* pos0, Vec* pos1, u32 flag), 0x0058DA70);
+DECOMP_FUNC(int, RouteCkToPos, (cEm* em, Vec* target, Vec* out, int a, int b), 0x006B2950);
+DECOMP_FUNC(void, QuakeExec, (u8 id, u16 delay, s16 time, f32 power, u8 axis), 0x006AA9B0);
+DECOMP_FUNC(void, VibSetData, (VibDataTbl* t, u32 no, u32 type), 0x00965B00);
+DECOMP_FUNC(void, PlSetFace, (int type), 0x00682130);
+DECOMP_FUNC(void, PlGachaInit, (), 0x00680D60);
+DECOMP_FUNC(void, PlGachaMove, (), 0x00680D80);
+DECOMP_FUNC(int, PlGachaGet, (), 0x00680FA0);
+DECOMP_FUNC(void, EndPlDamage, (), 0x006811A0);
+DECOMP_FUNC(void, PlSetDamageSe, (int se_no), 0x00680FD0);
+DECOMP_FUNC(void, EffectEspDelete, (int a, int b, void* c, cModel* pMod), 0x00616570);
+DECOMP_FUNC(void, EffectEspgenDelete, (int Core_flg, int Core_kind, void* c), 0x00616030);
+DECOMP_FUNC(void, EffectEfmDelete, (int Core_flg, int Core_kind, void* c), 0x00616040);
+DECOMP_FUNC(cObj*, SetObj01, (void* bin, void* tpl, Vec* pos, Vec* rot, Vec* v, f32 a, f32 b, int c, int d),
+            0x00667780);
+DECOMP_FUNC(void, Obj01SetEst, (cObj* pObj, u32 eff, u32 est, u32 action, u32 eff2, u32 est2, u32 eff3, u32 est3,
+                                u32 eff4, u32 est4), 0x00666E30);
+DECOMP_FUNC(cObj*, SetObj08, (cModel* parent, void* bin, void* tpl, Vec* pos, Vec* rot, int flags, void* atk),
+            0x0066AA50);
+// PC order: life last (GameCube: obj, spd, life, grav, rad); em25SetPoison.
+DECOMP_FUNC(void, SetObj08Spd, (cObj* obj, Vec* spd, f32 grav, f32 rad, int life), 0x00669BC0);
+DECOMP_FUNC(void, SetObj08Est, (cObj* obj, int no0, int prm0, int no1, int prm1, int no2, int prm2, int no3,
+                                int prm3, u8 flag), 0x00669C90);
+DECOMP_FUNC(void, SetObj08Se, (cObj* obj, u16 blk, u16 no), 0x00669D30);
+DECOMP_FUNC(void, MotSetObj16, (cObj16* obj, void* mot, int a, int b), 0x00721870);
+DECOMP_FUNC(int, GetWepDmVal, (cEm* pEm, u32 wep_no, int near), 0x005B1A90);
+
+// Damage volumes (game/dmg.cpp): DMG_TYPE returned by cDmgMgr::hitCheck.
+enum DMG_TYPE {
+    DMG_TYPE_NO_HIT = 0,
+    DMG_TYPE_FIRE = 1,
+    DMG_TYPE_GRENADE_BLAST = 2,
+    DMG_TYPE_PUSH = 3,
+    DMG_TYPE_FLAME = 4,
+    DMG_TYPE_LAMP = 5,
+    DMG_TYPE_ENV_LIGHT = 6,
+    DMG_TYPE_ENV_FIRE = 7,
+    DMG_TYPE_GRENADE = 8,
+    DMG_TYPE_GIRL = 9
+};
+class cDmgMgr {
+public:
+    DECOMP_METHOD(int, cDmgMgr, hitCheck, (Vec* pPos, Vec* pFrom), (pPos, pFrom), 0x005A8B40);
+};
+DECOMP_GLOBAL(cDmgMgr, DmgMgr, 0x00BFC624);
+
+// Scenario (SatMgr) and object (EatMgr, a cSatMgr) collision managers.
+class cSatMgr {
+public:
+    DECOMP_METHOD(int, cSatMgr, hitCheck, (Vec* pos0, Vec* pos1, Vec* pCross, Vec* pNorm, int flag, int mask),
+                  (pos0, pos1, pCross, pNorm, flag, mask), 0x00594160);
+    DECOMP_METHOD(int, cSatMgr, check, (cModel* m, int flag), (m, flag), 0x00594FC0);
+    DECOMP_METHOD(int, cSatMgr, checkAir, (cModel* m, int mask), (m, mask), 0x00595090);
+    DECOMP_METHOD(f32, cSatMgr, getFloor, (Vec* pos, u32* ppNorm, f32 above_limit, f32 below_limit, int mask),
+                  (pos, ppNorm, above_limit, below_limit, mask), 0x00593E60);
+};
+DECOMP_GLOBAL(cSatMgr, SatMgr, 0x00BF9A7C);
+class cEatMgr : public cSatMgr {
+};
+DECOMP_GLOBAL(cEatMgr, EatMgr, 0x00BF9AA0);
+
+class cEmMgr {
+public:
+    // Virtual in the game (cEmMgr vtable slot 5); the global object is called directly.
+    DECOMP_METHOD(void, cEmMgr, destroy, (cEm* em), (em), 0x005AF570);
+};
+DECOMP_GLOBAL(cEmMgr, EmMgr, 0x00BFDB04);
+
+
+#define EFF_EM25 0x1D
+#define YAT_FLAG_ON 1
+// Motion archive of a model (GameCube em.h).
+#ifndef ARC
+#define ARC(no) PL_ARC_PTR(em->subArc, no)
+#endif
+#ifndef EM_ARC
+#define EM_ARC(w, no) PL_ARC_PTR((w)->subArc, no)
+#endif
+
+// Collision cylinder (cAtariInfo) and damage record methods, through
+// subclasses so the em.h structs stay unchanged.
+class cAtariInfoM : public cAtariInfo {
+public:
+    DECOMP_METHOD(void, cAtariInfoM, init,
+                  (f32 ox, f32 oy, f32 oz, f32 rs, f32 ro, f32 ra, f32 h, int pno, int flags, int hokan),
+                  (ox, oy, oz, rs, ro, ra, h, pno, flags, hokan), 0x00595340);
+    DECOMP_METHOD(void, cAtariInfoM, set, (int mode, f32 a, f32 b), (mode, a, b), 0x005953C0);
+    DECOMP_METHOD0(void, cAtariInfoM, move, 0x005955B0);
+    DECOMP_METHOD(void, cAtariInfoM, setPriority, (int pri), (pri), 0x005956C0);
+};
+#define ATARI(m) ((cAtariInfoM*) &(m)->atari)
+static inline void AtariOn(cAtariInfo* at, u16 b) { at->m_flag |= b; }
+static inline void AtariOff(cAtariInfo* at, u16 mask) { at->m_flag &= mask; }
+
+class cDmgInfoM : public cDmgInfo {
+public:
+    DECOMP_METHOD(void, cDmgInfoM, set, (int flag, int timer), (flag, timer), 0x005AEF70);
+};
+#define DMG(m) ((cDmgInfoM*) &(m)->dmg)
+
+DECOMP_FUNC(void, YarareInit, (cEm* em, f32 x, f32 y, f32 z, f32 r, f32 h, int parts, int flag), 0x0058B570);
+DECOMP_FUNC(void, YarareAdd, (cEm* em, YARARE_INFO* info, f32 x, f32 y, f32 z, f32 r, f32 h, int parts, int flag),
+            0x0058B660);
+
+// BEGIN em25 additions
+// PC: returns em != *(cEm**)0x00C67594 (the enemy whose route check runs this frame).
+DECOMP_FUNC(bool, RouteCkSkip, (cEm* em), 0x006B0F70);
+// END em25 additions
 
 #endif
